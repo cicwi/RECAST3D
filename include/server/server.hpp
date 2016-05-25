@@ -1,0 +1,3 @@
+namespace tomovis {
+class server {};
+}

@@ -22,16 +22,22 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(EXEC_NAME "tomovis")
 
 set(
-    SOURCE_NAMES
+    IMGUI_SOURCE_NAMES
     "../ext/imgui/imgui.cpp"
     "../ext/imgui/imgui_draw.cpp"
     "../ext/imgui/imgui_demo.cpp"
     "../ext/imgui/examples/opengl3_example/imgui_impl_glfw_gl3.cpp"
     "../ext/imgui/examples/libs/gl3w/GL/gl3w.c"
-    "../src/main.cpp"
 )
 
-MESSAGE(STATUS "GLFW_STATIC_LIBRARIES: " ${GLFW_STATIC_LIBRARIES})
+set(
+    SOURCE_NAMES
+    ${IMGUI_SOURCE_NAMES}
+    "../src/main.cpp"
+    "../src/graphics/window.cpp"
+)
+
+#MESSAGE(STATUS "GLFW_STATIC_LIBRARIES: " ${GLFW_STATIC_LIBRARIES})
 
 set(
     LIB_NAMES
