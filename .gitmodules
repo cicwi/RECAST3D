@@ -1,0 +1,9 @@
+[submodule "catch"]
+	path = ext/catch
+	url = https://github.com/philsquared/Catch
+[submodule "imgui"]
+	path = ext/imgui
+	url = https://github.com/ocornut/imgui
+[submodule "astra"]
+	path = ext/astra-toolbox
+	url = https://github.com/astra-toolbox/astra-toolbox
