@@ -1,8 +1,7 @@
 namespace tomovis {
-class window {
+class Window {
     public:
-      window(server_);
-    private:
-      server& server_;
+      Window();
 };
+
 } // namespace tomovis

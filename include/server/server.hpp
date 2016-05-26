@@ -1,3 +1,8 @@
 namespace tomovis {
-class server {};
+
+class Server {
+  public:
+    void start();
+};
+
 }

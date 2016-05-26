@@ -34,7 +34,10 @@ set(
     SOURCE_NAMES
     ${IMGUI_SOURCE_NAMES}
     "../src/main.cpp"
-    "../src/graphics/window.cpp"
+    "../src/scene.cpp"
+    "../src/server/server.cpp"
+    "../src/graphics/renderer.cpp"
+    "../src/graphics/interface/interface.cpp"
 )
 
 #MESSAGE(STATUS "GLFW_STATIC_LIBRARIES: " ${GLFW_STATIC_LIBRARIES})
