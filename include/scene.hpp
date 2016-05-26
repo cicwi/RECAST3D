@@ -13,6 +13,8 @@ class Scene : public RenderTarget {
 
     void render() override;
 
+    SceneObject& object() { return *object_; }
+
   private:
     SceneObject* object_;
 };

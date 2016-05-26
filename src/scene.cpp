@@ -1,11 +1,11 @@
 #include "scene.hpp"
-#include "graphics/scene_object.hpp"
+#include "graphics/scene_object_2d.hpp"
 
 
 namespace tomovis {
 
 Scene::Scene() {
-   object_ = new SceneObject;     
+   object_ = new SceneObject2D;     
 }
 
 Scene::~Scene() {

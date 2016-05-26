@@ -9,7 +9,7 @@
 namespace tomovis {
 
 SceneObject::SceneObject() {
-    static const GLfloat diamond[4][2] = {
+    static const GLfloat square[4][2] = {
         {-1.0, -1.0}, {-1.0, 1.0}, {1.0, 1.0}, {1.0, -1.0}};
 
     static const GLfloat colors[4][3] = {
@@ -21,7 +21,7 @@ SceneObject::SceneObject() {
     glGenBuffers(2, vbo_handle_);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_handle_[0]);
-    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), diamond, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), square, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
@@ -41,8 +41,11 @@ SceneObject::~SceneObject() {
 
 void SceneObject::draw() {
     program_->use();
+    GLint loc = glGetUniformLocation(program_->handle(), "size");
+    glUniform1f(loc, (1.0 / 20.0) * size_);
+
     glBindVertexArray(vao_handle_);
-    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, 100);  
+    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, 400);  
 }
 
 } // namespace tomovis

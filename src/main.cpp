@@ -4,6 +4,7 @@
 #include "server/server.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/interface/interface.hpp"
+#include "graphics/interface/scene_control.hpp"
 #include "scene.hpp"
 
 
@@ -21,6 +22,9 @@ int main() {
     // construct a scene
     tomovis::Scene scene;
     renderer.register_target(scene);
+
+    tomovis::SceneControl scene_control(scene);
+    interface.register_window(scene_control);
 
     // enter main loop
     renderer.main_loop();

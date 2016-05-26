@@ -16,10 +16,13 @@ class SceneObject {
 
     virtual void draw();
 
-  private:
+    float& size() { return size_; }
+
+  protected:
     GLuint vao_handle_;
     GLuint vbo_handle_[2];
     std::unique_ptr<ShaderProgram> program_;
+    float size_ = 1.0;
 };
 
 } // namespace tomovis

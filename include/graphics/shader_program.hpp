@@ -12,6 +12,7 @@ class ShaderProgram {
     ~ShaderProgram();
 
     void use();
+    GLuint handle() { return shader_program_; }
 
   private:
     GLuint shader_program_;
