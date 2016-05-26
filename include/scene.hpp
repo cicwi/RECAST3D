@@ -14,7 +14,7 @@ class Scene : public RenderTarget {
     void render() override;
 
   private:
-    SceneObject* object;
+    SceneObject* object_;
 };
 
 } // namespace tomovis

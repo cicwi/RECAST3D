@@ -36,6 +36,8 @@ set(
     "../src/main.cpp"
     "../src/scene.cpp"
     "../src/server/server.cpp"
+    "../src/graphics/scene_object.cpp"
+    "../src/graphics/shader_program.cpp"
     "../src/graphics/renderer.cpp"
     "../src/graphics/interface/interface.cpp"
 )
