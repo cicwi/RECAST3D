@@ -1,5 +1,6 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtx/transform.hpp>
 #include <stdio.h>
 
 #include "graphics/renderer.hpp"
@@ -41,8 +42,12 @@ void Renderer::main_loop() {
         glClearColor(0.2, 0.2, 0.2, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        float ratio = (float)display_h / (float)display_w;
+
+        auto window_matrix = glm::scale(glm::vec3(ratio, 1.0, 1.0));
+
         for (auto target : targets_) {
-            target->render();
+            target->render(window_matrix);
         }
 
         glfwSwapBuffers(window_);

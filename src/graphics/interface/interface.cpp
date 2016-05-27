@@ -17,6 +17,7 @@ Interface::Interface(GLFWwindow* window) {
     // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/Hack-Regular.ttf", 15.0f);
+    io.MouseDrawCursor = false;
 
     // prevent ini file
     io.IniFilename = "";
@@ -26,7 +27,7 @@ Interface::~Interface() {
     ImGui_ImplGlfwGL3_Shutdown();
 }
 
-void Interface::render() {;
+void Interface::render(glm::mat4) {;
     ImGui_ImplGlfwGL3_NewFrame();
 
     for (auto window : windows_) {

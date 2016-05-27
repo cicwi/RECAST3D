@@ -11,7 +11,7 @@ class Scene : public RenderTarget {
     Scene();
     ~Scene();
 
-    void render() override;
+    void render(glm::mat4 window_matrix) override;
 
     SceneObject& object() { return *object_; }
 

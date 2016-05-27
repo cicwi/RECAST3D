@@ -16,7 +16,7 @@ class Interface : public RenderTarget {
       Interface(GLFWwindow* window);
       ~Interface();
 
-      void render() override;
+      void render(glm::mat4) override;
 
       int z_priority() const override {
           return 10;

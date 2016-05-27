@@ -38,6 +38,7 @@ set(
     "../src/server/server.cpp"
     "../src/graphics/scene_object.cpp"
     "../src/graphics/scene_object_2d.cpp"
+    "../src/graphics/scene_camera_2d.cpp"
     "../src/graphics/shader_program.cpp"
     "../src/graphics/renderer.cpp"
     "../src/graphics/interface/scene_control.cpp"

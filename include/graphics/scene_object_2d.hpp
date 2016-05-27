@@ -5,15 +5,15 @@
 
 namespace tomovis {
 
-class SceneObject2D : public SceneObject {
+class SceneObject2d : public SceneObject {
   public:
-    SceneObject2D();
-    ~SceneObject2D();
+    SceneObject2d();
+    ~SceneObject2d();
 
-    void draw() override;
+    void draw(glm::mat4 window_matrix) override;
 
   private:
-    static constexpr int size_ = 20;
+    static constexpr int count_ = 20;
     GLuint texture_id_;
 };
 

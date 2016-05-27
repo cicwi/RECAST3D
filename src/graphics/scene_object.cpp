@@ -5,6 +5,7 @@
 #include "graphics/scene_object.hpp"
 #include "graphics/shader_program.hpp"
 
+#include "graphics/scene_camera.hpp"
 
 namespace tomovis {
 
@@ -37,15 +38,6 @@ SceneObject::SceneObject() {
 SceneObject::~SceneObject() {
     glDeleteVertexArrays(1, &vao_handle_);
     glDeleteBuffers(2, vbo_handle_);
-}
-
-void SceneObject::draw() {
-    program_->use();
-    GLint loc = glGetUniformLocation(program_->handle(), "size");
-    glUniform1f(loc, (1.0 / 20.0) * size_);
-
-    glBindVertexArray(vao_handle_);
-    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, 400);  
 }
 
 } // namespace tomovis
