@@ -12,7 +12,9 @@
 
 int main() {
     tomovis::Renderer renderer;
+
     auto& input = tomovis::Input::instance(renderer.window());
+    renderer.register_ticker(input);
 
     // start server
     tomovis::Server server;

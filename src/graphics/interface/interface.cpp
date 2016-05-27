@@ -67,4 +67,9 @@ bool Interface::handle_char(unsigned int c) {
     return io.WantCaptureKeyboard;
 }
 
+bool Interface::handle_mouse_moved(float x, float y) {
+    auto io = ImGui::GetIO();
+    return io.WantCaptureMouse;
+}
+
 } // namespace tomovis

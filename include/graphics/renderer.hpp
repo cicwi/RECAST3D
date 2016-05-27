@@ -1,6 +1,8 @@
 #include <set>
+#include <vector>
 
 #include "graphics/render_target.hpp"
+#include "ticker.hpp"
 
 
 struct GLFWwindow;
@@ -14,6 +16,7 @@ class Renderer {
 
       void main_loop();
       void register_target(RenderTarget& target);
+      void register_ticker(Ticker& ticker);
 
       GLFWwindow* window() const { return window_; }
 
@@ -27,6 +30,7 @@ class Renderer {
     };
 
     std::set<RenderTarget*, RenderCompare> targets_;
+    std::vector<Ticker*> tickers_;
 };
 
 } // namespace tomovis

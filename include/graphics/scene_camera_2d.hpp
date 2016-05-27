@@ -16,11 +16,10 @@ class SceneCamera2d : public SceneCamera {
         return parameters_;
     }
 
-
     bool handle_mouse_button(int button, bool down) override;
     bool handle_scroll(double offset) override;
+    bool handle_mouse_moved(float x, float y) override;
     bool handle_key(int key, bool down, int mods) override;
-    bool handle_char(unsigned int c) override;
 
   private:
     glm::vec2 position_;
@@ -28,6 +27,9 @@ class SceneCamera2d : public SceneCamera {
 
     float angle_;
     float scale_;
+
+    float prev_x_ = -1.1;
+    float prev_y_ = -1.1;
 
     bool dragging_ = false;
 };

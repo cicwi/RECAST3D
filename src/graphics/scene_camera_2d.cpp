@@ -6,7 +6,7 @@
 
 namespace tomovis {
 
-SceneCamera2d::SceneCamera2d() {
+SceneCamera2d::SceneCamera2d() : angle_(0.0f) {
     parameters_.push_back({"angle", 0.0f, 2.0f * M_PI, &angle_});
     parameters_.push_back({"x", -1.0f, 1.0f, &position_.x});
     parameters_.push_back({"y", -1.0f, 1.0f, &position_.y});
@@ -30,11 +30,12 @@ glm::mat4 SceneCamera2d::matrix() {
 }
 
 bool SceneCamera2d::handle_mouse_button(int button, bool down) {
-    return false;
+    dragging_ = down;
+    return true;
 }
 
 bool SceneCamera2d::handle_scroll(double offset) {
-    scale_ -= offset / 20.0;
+    scale_ += offset / 20.0;
     return true;
 }
 
@@ -61,7 +62,29 @@ bool SceneCamera2d::handle_key(int key, bool down, int mods) {
     return false;
 }
 
-bool SceneCamera2d::handle_char(unsigned int c) {
+bool SceneCamera2d::handle_mouse_moved(float x, float y) {
+    if (prev_x_ < -1.0) {
+        prev_x_ = x;
+        prev_y_ = y;
+    }
+
+    // TODO: fix for screen ratio ratio
+    if (dragging_) {
+        auto dx = x - prev_x_;
+        auto dy = y - prev_y_;
+
+        position_.x += dx;
+        position_.y -= dy;
+
+        prev_x_ = x;
+        prev_y_ = y;
+
+        return true;
+    }
+
+    prev_x_ = x;
+    prev_y_ = y;
+
     return false;
 }
 

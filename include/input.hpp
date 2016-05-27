@@ -3,13 +3,14 @@
 #include <set>
 
 #include "input_handler.hpp"
+#include "ticker.hpp"
 
 
 struct GLFWwindow;
 
 namespace tomovis {
 
-class Input {
+class Input : public Ticker {
   public:
     static Input& instance(GLFWwindow* window) {
         static Input instance(window);
@@ -22,6 +23,8 @@ class Input {
     static void scroll_callback(GLFWwindow*, double, double yoffset);
     static void key_callback(GLFWwindow*, int key, int, int action, int mods);
     static void char_callback(GLFWwindow*, unsigned int c);
+
+    void tick(float time_elapsed) override;
 
   private:
     Input(GLFWwindow* window);
@@ -37,6 +40,8 @@ class Input {
     };
 
     std::set<InputHandler*, InputCompare> handlers_;
+
+    GLFWwindow* window_;
 };
 
 } // namespace tomovis

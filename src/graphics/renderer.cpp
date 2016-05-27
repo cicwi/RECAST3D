@@ -34,6 +34,12 @@ void Renderer::main_loop() {
     while (!glfwWindowShouldClose(window_)) {
         glfwPollEvents();
 
+        auto time_elapsed = 0.1f;
+
+        for (auto ticker : tickers_) {
+           ticker->tick(time_elapsed);
+        }
+
         // Rendering
         int display_w, display_h;
         glfwGetFramebufferSize(window_, &display_w, &display_h);
@@ -56,6 +62,10 @@ void Renderer::main_loop() {
 
 void Renderer::register_target(RenderTarget& target) {
     targets_.insert(&target);
+}
+
+void Renderer::register_ticker(Ticker& ticker) {
+    tickers_.push_back(&ticker);
 }
 
 } // namespace tomovis

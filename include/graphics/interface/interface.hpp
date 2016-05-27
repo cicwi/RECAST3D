@@ -29,6 +29,7 @@ class Interface : public RenderTarget, public InputHandler {
       bool handle_scroll(double offset) override;
       bool handle_key(int key, bool down, int mods) override;
       bool handle_char(unsigned int c) override;
+      bool handle_mouse_moved(float x, float y) override;
 
       int priority() const override { return 1; }
 
