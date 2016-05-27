@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "graphics/render_target.hpp"
+#include "input_handler.hpp"
 
 
 struct GLFWwindow;
@@ -11,7 +12,7 @@ namespace tomovis {
 
 class Window;
 
-class Interface : public RenderTarget {
+class Interface : public RenderTarget, public InputHandler {
   public:
       Interface(GLFWwindow* window);
       ~Interface();
@@ -23,6 +24,13 @@ class Interface : public RenderTarget {
       }
 
       void register_window(Window& window);
+
+      bool handle_mouse_button(int button, bool down) override;
+      bool handle_scroll(double offset) override;
+      bool handle_key(int key, bool down, int mods) override;
+      bool handle_char(unsigned int c) override;
+
+      int priority() const override { return 1; }
 
   private:
     std::vector<Window*> windows_;

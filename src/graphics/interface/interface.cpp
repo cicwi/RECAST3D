@@ -11,7 +11,7 @@ namespace tomovis {
 
 Interface::Interface(GLFWwindow* window) {
     // Setup ImGui binding
-    ImGui_ImplGlfwGL3_Init(window, true);
+    ImGui_ImplGlfwGL3_Init(window, false);
 
     // Load Fonts
     // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
@@ -39,6 +39,32 @@ void Interface::render(glm::mat4) {;
 
 void Interface::register_window(Window& window) {
     windows_.push_back(&window);
+}
+
+bool Interface::handle_mouse_button(int button, bool down) {
+    ImGui_ImplGlfwGL3_MouseButtonCallback(nullptr, button,
+                                          down ? GLFW_PRESS : GLFW_RELEASE, 0);
+    auto io = ImGui::GetIO();
+    return io.WantCaptureMouse;
+}
+
+bool Interface::handle_scroll(double offset) {
+    ImGui_ImplGlfwGL3_ScrollCallback(nullptr, 0.0, offset);
+    auto io = ImGui::GetIO();
+    return io.WantCaptureMouse;
+}
+
+bool Interface::handle_key(int key, bool down, int mods) {
+    ImGui_ImplGlfwGL3_KeyCallback(nullptr, key, 0,
+                                  down ? GLFW_PRESS : GLFW_RELEASE, 0);
+    auto io = ImGui::GetIO();
+    return io.WantCaptureKeyboard;
+}
+
+bool Interface::handle_char(unsigned int c) {
+    ImGui_ImplGlfwGL3_CharCallback(nullptr, c);
+    auto io = ImGui::GetIO();
+    return io.WantCaptureKeyboard;
 }
 
 } // namespace tomovis
