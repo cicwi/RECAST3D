@@ -36,6 +36,7 @@ set(
     "../src/main.cpp"
     "../src/input.cpp"
     "../src/scene.cpp"
+    "../src/scene_list.cpp"
     "../src/server/server.cpp"
     "../src/graphics/scene_object.cpp"
     "../src/graphics/scene_object_2d.cpp"
@@ -43,6 +44,7 @@ set(
     "../src/graphics/shader_program.cpp"
     "../src/graphics/renderer.cpp"
     "../src/graphics/interface/scene_control.cpp"
+    "../src/graphics/interface/scene_switcher.cpp"
     "../src/graphics/interface/window.cpp"
     "../src/graphics/interface/interface.cpp"
 )

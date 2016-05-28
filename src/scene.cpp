@@ -4,7 +4,7 @@
 
 namespace tomovis {
 
-Scene::Scene() {
+Scene::Scene(std::string name) : name_(name) {
    object_ = new SceneObject2d;     
 }
 

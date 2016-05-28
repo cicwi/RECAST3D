@@ -1,9 +1,12 @@
+#include <stdio.h>
+#include <algorithm>
+
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtx/transform.hpp>
-#include <stdio.h>
 
 #include "graphics/renderer.hpp"
+
 
 namespace tomovis {
 
@@ -59,13 +62,20 @@ void Renderer::main_loop() {
     }
 }
 
-
 void Renderer::register_target(RenderTarget& target) {
     targets_.insert(&target);
 }
 
 void Renderer::register_ticker(Ticker& ticker) {
     tickers_.push_back(&ticker);
+}
+
+void Renderer::unregister_target(RenderTarget& target) {
+    targets_.erase(std::find(targets_.begin(), targets_.end(), &target));
+}
+
+void Renderer::unregister_ticker(Ticker& ticker) {
+    tickers_.erase(std::find(tickers_.begin(), tickers_.end(), &ticker));
 }
 
 } // namespace tomovis

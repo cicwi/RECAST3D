@@ -5,17 +5,17 @@
 
 namespace tomovis {
 
-class Scene;
+class SceneList;
 
 class SceneControl : public Window {
   public:
-    SceneControl(Scene& scene);
+    SceneControl(SceneList& scenes);
     ~SceneControl();
 
     void describe() override;
 
   private:
-    Scene& scene_;
+    SceneList& scenes_;
 };
 
 } // namespace tomovis

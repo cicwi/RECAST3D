@@ -18,6 +18,7 @@ class Input : public Ticker {
     }
 
     void register_handler(InputHandler& handler);
+    void unregister_handler(InputHandler& handler);
 
     static void mouse_button_callback(GLFWwindow*, int button, int action, int);
     static void scroll_callback(GLFWwindow*, double, double yoffset);

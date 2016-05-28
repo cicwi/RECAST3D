@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "input.hpp"
 #include "input_handler.hpp"
 
@@ -50,7 +52,7 @@ void Input::tick(float time_elapsed) {
     int w = 0;
     int h = 0;
     glfwGetWindowSize(window_, &w, &h);
-    mouse_x = 2.0 * (mouse_x / w) - 1.0;
+    mouse_x = (2.0 * (mouse_x / w) - 1.0) * ((float)w / h);
     mouse_y = 2.0 * (mouse_y / h) - 1.0;
 
     for (auto& handler : instance(window_).handlers_) {
@@ -61,6 +63,10 @@ void Input::tick(float time_elapsed) {
 
 void Input::register_handler(InputHandler& handler) {
     handlers_.insert(&handler);
+}
+
+void Input::unregister_handler(InputHandler& handler) {
+    handlers_.erase(std::find(handlers_.begin(), handlers_.end(), &handler));
 }
 
 } // namespace tomovis

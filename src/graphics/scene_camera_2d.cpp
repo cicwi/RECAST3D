@@ -55,6 +55,12 @@ bool SceneCamera2d::handle_key(int key, bool down, int mods) {
             case GLFW_KEY_J:
                 position_.y -= offset;
                 return true;
+            case GLFW_KEY_EQUAL:
+                scale_ *= 1.1f;
+                return true;
+            case GLFW_KEY_MINUS:
+                scale_ /= 1.1f;
+                return true;
             default:
                 break;
         }
@@ -63,7 +69,7 @@ bool SceneCamera2d::handle_key(int key, bool down, int mods) {
 }
 
 bool SceneCamera2d::handle_mouse_moved(float x, float y) {
-    if (prev_x_ < -1.0) {
+    if (prev_y_ < -1.0) {
         prev_x_ = x;
         prev_y_ = y;
     }
