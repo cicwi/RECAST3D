@@ -26,6 +26,7 @@ Renderer::Renderer() {
 
     window_ = glfwCreateWindow(1280, 720, "TomoVis", NULL, NULL);
     glfwMakeContextCurrent(window_);
+
     gl3wInit();
 }
 

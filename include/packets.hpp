@@ -1,21 +1,3 @@
-// TODO: we want some 'server system' that supports a number of operations:
-// - Adding a scene,
-// - Updating images / slices.
-// - Benchmark data?
-//
-// I guess we want to use OpenMQ for this. Do we want two-way communication or
-// just 'fire'? The nice thing about 'two-way' is that this 'slice
-// reconstruction' thing can also be done. At first simply only 'sending' the
-// appropriate slice, but later restricting construction only to the request.
-
-#include <cstring>
-#include <memory>
-#include <queue>
-#include <thread>
-
-#include "ticker.hpp"
-#include "serialize.hpp"
-
 namespace tomovis {
 
 enum class packet_desc : int {
@@ -39,7 +21,8 @@ class Packet {
 class MakeScenePacket : public Packet {
    public:
     MakeScenePacket() : Packet(packet_desc::make_scene) {}
-    MakeScenePacket(std::string name_) : Packet(packet_desc::make_scene), name(name_) {}
+    MakeScenePacket(std::string name_)
+        : Packet(packet_desc::make_scene), name(name_) {}
 
     std::size_t size() {
         scale total;
@@ -69,22 +52,36 @@ class MakeScenePacket : public Packet {
     int scene_id;
 };
 
-class SceneList;
-
-class Server : public Ticker {
+class UpdateImagePacket : public Packet {
    public:
-    Server(SceneList& scenes) : scenes_(scenes) {}
+    UpdateImagePacket() : Packet(packet_desc::update_image) {}
 
-    void start();
-    void tick(float) override;
+    std::size_t size() {
+        scale total;
+        fill(total);
+        return total.size;
+    }
 
-   private:
-    /** The server should have access to the list of scenes, to obtain the
-     * correct one, or add a new one. */ SceneList& scenes_;
-    std::thread server_thread;
+    memory_buffer serialize() override {
+        auto result = memory_buffer(size());
+        fill(result);
+        return result;
+    }
 
-    /** Filled by server thread, performed by 'OpenGL' tread */
-    std::queue<std::unique_ptr<Packet>> packets_;
+    // merge this and deserialize?
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer << this->desc;
+        buffer << name;
+    }
+
+    void deserialize(memory_buffer buffer) override {
+        buffer >> this->desc;
+        buffer >> name;
+    }
+
+    int scene_id;
+    std::vector<float> data;
 };
 
-} // namespace tomovis
+}  // namespace tomovis

@@ -25,11 +25,11 @@ class SceneCamera2d : public SceneCamera {
     glm::vec2 position_;
     std::vector<parameter<float>> parameters_;
 
-    float angle_;
-    float scale_;
+    float angle_ = 0.0f;
+    float scale_ = 0.5f;
 
-    float prev_x_ = -1.1;
-    float prev_y_ = -1.1;
+    float prev_x_ = -1.1f;
+    float prev_y_ = -1.1f;
 
     bool dragging_ = false;
 };

@@ -6,12 +6,11 @@
 
 namespace tomovis {
 
-SceneCamera2d::SceneCamera2d() : angle_(0.0f) {
+SceneCamera2d::SceneCamera2d() {
     parameters_.push_back({"angle", 0.0f, 2.0f * M_PI, &angle_});
     parameters_.push_back({"x", -1.0f, 1.0f, &position_.x});
     parameters_.push_back({"y", -1.0f, 1.0f, &position_.y});
     parameters_.push_back({"scale", 0.0f, 1.0f, &scale_});
-    scale_ = 1.0f;
 }
 
 glm::mat4 SceneCamera2d::matrix() {

@@ -3,9 +3,14 @@ include(FindPkgConfig)
 
 project(tomovis)
 
+add_subdirectory("../ext/glfw" "../ext/glfw")
+
 include_directories(
     "../include"
     "../ext/imgui/"
+    "../ext/cppzmq/"
+    "../ext/zmq/include/"
+    "../ext/glfw/include/"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
 )
@@ -13,8 +18,6 @@ include_directories(
 # link_directories(
 #     "../ext/submodule/lib"
 # )
-
-pkg_check_modules(GLFW glfw3)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wfatal-errors -Wextra -g -O3")
 
@@ -49,12 +52,21 @@ set(
     "../src/graphics/interface/interface.cpp"
 )
 
-#MESSAGE(STATUS "GLFW_STATIC_LIBRARIES: " ${GLFW_STATIC_LIBRARIES})
+set(
+    EXAMPLE_NAME
+    "../examples/client.cpp"
+)
+
+
+
+link_directories("../ext/zmq/lib")
 
 set(
     LIB_NAMES
     "GL"
-    ${GLFW_STATIC_LIBRARIES}
+    "zmq"
+    "pthread"
+    "boost_serialization"
 )
 
 ## multiple binaries:
@@ -65,6 +77,9 @@ set(
 # endforeach(source_file)
 
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})
-target_link_libraries(${EXEC_NAME} ${LIB_NAMES} )
+target_link_libraries(${EXEC_NAME} ${LIB_NAMES} glfw)
+
+add_executable(client ${EXAMPLE_NAME})
+target_link_libraries(client "zmq" "pthread")
 
 add_subdirectory(../test/build ../test/build)

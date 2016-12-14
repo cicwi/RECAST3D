@@ -32,7 +32,7 @@ void SceneSwitcher::describe() {
 
                 int i = 0;
                 for (auto& scene : scenes_.scenes()) {
-                    if (ImGui::MenuItem(scene.get()->name().c_str(), nullptr,
+                    if (ImGui::MenuItem(scene.second.get()->name().c_str(), nullptr,
                                         i == scenes_.active_scene_index())) {
                         scenes_.set_active_scene(i);
                     }

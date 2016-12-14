@@ -18,10 +18,6 @@ int main() {
     auto& input = tomovis::Input::instance(renderer.window());
     renderer.register_ticker(input);
 
-    // start server
-    tomovis::Server server;
-    server.start();
-
     // construct interface
     tomovis::Interface interface(renderer.window());
     renderer.register_target(interface);
@@ -38,6 +34,11 @@ int main() {
 
     tomovis::SceneControl scene_control(scenes);
     interface.register_window(scene_control);
+
+    // start the server
+    tomovis::Server server(scenes);
+    server.start();
+    renderer.register_ticker(server);
 
     // enter main loop
     renderer.main_loop();

@@ -1,9 +1,8 @@
 #include <memory>
 
-#include "scene_list.hpp"
-#include "scene.hpp"
 #include "graphics/scene_camera.hpp"
-
+#include "scene.hpp"
+#include "scene_list.hpp"
 
 namespace tomovis {
 
@@ -11,26 +10,32 @@ SceneList::SceneList() {}
 
 SceneList::~SceneList() {}
 
-int SceneList::add_scene(std::string name) {
-    scenes_.push_back(std::make_unique<Scene>(name));
-    if (!active_scene_) {
-        active_scene_ = scenes_.back().get();
-        active_scene_index_ = scenes_.size() - 1;
+// TODO make thread safe
+int SceneList::add_scene(std::string name, int id, bool make_active) {
+    if (id == -1) {
+        id = reserve_id();
     }
-    return scenes_.size() - 1;
+
+    scenes_[id] = std::make_unique<Scene>(name);
+    if (make_active)
+        set_active_scene(id);
+
+    return id;
 }
 
+// TODO make thread safe
+int SceneList::reserve_id() { return give_away_id_++; }
+
 void SceneList::delete_scene(int index) {
-    scenes_.erase(scenes_.begin() + index);
-    int scene_count = scenes_.size();
-    if (active_scene_index_ > index) {
-        active_scene_index_ -= 1;
-    } else if (active_scene_index_ == scene_count) {
-        active_scene_index_ -= 1;
-    } if (scenes_.empty()) {
-        active_scene_ = nullptr;
-    } else {
-        active_scene_ = scenes_[active_scene_index_].get();
+    scenes_.erase(scenes_.find(index));
+    if (active_scene_index_ == index) {
+        if (scenes_.empty()) {
+            active_scene_index_ = -1;
+            active_scene_ = nullptr;
+        } else {
+            active_scene_index_ = scenes_.begin()->first;
+            active_scene_ = scenes_[active_scene_index_].get();
+        }
     }
 }
 
@@ -40,13 +45,13 @@ void SceneList::set_active_scene(int index) {
 }
 
 void SceneList::render(glm::mat4 window_matrix) {
-    if (active_scene_)
-        active_scene_->render(window_matrix);
+    if (active_scene_) active_scene_->render(window_matrix);
 }
 
 bool SceneList::handle_mouse_button(int button, bool down) {
     if (active_scene_)
-        return active_scene_->object().camera().handle_mouse_button(button, down);
+        return active_scene_->object().camera().handle_mouse_button(button,
+                                                                    down);
     return false;
 }
 
@@ -68,4 +73,4 @@ bool SceneList::handle_key(int key, bool down, int mods) {
     return false;
 }
 
-} // namespace tomovis
+}  // namespace tomovis
