@@ -17,18 +17,25 @@ int main() {
     std::cout << "Connecting to plot server…" << std::endl;
     socket.connect("tcp://localhost:5555");
 
-
-    auto packet = MakeScenePacket("Testerrr");
-
-    auto size = packet.size();
-    zmq::message_t request(size);
-    memcpy(request.data(), &packet.serialize().buffer[0], size);
-    socket.send(request);
+    auto packet = MakeScenePacket("Test");
+    packet.send(socket);
 
     //  Get the reply.
     zmq::message_t reply;
     socket.recv(&reply);
-    std::cout << *((int*)reply.data()) << "\n";
+
+    int scene_id = *(int*)reply.data();
+    std::cout << scene_id << "\n";
+
+    std::vector<unsigned char> grayscale_image(20 * 20);
+    for (auto& pixel : grayscale_image) {
+        pixel = rand() % 256;
+    }
+
+    auto upd_packet = UpdateImagePacket(scene_id, {20, 20}, std::move(grayscale_image));
+    upd_packet.send(socket);
+
+    socket.recv(&reply);
 
     return 0;
 }

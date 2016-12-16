@@ -4,7 +4,6 @@
 #include "graphics/render_target.hpp"
 #include "ticker.hpp"
 
-
 struct GLFWwindow;
 
 namespace tomovis {

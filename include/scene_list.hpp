@@ -2,6 +2,7 @@
 
 #include <map>
 #include <memory>
+#include <iostream>
 
 #include <glm/glm.hpp>
 
@@ -18,13 +19,22 @@ class SceneList : public RenderTarget, public InputHandler {
     SceneList();
     ~SceneList();
 
-    int add_scene(std::string name, int id = 1, bool make_active = false);
+    int add_scene(std::string name, int id = -1, bool make_active = false);
     void delete_scene(int index);
     void set_active_scene(int index);
     int reserve_id();
 
     auto& scenes() { return scenes_; }
     Scene* active_scene() const { return active_scene_; }
+
+    Scene* get_scene(int scene_id) {
+        if (scenes_.find(scene_id) == scenes_.end()) {
+            std::cout << "Scene " << scene_id << " does not exist";
+            return nullptr;
+        }
+        return scenes_[scene_id].get();
+    }
+
     int active_scene_index() const { return active_scene_index_; }
 
     void render(glm::mat4 window_matrix) override;

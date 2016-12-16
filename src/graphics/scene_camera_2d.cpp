@@ -1,8 +1,7 @@
 #include "graphics/scene_camera_2d.hpp"
 
-#include <glm/gtx/transform.hpp>
 #include <GLFW/glfw3.h>
-
+#include <glm/gtx/transform.hpp>
 
 namespace tomovis {
 
@@ -11,6 +10,7 @@ SceneCamera2d::SceneCamera2d() {
     parameters_.push_back({"x", -1.0f, 1.0f, &position_.x});
     parameters_.push_back({"y", -1.0f, 1.0f, &position_.y});
     parameters_.push_back({"scale", 0.0f, 1.0f, &scale_});
+
 }
 
 glm::mat4 SceneCamera2d::matrix() {
@@ -22,8 +22,7 @@ glm::mat4 SceneCamera2d::matrix() {
     camera_matrix =
         glm::rotate(angle_, glm::vec3(0.0f, 0.0f, 1.0f)) * camera_matrix;
 
-    camera_matrix =
-        glm::translate(glm::vec3(position_, 0.0f)) * camera_matrix;
+    camera_matrix = glm::translate(glm::vec3(position_, 0.0f)) * camera_matrix;
 
     return camera_matrix;
 }
@@ -41,7 +40,7 @@ bool SceneCamera2d::handle_scroll(double offset) {
 bool SceneCamera2d::handle_key(int key, bool down, int mods) {
     float offset = 0.05f;
     if (down) {
-        switch(key) {
+        switch (key) {
             case GLFW_KEY_H:
                 position_.x -= offset;
                 return true;
@@ -93,4 +92,4 @@ bool SceneCamera2d::handle_mouse_moved(float x, float y) {
     return false;
 }
 
-} // namespace tomovis
+}  // namespace tomovis

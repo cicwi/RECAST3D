@@ -30,13 +30,12 @@ void SceneSwitcher::describe() {
 
                 ImGui::Separator();
 
-                int i = 0;
                 for (auto& scene : scenes_.scenes()) {
+                    int index = scene.first;
                     if (ImGui::MenuItem(scene.second.get()->name().c_str(), nullptr,
-                                        i == scenes_.active_scene_index())) {
-                        scenes_.set_active_scene(i);
+                                        index == scenes_.active_scene_index())) {
+                        scenes_.set_active_scene(index);
                     }
-                    ++i;
                 }
             }
 
@@ -67,9 +66,12 @@ void SceneSwitcher::next_scene() {
     if (scenes_.scenes().empty())
         return;
 
-    int next_scene =
-        (scenes_.active_scene_index() + 1) % scenes_.scenes().size();
-    scenes_.set_active_scene(next_scene);
+    auto active_scene_it = scenes_.scenes().find(scenes_.active_scene_index());
+    ++active_scene_it;
+    if(active_scene_it == scenes_.scenes().end())
+        active_scene_it = scenes_.scenes().begin();
+
+    scenes_.set_active_scene((*active_scene_it).first);
 }
 
 void SceneSwitcher::add_scene() {

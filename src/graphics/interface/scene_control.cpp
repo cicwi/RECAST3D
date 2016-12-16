@@ -32,7 +32,7 @@ void SceneControl::describe() {
     }
 
     if(ImGui::CollapsingHeader("image")) {
-        ImGui::SliderFloat("pixel size", &scene.object().size(), 0.1f, 1.0f);
+        ImGui::SliderFloat("pixel size", &scene.object().pixel_size(), 0.1f, 1.0f);
     }
 
     if (ImGui::CollapsingHeader("camera")) {

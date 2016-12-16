@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstring>
 
 namespace tomovis {
@@ -6,12 +8,17 @@ struct scale {
     std::size_t size = 0;
 
     template <typename T>
-    void operator<<(T&) {
+    void operator|(T&) {
         size += sizeof(T);
     }
 
-    void operator<<(std::string& str) {
+    void operator|(std::string& str) {
         size += (str.size() + 1) * sizeof(char);
+    }
+
+    template <typename T>
+    void operator|(std::vector<T>& xs) {
+        size += sizeof(int) + xs.size() * sizeof(T);
     }
 };
 
@@ -33,17 +40,14 @@ struct memory_buffer {
         index += sizeof(T);
     }
 
-    // fix for string
     template <typename T>
     void operator>>(T& value) {
         memcpy(&value, buffer.get() + index, sizeof(T));
         index += sizeof(T);
     }
 
-    // fix for string
     void operator<<(std::string& str) {
-        for (auto c : str)
-            (*this) << c;
+        for (auto c : str) (*this) << c;
         (*this) << '\0';
     }
 
@@ -51,6 +55,23 @@ struct memory_buffer {
         str = std::string(buffer.get() + index);
         index += (str.size() + 1) * sizeof(char);
     }
+
+    template <typename T>
+    void operator<<(std::vector<T>& xs) {
+        (*this) << (int)xs.size();
+        for (auto x : xs) {
+            (*this) << x;
+        }
+    }
+
+    template <typename T>
+    void operator>>(std::vector<T>& xs) {
+        int size = 0;
+        (*this) >> size;
+        xs.resize(size);
+        memcpy(xs.data(), buffer.get() + index, sizeof(T) * size);
+        index += size * sizeof(T);
+    }
 };
 
-} // namespace tomovis
+}  // namespace tomovis

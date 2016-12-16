@@ -12,8 +12,10 @@ class SceneObject2d : public SceneObject {
 
     void draw(glm::mat4 window_matrix) override;
 
+  protected:
+    void update_image_() override;
+
   private:
-    static constexpr int count_ = 20;
     GLuint texture_id_;
 };
 

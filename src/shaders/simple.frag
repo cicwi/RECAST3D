@@ -1,7 +1,11 @@
 #version 150
 
-in vec4 out_color;
+in vec2 tex_coord;
+
+uniform sampler2D texture_sampler;
+uniform sampler1D colormap_sampler;
 
 void main() {
-    gl_FragColor = out_color;
+    float value = texture(texture_sampler, tex_coord).x;
+    gl_FragColor = vec4(texture(colormap_sampler, value).xyz, 1.0f);
 }

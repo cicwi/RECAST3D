@@ -17,8 +17,7 @@ int SceneList::add_scene(std::string name, int id, bool make_active) {
     }
 
     scenes_[id] = std::make_unique<Scene>(name);
-    if (make_active)
-        set_active_scene(id);
+    if (make_active) set_active_scene(id);
 
     return id;
 }
