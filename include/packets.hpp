@@ -14,7 +14,7 @@ enum class packet_desc : int {
     // 2d or 3d, or dimensions
     // the scene_id will be returned
     make_scene,
-    update_image
+    update_image,
 };
 
 class Packet {

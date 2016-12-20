@@ -1,9 +1,9 @@
-tomovis
-============
+Pizza: take a slice
+===================
 
 Dependencies
 ============
 
-* Catch
-* imgui
-* ASTRA Toolbox
+* `dear imgui,`
+* `zmq` and `cppzmq`
+* `OpenGL`; in particular `glfw, gl3w`
