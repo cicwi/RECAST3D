@@ -20,7 +20,7 @@ class SceneObject {
     virtual void draw(glm::mat4 window_matrix) = 0;
 
     float& pixel_size() { return pixel_size_; }
-    SceneCamera& camera() { return *camera_; }
+    virtual SceneCamera& camera() { return *camera_; }
 
     virtual void set_data(std::vector<unsigned char>& data, int slice = 0) = 0;
     virtual void set_size(std::vector<int>& size, int slice = 0) = 0;
