@@ -11,12 +11,12 @@ SceneList::SceneList() {}
 SceneList::~SceneList() {}
 
 // TODO make thread safe
-int SceneList::add_scene(std::string name, int id, bool make_active) {
+int SceneList::add_scene(std::string name, int id, bool make_active, int dimension) {
     if (id == -1) {
         id = reserve_id();
     }
 
-    scenes_[id] = std::make_unique<Scene>(name);
+    scenes_[id] = std::make_unique<Scene>(name, dimension);
     if (make_active) set_active_scene(id);
 
     return id;

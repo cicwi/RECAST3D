@@ -14,7 +14,7 @@ enum class packet_desc : int {
     // 2d or 3d, or dimensions
     // the scene_id will be returned
     make_scene,
-    update_image,
+    slice_data,
 };
 
 class Packet {
@@ -91,40 +91,48 @@ class PacketBase : public Packet {
 
 class MakeScenePacket : public PacketBase<MakeScenePacket> {
    public:
-    MakeScenePacket(std::string name_ = "")
-        : PacketBase<MakeScenePacket>(packet_desc::make_scene), name(name_) {}
+    MakeScenePacket(std::string name_ = "", int dimension_ = 3)
+        : PacketBase<MakeScenePacket>(packet_desc::make_scene),
+          name(name_),
+          dimension(dimension_) {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
         buffer | name;
+        buffer | dimension;
     }
 
     std::string name;
+    int dimension;
+    std::vector<float> volume_geometry;
     int scene_id;
 };
 
-class UpdateImagePacket : public PacketBase<UpdateImagePacket> {
+class SliceDataPacket : public PacketBase<SliceDataPacket> {
    public:
-    UpdateImagePacket()
-        : PacketBase<UpdateImagePacket>(packet_desc::update_image),
-          scene_id(-1) {}
+    SliceDataPacket()
+        : PacketBase<SliceDataPacket>(packet_desc::slice_data),
+          scene_id(-1), slice_id(0) {}
 
-    UpdateImagePacket(int scene_id_, std::vector<int> image_size_,
+    SliceDataPacket(int scene_id_, int slice_id_, std::vector<int> slice_size_,
                       std::vector<unsigned char>&& data_)
-        : PacketBase<UpdateImagePacket>(packet_desc::update_image),
+        : PacketBase<SliceDataPacket>(packet_desc::slice_data),
           scene_id(scene_id_),
-          image_size(image_size_),
+          slice_id(slice_id_),
+          slice_size(slice_size_),
           data(data_) {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
         buffer | scene_id;
-        buffer | image_size;
+        buffer | slice_id;
+        buffer | slice_size;
         buffer | data;
     }
 
     int scene_id;
-    std::vector<int> image_size;
+    int slice_id;
+    std::vector<int> slice_size;
     std::vector<unsigned char> data;
 };
 

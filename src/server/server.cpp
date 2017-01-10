@@ -45,8 +45,8 @@ void Server::start() {
                     break;
                 }
 
-                case packet_desc::update_image: {
-                    auto packet = std::make_unique<UpdateImagePacket>();
+                case packet_desc::slice_data: {
+                    auto packet = std::make_unique<SliceDataPacket>();
                     packet->deserialize(std::move(buffer));
                     packets_.push(std::move(packet));
 
@@ -74,17 +74,17 @@ void Server::tick(float) {
             case packet_desc::make_scene: {
                 MakeScenePacket& packet = *(MakeScenePacket*)event_packet.get();
                 std::cout << "Making scene: " << packet.name << "\n";
-                scenes_.add_scene(packet.name, packet.scene_id, true);
+                scenes_.add_scene(packet.name, packet.scene_id, true,
+                                  packet.dimension);
                 break;
             }
 
-            case packet_desc::update_image: {
-                UpdateImagePacket& packet =
-                    *(UpdateImagePacket*)event_packet.get();
+            case packet_desc::slice_data: {
+                SliceDataPacket& packet = *(SliceDataPacket*)event_packet.get();
                 auto scene = scenes_.get_scene(packet.scene_id);
                 if (!scene) std::cout << "Updating non-existing scene\n";
-                scene->set_size(packet.image_size);
-                scene->set_data(packet.data);
+                scene->set_size(packet.slice_size, packet.slice_id);
+                scene->set_data(packet.data, packet.slice_id);
                 break;
             }
 

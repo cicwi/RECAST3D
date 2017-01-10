@@ -23,6 +23,8 @@ void SceneSwitcher::describe() {
                 next_scene();
             if (ImGui::MenuItem("Add scene", "ctrl + a"))
                 add_scene();
+            if (ImGui::MenuItem("Add scene (3D)", "ctrl + b"))
+                add_scene_3d();
             if (ImGui::MenuItem("Delete scene", "ctrl + d"))
                 delete_scene();
 
@@ -55,6 +57,10 @@ bool SceneSwitcher::handle_key(int key, bool down, int mods) {
         add_scene();
         return true;
     }
+    if (down && key == GLFW_KEY_B && (mods & GLFW_MOD_CONTROL)) {
+        add_scene_3d();
+        return true;
+    }
     if (down && key == GLFW_KEY_D && (mods & GLFW_MOD_CONTROL)) {
         delete_scene();
         return true;
@@ -78,6 +84,12 @@ void SceneSwitcher::add_scene() {
     std::stringstream ss;
     ss << "Scene #" << scenes_.scenes().size() + 1;
     scenes_.set_active_scene(scenes_.add_scene(ss.str()));
+}
+
+void SceneSwitcher::add_scene_3d() {
+    std::stringstream ss;
+    ss << "3D Scene #" << scenes_.scenes().size() + 1;
+    scenes_.set_active_scene(scenes_.add_scene(ss.str(), -1, true, 3));
 }
 
 void SceneSwitcher::delete_scene() {

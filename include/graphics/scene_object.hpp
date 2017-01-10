@@ -22,17 +22,11 @@ class SceneObject {
     float& pixel_size() { return pixel_size_; }
     SceneCamera& camera() { return *camera_; }
 
-    void set_data(std::vector<unsigned char>& data) {
-        data_ = data;
-        update_image_();
-    }
-
-    void set_size(std::vector<int>& size) {
-        size_ = size;
-    }
+    virtual void set_data(std::vector<unsigned char>& data, int slice = 0) = 0;
+    virtual void set_size(std::vector<int>& size, int slice = 0) = 0;
 
   protected:
-    virtual void update_image_() = 0;
+    virtual void update_image_(int slice = 0) = 0;
 
     GLuint vao_handle_;
     GLuint vbo_handle_;
@@ -40,8 +34,6 @@ class SceneObject {
     std::unique_ptr<SceneCamera> camera_;
     float pixel_size_ = 1.0;
 
-    std::vector<unsigned char> data_;
-    std::vector<int> size_;
 
 };
 

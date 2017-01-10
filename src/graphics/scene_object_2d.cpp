@@ -6,7 +6,24 @@
 
 namespace tomovis {
 
-SceneObject2d::SceneObject2d() : SceneObject() {
+SceneObject2d::SceneObject2d() : SceneObject(), size_{32, 32} {
+    static const GLfloat square[4][2] = {{-1.0f, -1.0f},
+                                         {-1.0f, 1.0f},
+                                         {1.0f, 1.0f},
+                                         {1.0f, -1.0f}};
+
+    glGenVertexArrays(1, &vao_handle_);
+    glBindVertexArray(vao_handle_);
+
+    glGenBuffers(1, &vbo_handle_);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_handle_);
+    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(GLfloat), square, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
+    program_ = std::make_unique<ShaderProgram>("../src/shaders/simple.vert",
+                                               "../src/shaders/simple.frag");
     glGenTextures(1, &texture_id_);
 
     data_.resize(size_[0] * size_[1]);
@@ -20,7 +37,10 @@ SceneObject2d::SceneObject2d() : SceneObject() {
 
 SceneObject2d::~SceneObject2d() {}
 
-void SceneObject2d::update_image_() {
+void SceneObject2d::update_image_(int slice) {
+    if (slice != 0)
+        throw;
+
     glBindTexture(GL_TEXTURE_2D, texture_id_);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 include(FindPkgConfig)
 
-project(tomovis)
+project(slicevis)
 
 add_subdirectory("../ext/glfw" "../ext/glfw")
 
@@ -22,7 +22,7 @@ include_directories(
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wfatal-errors -Wextra -g -O3")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
-set(EXEC_NAME "tomovis")
+set(EXEC_NAME "slicevis")
 
 set(
     IMGUI_SOURCE_NAMES
@@ -43,8 +43,10 @@ set(
     "../src/server/server.cpp"
     "../src/graphics/scene_object.cpp"
     "../src/graphics/scene_object_2d.cpp"
+    "../src/graphics/scene_object_3d.cpp"
     "../src/graphics/scene_camera.cpp"
     "../src/graphics/scene_camera_2d.cpp"
+    "../src/graphics/scene_camera_3d.cpp"
     "../src/graphics/shader_program.cpp"
     "../src/graphics/renderer.cpp"
     "../src/graphics/interface/scene_control.cpp"
@@ -67,7 +69,6 @@ set(
     "GL"
     "zmq"
     "pthread"
-    "boost_serialization"
 )
 
 ## multiple binaries:

@@ -24,7 +24,7 @@ Renderer::Renderer() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window_ = glfwCreateWindow(1280, 720, "TomoVis", NULL, NULL);
+    window_ = glfwCreateWindow(1280, 720, "SliceVisualizer", NULL, NULL);
     glfwMakeContextCurrent(window_);
 
     gl3wInit();
@@ -49,7 +49,7 @@ void Renderer::main_loop() {
         glfwGetFramebufferSize(window_, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         glClearColor(0.2, 0.2, 0.2, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float ratio = (float)display_h / (float)display_w;
 

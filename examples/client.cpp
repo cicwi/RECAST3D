@@ -17,7 +17,8 @@ int main() {
     std::cout << "Connecting to plot server…" << std::endl;
     socket.connect("tcp://localhost:5555");
 
-    auto packet = MakeScenePacket("Test");
+    // 2d
+    auto packet = MakeScenePacket("Test", 2);
     packet.send(socket);
 
     //  Get the reply.
@@ -32,10 +33,27 @@ int main() {
         pixel = rand() % 256;
     }
 
-    auto upd_packet = UpdateImagePacket(scene_id, {20, 20}, std::move(grayscale_image));
+    auto upd_packet =
+        SliceDataPacket(scene_id, 0, {20, 20}, std::move(grayscale_image));
     upd_packet.send(socket);
 
     socket.recv(&reply);
+
+    auto threedpacket = MakeScenePacket("Test 3D", 3);
+    threedpacket.send(socket);
+
+    //  Get the reply.
+    socket.recv(&reply);
+
+    scene_id = *(int*)reply.data();
+    std::cout << "3D: " << scene_id << "\n";
+
+    for (int i = 0; i < 3; ++i) {
+        auto upd_packet =
+            SliceDataPacket(scene_id, i, {20, 20}, std::move(grayscale_image));
+        upd_packet.send(socket);
+        socket.recv(&reply);
+    }
 
     return 0;
 }

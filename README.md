@@ -1,5 +1,5 @@
-Pizza: take a slice
-===================
+SliceVis
+========
 
 Dependencies
 ============
