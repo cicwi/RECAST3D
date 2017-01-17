@@ -21,6 +21,7 @@ class SceneObject2d : public SceneObject {
     }
 
     void set_size(std::vector<int>& size, int slice = 0) {
+        (void)slice;
         size_ = size;
     }
 

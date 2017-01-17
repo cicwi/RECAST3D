@@ -163,4 +163,3 @@ packet SliceData:
     int[2] slice_size
     unsigned char[pixels] data // pixels = product(slice_size)
 ```
-

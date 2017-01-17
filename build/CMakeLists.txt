@@ -49,6 +49,7 @@ set(
     "../src/graphics/scene_camera_3d.cpp"
     "../src/graphics/shader_program.cpp"
     "../src/graphics/renderer.cpp"
+    "../src/graphics/slice.cpp"
     "../src/graphics/interface/scene_control.cpp"
     "../src/graphics/interface/scene_switcher.cpp"
     "../src/graphics/interface/window.cpp"

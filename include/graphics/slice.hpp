@@ -1,0 +1,29 @@
+#pragma once
+
+#include <GL/gl3w.h>
+#include <glm/glm.hpp>
+
+#include "textures.hpp"
+
+namespace tomovis {
+
+struct slice {
+    slice(int id);
+
+    void update_texture();
+    void set_orientation(glm::vec3 base, glm::vec3 x, glm::vec3 y);
+
+    std::vector<unsigned char> data;
+    std::vector<int> size;
+
+    int id_ = -1;
+    bool hovered = false;
+    bool has_data() { return !data.empty(); }
+
+    auto& get_texture() { return tex_; }
+
+    texture<unsigned char> tex_;
+    glm::mat4 orientation;
+};
+
+}  // namespace tomovis
