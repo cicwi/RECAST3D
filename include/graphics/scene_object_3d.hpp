@@ -31,12 +31,18 @@ class SceneObject3d : public SceneObject {
 
    protected:
     void update_image_(int slice = 0) override;
-    void update_slices_();
 
    private:
     // overwrite specific (3d) camera to use
     std::unique_ptr<SceneCamera3d> camera_3d_;
     std::map<int, std::unique_ptr<slice>> slices_;
+
+    glm::vec3 box_origin_;
+    glm::vec3 box_size_;
+
+    GLuint cube_vao_handle_;
+    GLuint cube_vbo_handle_;
+    std::unique_ptr<ShaderProgram> cube_program_;
 };
 
 }  // namespace tomovis

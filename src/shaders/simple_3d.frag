@@ -13,11 +13,12 @@ out vec4 fragColor;
 void main() {
     float value = texture(texture_sampler, tex_coord).x;
     fragColor = vec4(texture(colormap_sampler, value).xyz, 1.0f);
-    if (hovered == 1) {
-        fragColor += vec4(0.3f);
-    }
 
     if (has_data != 1) {
-        fragColor.a = 0.5f;
+        fragColor.a = 0.2f;
+    }
+
+    if (hovered == 1) {
+        fragColor += vec4(0.3f);
     }
 }

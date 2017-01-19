@@ -19,6 +19,7 @@ struct slice {
     int id_ = -1;
     bool hovered = false;
     bool has_data() { return !data.empty(); }
+    bool transparent() { return hovered || !has_data(); }
 
     auto& get_texture() { return tex_; }
 

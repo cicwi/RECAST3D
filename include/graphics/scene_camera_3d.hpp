@@ -1,8 +1,8 @@
 #pragma once
 
+#include <map>
 #include <memory>
 #include <vector>
-#include <map>
 
 #include <glm/glm.hpp>
 #include "graphics/scene_camera.hpp"
@@ -140,18 +140,24 @@ class SliceMover : public CameraDragMachine {
         auto normal = glm::normalize(glm::cross(axis1, axis2));
 
         // project the normal vector to screen coordinates
-        // FIXME maybe need window matrix here too which would be kind of painful maybe
-        auto base_point_normal = glm::vec3(o[2][0], o[2][1], o[2][2]) + 0.5f * (axis1 + axis2);
+        // FIXME maybe need window matrix here too which would be kind of
+        // painful maybe
+        auto base_point_normal =
+            glm::vec3(o[2][0], o[2][1], o[2][2]) + 0.5f * (axis1 + axis2);
         auto end_point_normal = base_point_normal + normal;
 
         auto a = camera_.matrix() * glm::vec4(base_point_normal, 1.0f);
         auto b = camera_.matrix() * glm::vec4(end_point_normal, 1.0f);
         auto normal_delta = b - a;
-        float difference = glm::dot(glm::vec2(normal_delta.x, normal_delta.y), delta);
+        float difference =
+            glm::dot(glm::vec2(normal_delta.x, normal_delta.y), delta);
 
         // take the inner product of delta x and this normal vector
 
         auto dx = difference * normal;
+        // FIXME check if it is still inside the bounding box of the volume
+        // probably by checking all four corners are inside bounding box, should
+        // define this box somewhere
         o[2][0] += dx[0];
         o[2][1] += dx[1];
         o[2][2] += dx[2];

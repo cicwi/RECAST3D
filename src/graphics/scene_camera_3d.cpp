@@ -52,8 +52,12 @@ glm::mat4 SceneCamera3d::matrix() {
 
 bool SceneCamera3d::handle_mouse_button(int button, bool down) {
     dragging_ = down;
-    if (!down)
+    if (!down) {
         dragged_slice_ = nullptr;
+        // if there was a dragged slice, then we should update it if it has changed..
+        // by sending a network pacakge
+        // maybe use an observer for this, and notify that it has changed
+    }
     return true;
 }
 

@@ -11,6 +11,7 @@
 namespace tomovis {
 
 SceneObject3d::SceneObject3d() : SceneObject() {
+    //FIXME move all this primitives stuff to a separate file
     static const GLfloat square[4][3] = {{0.0f, 0.0f, 1.0f},
                                          {0.0f, 1.0f, 1.0f},
                                          {1.0f, 1.0f, 1.0f},
@@ -18,16 +19,40 @@ SceneObject3d::SceneObject3d() : SceneObject() {
 
     glGenVertexArrays(1, &vao_handle_);
     glBindVertexArray(vao_handle_);
-
     glGenBuffers(1, &vbo_handle_);
-
     glBindBuffer(GL_ARRAY_BUFFER, vbo_handle_);
     glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
+    static const GLfloat cube[] = {
+        -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,
+        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f,
+        1.0f,  -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f,
+        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,
+        1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f,
+        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
+        1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
+        1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  -1.0f,
+        1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
+        1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  -1.0f, 1.0f};
+
+    glGenVertexArrays(1, &cube_vao_handle_);
+    glBindVertexArray(cube_vao_handle_);
+    glGenBuffers(1, &cube_vbo_handle_);
+    glBindBuffer(GL_ARRAY_BUFFER, cube_vbo_handle_);
+    glBufferData(GL_ARRAY_BUFFER, 9 * 12 * sizeof(GLfloat), cube,
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
     program_ = std::make_unique<ShaderProgram>("../src/shaders/simple_3d.vert",
                                                "../src/shaders/simple_3d.frag");
+
+    cube_program_ =
+        std::make_unique<ShaderProgram>("../src/shaders/wireframe_cube.vert",
+                                        "../src/shaders/wireframe_cube.frag");
 
     slices_[0] = std::make_unique<slice>(0);
     slices_[1] = std::make_unique<slice>(1);
@@ -53,35 +78,23 @@ SceneObject3d::SceneObject3d() : SceneObject() {
         orientations.push_back(slice.second->orientation);
     }
     camera_3d_ = std::make_unique<SceneCamera3d>(slices_);
+
+    box_origin_ = glm::vec3(-1.0f);
+    box_size_ = glm::vec3(2.0f);
 }
 
-SceneObject3d::~SceneObject3d() {}
+SceneObject3d::~SceneObject3d() {
+    glDeleteVertexArrays(1, &cube_vao_handle_);
+    glDeleteBuffers(1, &cube_vbo_handle_);
+}
 
 void SceneObject3d::update_image_(int slice_idx) {
     slices_[slice_idx]->update_texture();
 }
 
-void SceneObject3d::update_slices_() {
-    // for (int i = 0; i < (int)orientations.size(); ++i) {
-    //    if (slices_[i]->orientation != orientations[i].orientation) {
-    //        phantom_slices_[i].active = true;
-    //    }
-    //    phantom_slices_[i].hovered = orientations[i].hovered;
-    //    phantom_slices_[i].orientation = orientations[i].orientation;
-    //}
-
-    // TODO: if they do not match, send a request for new slice information
-    // and wait until set_data is called with the new slice data (how to detect)
-    // for this we need:
-    // - some kind of publishing system, no longer master-slave
-}
-
 void SceneObject3d::draw(glm::mat4 window_matrix) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-
-    // update slices
-    // update_slices_(camera_3d_->get_slices());
 
     program_->use();
 
@@ -104,14 +117,14 @@ void SceneObject3d::draw(glm::mat4 window_matrix) {
         GLint hovered_loc = glGetUniformLocation(program_->handle(), "hovered");
         glUniform1i(hovered_loc, (int)(slice.hovered));
 
-        GLint has_data_loc = glGetUniformLocation(program_->handle(), "has_data");
+        GLint has_data_loc =
+            glGetUniformLocation(program_->handle(), "has_data");
         glUniform1i(has_data_loc, (int)(slice.has_data()));
 
         glBindVertexArray(vao_handle_);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
         slice.get_texture().unbind();
-
     };
 
     std::vector<slice*> slices;
@@ -119,15 +132,27 @@ void SceneObject3d::draw(glm::mat4 window_matrix) {
         slices.push_back(id_slice.second.get());
     }
     std::sort(slices.begin(), slices.end(), [](auto& lhs, auto& rhs) -> bool {
-        if(rhs->hovered == lhs->hovered) {
+        if (rhs->transparent() == lhs->transparent()) {
             return rhs->id_ < lhs->id_;
         }
-        return rhs->hovered;
+        return rhs->transparent();
     });
 
     for (auto& slice : slices) {
         draw_slice(*slice);
     }
+
+    cube_program_->use();
+
+    auto transform_matrix = window_matrix * camera_3d_->matrix();
+    GLint matrix_loc =
+        glGetUniformLocation(cube_program_->handle(), "transform_matrix");
+    glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &transform_matrix[0][0]);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glBindVertexArray(cube_vao_handle_);
+    glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // TODO low-resolution transparent voxel volume if available?
 
