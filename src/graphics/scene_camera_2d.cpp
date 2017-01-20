@@ -42,16 +42,16 @@ bool SceneCamera2d::handle_key(int key, bool down, int mods) {
     if (down) {
         switch (key) {
             case GLFW_KEY_H:
-                position_.x -= offset;
-                return true;
-            case GLFW_KEY_L:
                 position_.x += offset;
                 return true;
+            case GLFW_KEY_L:
+                position_.x -= offset;
+                return true;
             case GLFW_KEY_K:
-                position_.y += offset;
+                position_.y -= offset;
                 return true;
             case GLFW_KEY_J:
-                position_.y -= offset;
+                position_.y += offset;
                 return true;
             case GLFW_KEY_EQUAL:
                 scale_ *= 1.1f;
