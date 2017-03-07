@@ -11,6 +11,7 @@
 #include <cstring>
 #include <memory>
 #include <queue>
+#include <map>
 #include <thread>
 
 #include "packets.hpp"
@@ -19,6 +20,7 @@
 namespace tomovis {
 
 class SceneList;
+class SceneModuleProtocol;
 
 class Server : public Ticker {
    public:
@@ -27,7 +29,11 @@ class Server : public Ticker {
     void start();
     void tick(float) override;
 
+    void register_module(std::shared_ptr<SceneModuleProtocol> module);
+
    private:
+    std::map<packet_desc, std::shared_ptr<SceneModuleProtocol>> modules_;
+
     /** The server should have access to the list of scenes, to obtain the
      * correct one, or add a new one. */
     SceneList& scenes_;

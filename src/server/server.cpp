@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 
+#include "modules/scene_module.hpp"
 #include "packets.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
@@ -9,6 +10,12 @@
 #include "zmq.hpp"
 
 namespace tomovis {
+
+void Server::register_module(std::shared_ptr<SceneModuleProtocol> module) {
+    for (auto desc : module->descriptors()) {
+        modules_[desc] = module;
+    }
+}
 
 void Server::start() {
     //  Prepare our context and socket
@@ -28,39 +35,9 @@ void Server::start() {
             auto desc = ((packet_desc*)request.data())[0];
             auto buffer = memory_buffer(request.size(), (char*)request.data());
 
-            switch (desc) {
-                case packet_desc::make_scene: {
-                    zmq::message_t reply(sizeof(int));
-
-                    auto packet = std::make_unique<MakeScenePacket>();
-                    packet->deserialize(std::move(buffer));
-
-                    // reserve id from scenes_ and return it
-                    packet->scene_id = scenes_.reserve_id();
-                    memcpy(reply.data(), &packet->scene_id, sizeof(int));
-                    socket.send(reply);
-
-                    packets_.push(std::move(packet));
-
-                    break;
-                }
-
-                case packet_desc::slice_data: {
-                    auto packet = std::make_unique<SliceDataPacket>();
-                    packet->deserialize(std::move(buffer));
-                    packets_.push(std::move(packet));
-
-                    zmq::message_t reply(sizeof(int));
-                    // reserve id from scenes_ and return it
-                    int success = 1;
-                    memcpy(reply.data(), &success, sizeof(int));
-                    socket.send(reply);
-
-                    break;
-                }
-
-                default: { break; }
-            }
+            // forward the packet to the handler
+            packets_.push(std::move(
+                modules_[desc]->read_packet(desc, buffer, socket, scenes_)));
         }
     });
 }
@@ -70,26 +47,10 @@ void Server::tick(float) {
         auto event_packet = std::move(packets_.front());
         packets_.pop();
 
-        switch (event_packet->desc) {
-            case packet_desc::make_scene: {
-                MakeScenePacket& packet = *(MakeScenePacket*)event_packet.get();
-                std::cout << "Making scene: " << packet.name << "\n";
-                scenes_.add_scene(packet.name, packet.scene_id, true,
-                                  packet.dimension);
-                break;
-            }
-
-            case packet_desc::slice_data: {
-                SliceDataPacket& packet = *(SliceDataPacket*)event_packet.get();
-                auto scene = scenes_.get_scene(packet.scene_id);
-                if (!scene) std::cout << "Updating non-existing scene\n";
-                scene->set_size(packet.slice_size, packet.slice_id);
-                scene->set_data(packet.data, packet.slice_id);
-                break;
-            }
-
-            default: { break; }
-        }
+        // FIXME
+        // question remains; what about the other way around? maybe we can stage
+        // outgoing packets.
+        modules_[event_packet->desc]->process(scenes_, std::move(event_packet));
     }
 }
 

@@ -1,16 +1,17 @@
-#include <thread>
 #include <iostream>
+#include <memory>
+#include <thread>
 
-#include "server/server.hpp"
-#include "graphics/renderer.hpp"
 #include "graphics/interface/interface.hpp"
 #include "graphics/interface/scene_control.hpp"
 #include "graphics/interface/scene_switcher.hpp"
+#include "graphics/renderer.hpp"
 #include "graphics/scene_camera.hpp"
-#include "scene_list.hpp"
-#include "scene.hpp"
 #include "input.hpp"
-
+#include "modules/reconstruction.hpp"
+#include "scene.hpp"
+#include "scene_list.hpp"
+#include "server/server.hpp"
 
 int main() {
     tomovis::Renderer renderer;
@@ -37,6 +38,10 @@ int main() {
 
     // start the server
     tomovis::Server server(scenes);
+
+    // FIXME: add modules to the server
+    server.register_module(std::make_shared<tomovis::ReconstructionProtocol>());
+
     server.start();
     renderer.register_ticker(server);
 
