@@ -22,7 +22,7 @@ void main() {
     fragColor = vec4(texture(colormap_sampler, value).xyz, 1.0f);
 
     if (has_data != 1) {
-        fragColor.a = 0.3f;
+        fragColor.a = 0.5f;
     }
 
     if (hovered == 1) {

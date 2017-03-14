@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
@@ -16,13 +17,6 @@ class texture {
         for (int i = 0; i < x * y; ++i) {
             data[i] = 255 * ((i + i / x) % 2);
         }
-        fill_texture(data);
-    }
-
-    texture(int x, int y, std::vector<T>& data) {
-        x_ = x;
-        y_ = y;
-        glGenTextures(1, &texture_id_);
         fill_texture(data);
     }
 
@@ -77,15 +71,14 @@ class texture3d {
         fill_texture(data);
     }
 
-    texture3d(int x, int y, int z, std::vector<T>& data) {
+    ~texture3d() { glDeleteTextures(1, &texture_id_); }
+
+    void set_data(int x, int y, int z, std::vector<T>& data) {
         x_ = x;
         y_ = y;
         z_ = z;
-        glGenTextures(1, &texture_id_);
         fill_texture(data);
     }
-
-    ~texture3d() { glDeleteTextures(1, &texture_id_); }
 
     void fill_texture(std::vector<T>& data) {
         glBindTexture(GL_TEXTURE_3D, texture_id_);

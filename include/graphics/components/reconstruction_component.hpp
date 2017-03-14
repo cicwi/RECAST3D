@@ -36,7 +36,8 @@ class ReconstructionComponent : public ObjectComponent {
     void set_volume_data(std::vector<int>& volume_size,
                          std::vector<unsigned char>& data) {
         assert(volume_size.size() == 3);
-        volume_texture_ = texture3d<unsigned char>(volume_size[0], volume_size[1], volume_size[2], data);
+        volume_texture_.set_data(volume_size[0], volume_size[1], volume_size[2],
+                                 data);
     }
 
     std::map<int, std::unique_ptr<slice>>& slices() { return slices_; }
