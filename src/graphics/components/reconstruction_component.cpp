@@ -5,7 +5,7 @@
 
 namespace tomovis {
 
-ReconstructionComponent::ReconstructionComponent() {
+ReconstructionComponent::ReconstructionComponent() : volume_texture_(16, 16, 16) {
     //FIXME move all this primitives stuff to a separate file
     static const GLfloat square[4][3] = {{0.0f, 0.0f, 1.0f},
                                          {0.0f, 1.0f, 1.0f},
@@ -95,6 +95,8 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
     glUniform1i(glGetUniformLocation(program_->handle(), "texture_sampler"), 0);
     glUniform1i(glGetUniformLocation(program_->handle(), "colormap_sampler"),
                 1);
+    glUniform1i(glGetUniformLocation(program_->handle(), "volume_data_sampler"), 3);
+
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormap_texture_);
@@ -102,10 +104,12 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
     auto draw_slice = [&](slice& the_slice) {
         the_slice.get_texture().bind();
 
-        GLint matrix_loc =
-            glGetUniformLocation(program_->handle(), "transform_matrix");
-        auto transform_matrix = world_to_screen * the_slice.orientation;
-        glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &transform_matrix[0][0]);
+        GLint transform_loc =
+            glGetUniformLocation(program_->handle(), "world_to_screen_matrix");
+        GLint orientation_loc =
+            glGetUniformLocation(program_->handle(), "orientation_matrix");
+        glUniformMatrix4fv(transform_loc, 1, GL_FALSE, &world_to_screen[0][0]);
+        glUniformMatrix4fv(orientation_loc, 1, GL_FALSE, &the_slice.orientation[0][0]);
 
         GLint hovered_loc = glGetUniformLocation(program_->handle(), "hovered");
         glUniform1i(hovered_loc, (int)(the_slice.hovered));
@@ -131,9 +135,11 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
         return rhs->transparent();
     });
 
+    volume_texture_.bind();
     for (auto& slice : slices) {
         draw_slice(*slice);
     }
+    volume_texture_.unbind();
 
     cube_program_->use();
 

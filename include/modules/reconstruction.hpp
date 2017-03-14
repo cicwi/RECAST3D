@@ -49,6 +49,13 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
     VolumeDataPacket()
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data) {}
 
+    VolumeDataPacket(int scene_id_, std::vector<int> volume_size_,
+                     std::vector<unsigned char>&& data_)
+        : PacketBase<VolumeDataPacket>(packet_desc::volume_data),
+          scene_id(scene_id_),
+          volume_size(volume_size_),
+          data(data_) {}
+
     template <typename Buffer>
     void fill(Buffer& buffer) {
         buffer | scene_id;

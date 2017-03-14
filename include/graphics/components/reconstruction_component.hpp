@@ -8,6 +8,7 @@
 
 #include "graphics/shader_program.hpp"
 #include "graphics/slice.hpp"
+#include "graphics/textures.hpp"
 #include "object_component.hpp"
 
 namespace tomovis {
@@ -34,7 +35,8 @@ class ReconstructionComponent : public ObjectComponent {
 
     void set_volume_data(std::vector<int>& volume_size,
                          std::vector<unsigned char>& data) {
-        // FIXME implement
+        assert(volume_size.size() == 3);
+        volume_texture_ = texture3d<unsigned char>(volume_size[0], volume_size[1], volume_size[2], data);
     }
 
     std::map<int, std::unique_ptr<slice>>& slices() { return slices_; }
@@ -56,6 +58,7 @@ class ReconstructionComponent : public ObjectComponent {
     std::unique_ptr<ShaderProgram> cube_program_;
 
     GLuint colormap_texture_;
+    texture3d<unsigned char> volume_texture_;
 };
 
 }  // namespace tomovis
