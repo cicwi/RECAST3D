@@ -7,6 +7,9 @@
 
 #include "server/server.hpp"
 
+#include "modules/scene_management.hpp"
+#include "modules/reconstruction.hpp"
+
 using namespace tomovis;
 
 int main() {

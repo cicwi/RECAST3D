@@ -9,6 +9,7 @@
 #include "graphics/scene_camera.hpp"
 #include "input.hpp"
 #include "modules/reconstruction.hpp"
+#include "modules/scene_management.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "server/server.hpp"
@@ -39,7 +40,8 @@ int main() {
     // start the server
     tomovis::Server server(scenes);
 
-    // FIXME: add modules to the server
+    // add more modules to the server
+    server.register_module(std::make_shared<tomovis::ManageSceneProtocol>());
     server.register_module(std::make_shared<tomovis::ReconstructionProtocol>());
 
     server.start();

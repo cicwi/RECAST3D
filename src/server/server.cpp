@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <type_traits>
 
 #include "modules/scene_module.hpp"
 #include "packets.hpp"
@@ -34,6 +35,13 @@ void Server::start() {
             socket.recv(&request);
             auto desc = ((packet_desc*)request.data())[0];
             auto buffer = memory_buffer(request.size(), (char*)request.data());
+
+            if (modules_.find(desc) == modules_.end()) {
+                std::cout << "unknown descriptor: "
+                          << (std::underlying_type<decltype(desc)>::type)desc
+                          << "\n";
+                continue;
+            }
 
             // forward the packet to the handler
             packets_.push(std::move(

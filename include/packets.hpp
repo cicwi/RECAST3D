@@ -9,12 +9,12 @@
 namespace tomovis {
 
 enum class packet_desc : int {
-    // making a scene is done by supplying a name and some
-    // information on the scene, e.g.
-    // 2d or 3d, or dimensions
-    // the scene_id will be returned
+    // SCENE MANAGEMENT
     make_scene,
+
+    // RECONSTRUCTION
     slice_data,
+    volume_data,
 };
 
 class Packet {
@@ -87,53 +87,6 @@ class PacketBase : public Packet {
         auto om = omembuf(buffer);
         ((Derived*)this)->fill(om);
     }
-};
-
-class MakeScenePacket : public PacketBase<MakeScenePacket> {
-   public:
-    MakeScenePacket(std::string name_ = "", int dimension_ = 3)
-        : PacketBase<MakeScenePacket>(packet_desc::make_scene),
-          name(name_),
-          dimension(dimension_) {}
-
-    template <typename Buffer>
-    void fill(Buffer& buffer) {
-        buffer | name;
-        buffer | dimension;
-    }
-
-    std::string name;
-    int dimension;
-    std::vector<float> volume_geometry;
-    int scene_id;
-};
-
-class SliceDataPacket : public PacketBase<SliceDataPacket> {
-   public:
-    SliceDataPacket()
-        : PacketBase<SliceDataPacket>(packet_desc::slice_data),
-          scene_id(-1), slice_id(0) {}
-
-    SliceDataPacket(int scene_id_, int slice_id_, std::vector<int> slice_size_,
-                      std::vector<unsigned char>&& data_)
-        : PacketBase<SliceDataPacket>(packet_desc::slice_data),
-          scene_id(scene_id_),
-          slice_id(slice_id_),
-          slice_size(slice_size_),
-          data(data_) {}
-
-    template <typename Buffer>
-    void fill(Buffer& buffer) {
-        buffer | scene_id;
-        buffer | slice_id;
-        buffer | slice_size;
-        buffer | data;
-    }
-
-    int scene_id;
-    int slice_id;
-    std::vector<int> slice_size;
-    std::vector<unsigned char> data;
 };
 
 }  // namespace tomovis
