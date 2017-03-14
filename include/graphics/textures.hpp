@@ -20,6 +20,8 @@ class texture {
     }
 
     texture(int x, int y, std::vector<T>& data) {
+        x_ = x;
+        y_ = y;
         glGenTextures(1, &texture_id_);
         fill_texture(data);
     }
@@ -76,6 +78,9 @@ class texture3d {
     }
 
     texture3d(int x, int y, int z, std::vector<T>& data) {
+        x_ = x;
+        y_ = y;
+        z_ = z;
         glGenTextures(1, &texture_id_);
         fill_texture(data);
     }

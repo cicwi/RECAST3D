@@ -6,31 +6,13 @@
 #include <vector>
 
 #include "scene_module.hpp"
+#include "modules/packets/scene_management_packets.hpp"
 
 namespace tomovis {
 
 // for the 'one-way-communication' we have two parts
 // a handler that knows how to read in a packet
 // and an executor that knows how to execute a packet
-
-class MakeScenePacket : public PacketBase<MakeScenePacket> {
-   public:
-    MakeScenePacket(std::string name_ = "", int dimension_ = 3)
-        : PacketBase<MakeScenePacket>(packet_desc::make_scene),
-          name(name_),
-          dimension(dimension_) {}
-
-    template <typename Buffer>
-    void fill(Buffer& buffer) {
-        buffer | name;
-        buffer | dimension;
-    }
-
-    std::string name;
-    int dimension;
-    std::vector<float> volume_geometry;
-    int scene_id;
-};
 
 class ManageSceneProtocol : public SceneModuleProtocol {
    public:
