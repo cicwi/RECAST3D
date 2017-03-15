@@ -1,6 +1,9 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <vector>
+
+#include <GL/gl3w.h>
 
 namespace tomovis {
 
@@ -78,4 +81,4 @@ GLuint generate_colormap_texture(std::string name) {
     return colormap_texture_id;
 }
 
-} // namespace tomovis
+}  // namespace tomovis

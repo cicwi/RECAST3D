@@ -150,9 +150,11 @@ bool SceneCamera3d::check_hovered(float x, float y) {
     auto inv_matrix = glm::inverse(matrix());
     int best_slice_index = -1;
     float best_z = std::numeric_limits<float>::max();
-    int slice_index = 0;
     for (auto& id_slice : slices_) {
         auto& slice = id_slice.second;
+        if (slice->inactive) {
+            continue;
+        }
         slice->hovered = false;
         auto maybe_point =
             intersection_point(inv_matrix, slice->orientation, glm::vec2(x, y));
@@ -160,10 +162,9 @@ bool SceneCamera3d::check_hovered(float x, float y) {
             auto z = maybe_point.second;
             if (z < best_z) {
                 best_z = z;
-                best_slice_index = slice_index;
+                best_slice_index = id_slice.first;
             }
         }
-        ++slice_index;
     }
     if (best_slice_index >= 0) {
         slices_[best_slice_index]->hovered = true;

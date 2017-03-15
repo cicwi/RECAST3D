@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -22,13 +23,18 @@ class ReconstructionComponent : public ObjectComponent {
     std::string identifier() const override { return "reconstruction"; }
 
     void set_size(std::vector<int>& size, int slice = 0) {
-        if (slice < 0 || slice >= (int)slices_.size()) throw;
+        if (slices_.find(slice) == slices_.end()) {
+            std::cout << "Updating inactive slice: " << slice << "\n";
+            return;
+        }
         slices_[slice]->size = size;
     }
 
     void set_data(std::vector<unsigned char>& data, int slice = 0) {
-        if (slice < 0 || slice >= (int)slices_.size()) throw;
-
+        if (slices_.find(slice) == slices_.end()) {
+            std::cout << "Updating inactive slice: " << slice << "\n";
+            return;
+        }
         slices_[slice]->data = data;
         update_image_(slice);
     }

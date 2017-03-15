@@ -77,8 +77,6 @@ class SceneCamera3d : public SceneCamera {
     // I think this should be a shared ptr or weak ptr, this is quite unsafe
     // but maybe it is okay because camera is part of the object so it should
     // get deconstructed before the object
-    // FIXME we sort this so we need to explicitely check for ID from now on.
-    // this means it might make sense to turn this into a map
     std::map<int, std::unique_ptr<slice>>& slices_;
 
     std::unique_ptr<CameraDragMachine> drag_machine_;
@@ -111,12 +109,14 @@ class SliceMover : public CameraDragMachine {
         if (!camera_.dragged_slice()) {
             std::unique_ptr<slice> new_slice;
             int id = (*(camera_.get_slices().rbegin())).first + 1;
+            int to_remove = -1;
             for (auto& id_the_slice : camera_.get_slices()) {
                 auto& the_slice = id_the_slice.second;
                 if (the_slice->hovered) {
                     if (the_slice->has_data()) {
                         new_slice = std::make_unique<slice>(id);
                         new_slice->orientation = the_slice->orientation;
+                        to_remove = the_slice->id;
                         // FIXME need to generate a new id and upon 'popping'
                         // send a UpdateSlice packet
                         camera_.dragged_slice() = new_slice.get();
@@ -127,7 +127,10 @@ class SliceMover : public CameraDragMachine {
                 }
             }
             if (new_slice) {
-                camera_.get_slices()[new_slice->id_] = std::move(new_slice);
+                camera_.get_slices()[new_slice->id] = std::move(new_slice);
+            }
+            if (to_remove >= 0) {
+                camera_.get_slices().erase(to_remove);
             }
             assert(camera_.dragged_slice());
         }

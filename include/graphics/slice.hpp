@@ -8,7 +8,7 @@
 namespace tomovis {
 
 struct slice {
-    slice(int id);
+    slice(int id_);
 
     void update_texture();
     void set_orientation(glm::vec3 base, glm::vec3 x, glm::vec3 y);
@@ -16,8 +16,9 @@ struct slice {
     std::vector<unsigned char> data;
     std::vector<int> size;
 
-    int id_ = -1;
+    int id = -1;
     bool hovered = false;
+    bool inactive = false;
     bool has_data() { return !data.empty(); }
     bool transparent() { return hovered || !has_data(); }
 

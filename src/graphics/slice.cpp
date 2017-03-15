@@ -4,7 +4,7 @@
 
 namespace tomovis {
 
-slice::slice(int id) : id_(id), size{32, 32}, tex_(32, 32) {
+slice::slice(int id_) : id(id_), size{32, 32}, tex_(32, 32) {
     update_texture();
 }
 
