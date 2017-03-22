@@ -176,3 +176,22 @@ packet VolumeData:
     int[3] volume_size
     unsigned char[voxels] data // voxels = product(volume_size)
 ```
+
+```cpp
+// Usage: update the volume data
+packet GeometrySpecification:
+    int scene_id
+    bool parallel
+    int projections
+```
+
+```cpp
+// Usage: update the volume data
+packet ProjectionData:
+    int scene_id
+    int projection_id
+    real[3] source_position
+    real[9] detector_orientation
+    int[2] detector_pixels
+    unsigned char[pixels] data // pixels = product(detector_pixels)
+```

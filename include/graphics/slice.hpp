@@ -30,9 +30,9 @@ struct slice {
     glm::mat4 orientation;
 
     std::array<float, 9> packed_orientation() {
-        return std::array<float, 9>{orientation[0][0], orientation[1][0], orientation[2][0],
-                orientation[0][1], orientation[1][1], orientation[2][1],
-                orientation[0][2], orientation[1][2], orientation[2][2]};
+        return std::array<float, 9>{orientation[0][0], orientation[0][1], orientation[0][2],
+                orientation[1][0], orientation[1][1], orientation[1][2],
+                orientation[2][0], orientation[2][1], orientation[2][2]};
     }
 };
 

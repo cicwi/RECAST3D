@@ -43,7 +43,7 @@ class texture {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void bind() {
+    void bind() const {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture_id_);
     }

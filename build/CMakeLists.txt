@@ -51,6 +51,7 @@ set(
     "../src/graphics/renderer.cpp"
     "../src/graphics/slice.cpp"
     "../src/graphics/components/reconstruction_component.cpp"
+    "../src/graphics/components/geometry_component.cpp"
     "../src/graphics/interface/scene_control.cpp"
     "../src/graphics/interface/scene_switcher.cpp"
     "../src/graphics/interface/window.cpp"

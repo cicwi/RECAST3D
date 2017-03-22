@@ -1,7 +1,6 @@
 #pragma once
 
 #include <zmq.hpp>
-#include <iostream>
 
 #include <vector>
 
@@ -67,11 +66,8 @@ class PacketBase : public Packet {
 
     std::size_t size() override {
         scale total;
-        std::cout << total.size << " ";
         total | this->desc;
-        std::cout << total.size << " ";
         ((Derived*)this)->fill(total);
-        std::cout << total.size << ".";
         return total.size;
     }
 
