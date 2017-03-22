@@ -11,7 +11,7 @@ namespace tomovis {
 
 class Scene : public RenderTarget {
    public:
-    Scene(std::string name, int dimension);
+    Scene(std::string name, int dimension, int scene_id);
 
     void render(glm::mat4 window_matrix) override;
 
@@ -32,6 +32,7 @@ class Scene : public RenderTarget {
     std::unique_ptr<SceneObject> object_;
     std::string name_;
     int dimension_;
+    int scene_id_;
 };
 
 }  // namespace tomovis

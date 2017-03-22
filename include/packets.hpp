@@ -1,6 +1,7 @@
 #pragma once
 
 #include <zmq.hpp>
+#include <iostream>
 
 #include <vector>
 
@@ -15,6 +16,7 @@ enum class packet_desc : int {
     // RECONSTRUCTION
     slice_data,
     volume_data,
+    set_slice,
 };
 
 class Packet {
@@ -44,6 +46,7 @@ class Packet {
         memory_buffer& membuf;
     };
 
+    virtual std::size_t size() = 0;
     virtual memory_buffer serialize(int size) = 0;
     virtual void deserialize(memory_buffer buffer) = 0;
 
@@ -62,10 +65,13 @@ class PacketBase : public Packet {
         socket.send(request);
     }
 
-    std::size_t size() {
+    std::size_t size() override {
         scale total;
+        std::cout << total.size << " ";
         total | this->desc;
+        std::cout << total.size << " ";
         ((Derived*)this)->fill(total);
+        std::cout << total.size << ".";
         return total.size;
     }
 

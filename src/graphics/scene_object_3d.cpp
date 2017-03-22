@@ -11,16 +11,16 @@
 
 namespace tomovis {
 
-SceneObject3d::SceneObject3d() : SceneObject() {
-    this->add_component(std::make_unique<ReconstructionComponent>());
-    camera_3d_ = std::make_unique<SceneCamera3d>(
+SceneObject3d::SceneObject3d(int scene_id) : SceneObject(scene_id) {
+    this->add_component(std::make_unique<ReconstructionComponent>(*this, this->scene_id_));
+    camera_ = std::make_unique<SceneCamera3d>(
         ((ReconstructionComponent&)(*components_["reconstruction"])).slices());
 }
 
 SceneObject3d::~SceneObject3d() {}
 
 void SceneObject3d::draw(glm::mat4 window_matrix) {
-    auto world_to_screen = window_matrix * camera_3d_->matrix();
+    auto world_to_screen = window_matrix * camera_->matrix();
     for (auto& component : components_) {
         component.second->draw(world_to_screen);
     }

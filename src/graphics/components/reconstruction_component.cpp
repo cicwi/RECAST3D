@@ -2,11 +2,15 @@
 
 #include "graphics/colormap.hpp"
 #include "graphics/components/reconstruction_component.hpp"
+#include "graphics/scene_camera.hpp"
+
+#include "modules/packets/reconstruction_packets.hpp"
 
 namespace tomovis {
 
-ReconstructionComponent::ReconstructionComponent()
-    : volume_texture_(16, 16, 16) {
+ReconstructionComponent::ReconstructionComponent(SceneObject& object,
+                                                 int scene_id)
+    : object_(object), volume_texture_(16, 16, 16), scene_id_(scene_id) {
     // FIXME move all this primitives stuff to a separate file
     static const GLfloat square[4][3] = {{0.0f, 0.0f, 1.0f},
                                          {0.0f, 1.0f, 1.0f},
@@ -161,6 +165,221 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
 
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
+}
+
+bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
+    if (down) {
+        if (hovering_) {
+            switch_if_necessary(recon_drag_machine_kind::translator);
+            dragging_ = true;
+            return true;
+        }
+    }
+
+    if (!down) {
+        if (dragged_slice_) {
+            std::cout << "should set slice: " << dragged_slice_->id << "\n";
+            // how do we know if the slice is new, or if it should be updated
+            // we dont care, just send a set slice, with same id if it already
+            // knows it.. clients responsibility
+            auto packet = SetSlicePacket(scene_id_, dragged_slice_->id,
+                                         dragged_slice_->packed_orientation());
+            object_.send(packet);
+
+            dragged_slice_ = nullptr;
+            dragging_ = false;
+            return true;
+        }
+        dragging_ = false;
+    }
+
+    return false;
+}
+bool ReconstructionComponent::handle_mouse_moved(float x, float y) {
+    // update slices that is being hovered over
+    y = -y;
+
+    if (prev_y_ < -1.0) {
+        prev_x_ = x;
+        prev_y_ = y;
+    }
+
+    glm::vec2 delta(x - prev_x_, y - prev_y_);
+    prev_x_ = x;
+    prev_y_ = y;
+
+    // TODO: fix for screen ratio ratio
+    if (dragging_) {
+        drag_machine_->on_drag(delta);
+        return true;
+    } else {
+        check_hovered(x, y);
+    }
+
+    return false;
+}
+
+int ReconstructionComponent::index_hovering_over(float x, float y) {
+    auto intersection_point = [](glm::mat4 inv_matrix, glm::mat4 orientation,
+                                 glm::vec2 point) -> std::pair<bool, float> {
+        auto intersect_ray_plane = [](glm::vec3 origin, glm::vec3 direction,
+                                      glm::vec3 base, glm::vec3 normal,
+                                      float& distance) -> bool {
+            auto alpha = glm::dot(normal, direction);
+            if (glm::abs(alpha) > 0.001f) {
+                distance = glm::dot((base - origin), normal) / alpha;
+                if (distance >= 0.001f) return true;
+            }
+            return false;
+        };
+
+        // how do we want to do this
+        // end points of plane/line?
+        // first see where the end
+        // points of the square end up
+        // within the box.
+        // in world space:
+        auto o = orientation;
+        auto axis1 = glm::vec3(o[0][0], o[0][1], o[0][2]);
+        auto axis2 = glm::vec3(o[1][0], o[1][1], o[1][2]);
+        auto base = glm::vec3(o[2][0], o[2][1], o[2][2]);
+        base += 0.5f * (axis1 + axis2);
+        auto normal = glm::normalize(glm::cross(axis1, axis2));
+        float distance = -1.0f;
+
+        auto from = inv_matrix * glm::vec4(point.x, point.y, -1.0f, 1.0f);
+        from /= from[3];
+        auto to = inv_matrix * glm::vec4(point.x, point.y, 1.0f, 1.0f);
+        to /= to[3];
+        auto direction = glm::normalize(glm::vec3(to) - glm::vec3(from));
+
+        bool does_intersect = intersect_ray_plane(glm::vec3(from), direction,
+                                                  base, normal, distance);
+
+        // now check if the actual point is inside the plane
+        auto intersection_point = glm::vec3(from) + direction * distance;
+        intersection_point -= base;
+        auto along_1 = glm::dot(intersection_point, glm::normalize(axis1));
+        auto along_2 = glm::dot(intersection_point, glm::normalize(axis2));
+        if (glm::abs(along_1) > 0.5f * glm::length(axis1) ||
+            glm::abs(along_2) > 0.5f * glm::length(axis2))
+            does_intersect = false;
+
+        return std::make_pair(does_intersect, distance);
+    };
+
+    auto inv_matrix = glm::inverse(object_.camera().matrix());
+    int best_slice_index = -1;
+    float best_z = std::numeric_limits<float>::max();
+    for (auto& id_slice : slices_) {
+        auto& slice = id_slice.second;
+        if (slice->inactive) {
+            continue;
+        }
+        slice->hovered = false;
+        auto maybe_point =
+            intersection_point(inv_matrix, slice->orientation, glm::vec2(x, y));
+        if (maybe_point.first) {
+            auto z = maybe_point.second;
+            if (z < best_z) {
+                best_z = z;
+                best_slice_index = id_slice.first;
+            }
+        }
+    }
+
+    return best_slice_index;
+}
+
+void ReconstructionComponent::check_hovered(float x, float y) {
+    int best_slice_index = index_hovering_over(x, y);
+
+    if (best_slice_index >= 0) {
+        slices_[best_slice_index]->hovered = true;
+        hovering_ = true;
+    } else {
+        hovering_ = false;
+    }
+}
+
+void ReconstructionComponent::switch_if_necessary(
+    recon_drag_machine_kind kind) {
+    if (!drag_machine_ || drag_machine_->kind() != kind) {
+        switch (kind) {
+            case recon_drag_machine_kind::translator:
+                drag_machine_ = std::make_unique<SliceTranslator>(*this);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void SliceTranslator::on_drag(glm::vec2 delta) {
+    // 1) what are we dragging, and does it have data?
+    // if it does then we need to make a new slice
+    // else we drag the current slice along the normal
+    if (!comp_.dragged_slice()) {
+        std::unique_ptr<slice> new_slice;
+        int id = (*(comp_.get_slices().rbegin())).first + 1;
+        int to_remove = -1;
+        for (auto& id_the_slice : comp_.get_slices()) {
+            auto& the_slice = id_the_slice.second;
+            if (the_slice->hovered) {
+                if (the_slice->has_data()) {
+                    new_slice = std::make_unique<slice>(id);
+                    new_slice->orientation = the_slice->orientation;
+                    to_remove = the_slice->id;
+                    // FIXME need to generate a new id and upon 'popping'
+                    // send a UpdateSlice packet
+                    comp_.dragged_slice() = new_slice.get();
+                } else {
+                    comp_.dragged_slice() = the_slice.get();
+                }
+                break;
+            }
+        }
+        if (new_slice) {
+            comp_.get_slices()[new_slice->id] = std::move(new_slice);
+        }
+        if (to_remove >= 0) {
+            comp_.get_slices().erase(to_remove);
+            std::cout << "remove slice: " << to_remove << "\n";
+        }
+        assert(comp_.dragged_slice());
+    }
+
+    auto slice = comp_.dragged_slice();
+    auto& o = slice->orientation;
+
+    auto axis1 = glm::vec3(o[0][0], o[0][1], o[0][2]);
+    auto axis2 = glm::vec3(o[1][0], o[1][1], o[1][2]);
+    auto normal = glm::normalize(glm::cross(axis1, axis2));
+
+    // project the normal vector to screen coordinates
+    // FIXME maybe need window matrix here too which would be kind of
+    // painful maybe
+    auto base_point_normal =
+        glm::vec3(o[2][0], o[2][1], o[2][2]) + 0.5f * (axis1 + axis2);
+    auto end_point_normal = base_point_normal + normal;
+
+    auto a =
+        comp_.object().camera().matrix() * glm::vec4(base_point_normal, 1.0f);
+    auto b =
+        comp_.object().camera().matrix() * glm::vec4(end_point_normal, 1.0f);
+    auto normal_delta = b - a;
+    float difference =
+        glm::dot(glm::vec2(normal_delta.x, normal_delta.y), delta);
+
+    // take the inner product of delta x and this normal vector
+
+    auto dx = difference * normal;
+    // FIXME check if it is still inside the bounding box of the volume
+    // probably by checking all four corners are inside bounding box, should
+    // define this box somewhere
+    o[2][0] += dx[0];
+    o[2][1] += dx[1];
+    o[2][2] += dx[2];
 }
 
 }  // namespace tomovis

@@ -8,13 +8,13 @@
 
 #include "graphics/render_target.hpp"
 #include "input_handler.hpp"
-
+#include "packet_listener.hpp"
 
 namespace tomovis {
 
 class Scene;
 
-class SceneList : public RenderTarget, public InputHandler {
+class SceneList : public RenderTarget, public InputHandler, public PacketPublisher, public PacketListener {
   public:
     SceneList();
     ~SceneList();
@@ -43,6 +43,10 @@ class SceneList : public RenderTarget, public InputHandler {
     bool handle_scroll(double offset) override;
     bool handle_mouse_moved(float x, float y) override;
     bool handle_key(int key, bool down, int mods) override;
+
+    void handle(Packet& packet) override {
+        send(packet);
+    }
 
   private:
     std::map<int, std::unique_ptr<Scene>> scenes_;

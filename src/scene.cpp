@@ -6,12 +6,12 @@
 
 namespace tomovis {
 
-Scene::Scene(std::string name, int dimension)
-    : name_(name), dimension_(dimension) {
+Scene::Scene(std::string name, int dimension, int scene_id)
+    : name_(name), dimension_(dimension), scene_id_(scene_id) {
     if (dimension_ == 2) {
-        object_ = std::make_unique<SceneObject2d>();
+        object_ = std::make_unique<SceneObject2d>(scene_id_);
     } else if (dimension_ == 3) {
-        object_ = std::make_unique<SceneObject3d>();
+        object_ = std::make_unique<SceneObject3d>(scene_id_);
     } else {
         throw;
     }

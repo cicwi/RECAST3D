@@ -12,6 +12,12 @@
 
 namespace tomovis {
 
+Server::Server(SceneList& scenes) : scenes_(scenes),
+                      context_(),
+                      publisher_socket_(context_, ZMQ_PUB) {
+    scenes_.add_listener(this);
+}
+
 void Server::register_module(std::shared_ptr<SceneModuleProtocol> module) {
     for (auto desc : module->descriptors()) {
         modules_[desc] = module;
@@ -24,8 +30,7 @@ void Server::start() {
 
     // todo graceful shutdown, probably by sending a 'kill' packet to self
     server_thread = std::thread([&]() {
-        zmq::context_t context(1);
-        zmq::socket_t socket(context, ZMQ_REP);
+        zmq::socket_t socket(context_, ZMQ_REP);
         socket.bind("tcp://*:5555");
 
         while (true) {
@@ -48,6 +53,8 @@ void Server::start() {
                 modules_[desc]->read_packet(desc, buffer, socket, scenes_)));
         }
     });
+
+    publisher_socket_.bind("tcp://*:5556");
 }
 
 void Server::tick(float) {

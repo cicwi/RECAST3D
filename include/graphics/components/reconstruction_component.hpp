@@ -10,13 +10,33 @@
 #include "graphics/shader_program.hpp"
 #include "graphics/slice.hpp"
 #include "graphics/textures.hpp"
+#include "graphics/scene_object.hpp"
 #include "object_component.hpp"
 
 namespace tomovis {
 
+class ReconstructionComponent;
+
+enum class recon_drag_machine_kind : int {
+    none,
+    rotator,
+    translator,
+};
+
+class ReconDragMachine {
+   public:
+    ReconDragMachine(ReconstructionComponent& comp) : comp_(comp) {}
+
+    virtual void on_drag(glm::vec2 delta) = 0;
+    virtual recon_drag_machine_kind kind() = 0;
+
+   protected:
+    ReconstructionComponent& comp_;
+};
+
 class ReconstructionComponent : public ObjectComponent {
    public:
-    ReconstructionComponent();
+    ReconstructionComponent(SceneObject& object, int scene_id);
     ~ReconstructionComponent();
 
     void draw(glm::mat4 world_to_screen) const override;
@@ -46,7 +66,18 @@ class ReconstructionComponent : public ObjectComponent {
                                  data);
     }
 
+    bool handle_mouse_button(int button, bool down) override;
+    bool handle_mouse_moved(float x, float y) override;
+
+    int index_hovering_over(float x, float y);
+    void check_hovered(float x, float y);
+    void switch_if_necessary(recon_drag_machine_kind kind);
+
     std::map<int, std::unique_ptr<slice>>& slices() { return slices_; }
+
+    auto& object() { return object_; }
+    auto& dragged_slice() { return dragged_slice_; }
+    auto& get_slices() { return slices_; }
 
    private:
     void update_image_(int slice);
@@ -66,6 +97,26 @@ class ReconstructionComponent : public ObjectComponent {
 
     GLuint colormap_texture_;
     texture3d<unsigned char> volume_texture_;
+
+    std::unique_ptr<ReconDragMachine> drag_machine_;
+    slice* dragged_slice_ = nullptr;
+    SceneObject& object_;
+
+    float prev_x_ = -1.1f;
+    float prev_y_ = -1.1f;
+
+    bool dragging_ = false;
+    bool hovering_ = false;
+
+    int scene_id_;
+};
+
+class SliceTranslator : public ReconDragMachine {
+   public:
+    using ReconDragMachine::ReconDragMachine;
+
+    void on_drag(glm::vec2 delta) override;
+    recon_drag_machine_kind kind() override { return recon_drag_machine_kind::translator; }
 };
 
 }  // namespace tomovis

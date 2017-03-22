@@ -6,7 +6,7 @@
 
 namespace tomovis {
 
-SceneObject2d::SceneObject2d() : SceneObject(), size_{32, 32} {
+SceneObject2d::SceneObject2d(int scene_id) : SceneObject(scene_id), size_{32, 32} {
     static const GLfloat square[4][2] = {{-1.0f, -1.0f},
                                          {-1.0f, 1.0f},
                                          {1.0f, 1.0f},

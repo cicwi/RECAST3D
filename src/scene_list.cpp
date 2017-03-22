@@ -1,6 +1,5 @@
 #include <memory>
 
-#include "graphics/scene_camera.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 
@@ -16,8 +15,12 @@ int SceneList::add_scene(std::string name, int id, bool make_active, int dimensi
         id = reserve_id();
     }
 
-    scenes_[id] = std::make_unique<Scene>(name, dimension);
-    if (make_active) set_active_scene(id);
+    scenes_[id] = std::make_unique<Scene>(name, dimension, id);
+    if (make_active) {
+        set_active_scene(id);
+    }
+
+    scenes_[id]->object().add_listener(this);
 
     return id;
 }
@@ -49,26 +52,26 @@ void SceneList::render(glm::mat4 window_matrix) {
 
 bool SceneList::handle_mouse_button(int button, bool down) {
     if (active_scene_)
-        return active_scene_->object().camera().handle_mouse_button(button,
+        return active_scene_->object().handle_mouse_button(button,
                                                                     down);
     return false;
 }
 
 bool SceneList::handle_scroll(double offset) {
     if (active_scene_)
-        return active_scene_->object().camera().handle_scroll(offset);
+        return active_scene_->object().handle_scroll(offset);
     return false;
 }
 
 bool SceneList::handle_mouse_moved(float x, float y) {
     if (active_scene_)
-        return active_scene_->object().camera().handle_mouse_moved(x, y);
+        return active_scene_->object().handle_mouse_moved(x, y);
     return false;
 }
 
 bool SceneList::handle_key(int key, bool down, int mods) {
     if (active_scene_)
-        return active_scene_->object().camera().handle_key(key, down, mods);
+        return active_scene_->object().handle_key(key, down, mods);
     return false;
 }
 

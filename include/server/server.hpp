@@ -9,11 +9,14 @@
 // appropriate slice, but later restricting construction only to the request.
 
 #include <cstring>
+#include <map>
 #include <memory>
 #include <queue>
-#include <map>
 #include <thread>
 
+#include "zmq.hpp"
+
+#include "packet_listener.hpp"
 #include "packets.hpp"
 #include "ticker.hpp"
 
@@ -22,14 +25,25 @@ namespace tomovis {
 class SceneList;
 class SceneModuleProtocol;
 
-class Server : public Ticker {
+class Server : public Ticker, public PacketListener {
    public:
-    Server(SceneList& scenes) : scenes_(scenes) {}
-
+    Server(SceneList& scenes);
     void start();
     void tick(float) override;
 
     void register_module(std::shared_ptr<SceneModuleProtocol> module);
+
+    void handle(Packet& pkt) override {
+        try {
+            auto pkt_size = pkt.size();
+            zmq::message_t message(pkt_size);
+            auto membuf = pkt.serialize(pkt_size);
+            memcpy(message.data(), membuf.buffer.get(), pkt_size);
+            publisher_socket_.send(message);
+        } catch (const std::exception& e) {
+            std::cout << "Failed sending: " << e.what() << "\n";
+        }
+    }
 
    private:
     std::map<packet_desc, std::shared_ptr<SceneModuleProtocol>> modules_;
@@ -41,6 +55,9 @@ class Server : public Ticker {
 
     /** Filled by server thread, performed by 'OpenGL' tread */
     std::queue<std::unique_ptr<Packet>> packets_;
+
+    zmq::context_t context_;
+    zmq::socket_t publisher_socket_;
 };
 
 }  // namespace tomovis

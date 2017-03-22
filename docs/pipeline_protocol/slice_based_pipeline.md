@@ -128,6 +128,13 @@ We currently plan to use *ZeroMQ* because of its flexibility with respect to pro
 
 # Appendix: Packet definitions
 
+Orientations are given as:
+```cpp
+real[9] orientation = {a, b, c, d, e, f, g, h, i};
+```
+compare with the matrix given above.
+
+
 ``` cpp
 // Usage: register a scene with the controller
 // Reply: a `scene_id`
@@ -139,7 +146,8 @@ packet MakeScene:
 ```
 
 ```cpp
-// Usage: set the slices to reconstruct
+// Usage: set the slices to reconstruct,
+// Note: published by server
 packet SetSlice:
     int scene_id
     int slice_id
@@ -147,12 +155,9 @@ packet SetSlice:
 ```
 
 ```cpp
-// Usage: update the orientation of a slice
-packet UpdateSlice:
+packet RemoveSlice:
     int scene_id
-    int old_slice_id
-    int new_slice_id
-    real[9] orientation;
+    int slice_id
 ```
 
 ```cpp
@@ -162,4 +167,12 @@ packet SliceData:
     int slice_id
     int[2] slice_size
     unsigned char[pixels] data // pixels = product(slice_size)
+```
+
+```cpp
+// Usage: update the volume data
+packet VolumeData:
+    int scene_id
+    int[3] volume_size
+    unsigned char[voxels] data // voxels = product(volume_size)
 ```

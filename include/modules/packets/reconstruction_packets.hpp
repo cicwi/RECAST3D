@@ -57,4 +57,30 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
     std::vector<unsigned char> data;
 };
 
+class SetSlicePacket : public PacketBase<SetSlicePacket> {
+   public:
+    SetSlicePacket()
+        : PacketBase<SetSlicePacket>(packet_desc::set_slice),
+          scene_id(-1),
+          slice_id(0) {}
+
+    SetSlicePacket(int scene_id_, int slice_id_,
+                    const std::array<float, 9>& orientation_)
+        : PacketBase<SetSlicePacket>(packet_desc::set_slice),
+          scene_id(scene_id_),
+          slice_id(slice_id_),
+          orientation(orientation_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+        buffer | slice_id;
+        buffer | orientation;
+    }
+
+    int scene_id;
+    int slice_id;
+    std::array<float, 9> orientation;
+};
+
 }  // namespace tomovis

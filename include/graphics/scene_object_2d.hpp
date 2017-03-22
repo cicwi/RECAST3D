@@ -7,7 +7,7 @@ namespace tomovis {
 
 class SceneObject2d : public SceneObject {
   public:
-    SceneObject2d();
+    SceneObject2d(int scene_id);
     ~SceneObject2d();
 
     void draw(glm::mat4 window_matrix) override;
