@@ -9,7 +9,6 @@ namespace tomovis {
 
 GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
     : object_(object), scene_id_(scene_id) {
-    projections_.emplace_back(0);
     current_projection_ = 0;
 
     static const GLfloat square[4][3] = {{0.0f, 0.0f, 0.0f},
@@ -74,6 +73,8 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
 GeometryComponent::~GeometryComponent() {}
 
 void GeometryComponent::tick(float time_elapsed) {
+    if (projections_.empty())
+        return;
     if (total_time_elapsed_ < 0.0f) {
         total_time_elapsed_ = 0.01f;
     } else {
@@ -86,6 +87,9 @@ void GeometryComponent::tick(float time_elapsed) {
 }
 
 void GeometryComponent::draw(glm::mat4 world_to_screen) const {
+    if (projections_.empty())
+        return;
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 

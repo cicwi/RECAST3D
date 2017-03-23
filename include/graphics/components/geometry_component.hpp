@@ -23,6 +23,13 @@ struct projection {
                         glm::vec3(0.0f, 2.0f, 0.0f));
     }
 
+    projection(projection&& other) : data_texture(std::move(other.data_texture)) {
+        source_position = other.source_position;
+        detector_orientation = other.detector_orientation;
+        parallel = other.parallel;
+        id = other.id;
+    }
+
     void set_orientation(glm::vec3 base, glm::vec3 x, glm::vec3 y) {
         float orientation_matrix[16] = {x.x,  y.x,  base.x, 0.0f,   // 1
                                         x.y,  y.y,  base.y, 0.0f,   // 2
@@ -50,10 +57,11 @@ class GeometryComponent : public ObjectComponent {
     std::string identifier() const override { return "geometry"; }
 
     void tick(float time_elapsed) override;
+    void add_projection(projection&& proj) { projections_.push_back(std::move(proj)); }
 
    private:
-    int scene_id_;
     SceneObject& object_;
+    int scene_id_;
 
     GLuint vao_handle_;
     GLuint vbo_handle_;

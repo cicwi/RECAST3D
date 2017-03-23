@@ -43,12 +43,38 @@ class GeometryProtocol : public SceneModuleProtocol {
                  std::unique_ptr<Packet> event_packet) override {
         switch (event_packet->desc) {
             case packet_desc::geometry_specification: {
-                GeometrySpecificationPacket& packet = *(GeometrySpecificationPacket*)event_packet.get();
+                GeometrySpecificationPacket& packet =
+                    *(GeometrySpecificationPacket*)event_packet.get();
                 break;
             }
 
             case packet_desc::projection_data: {
-                ProjectionDataPacket& packet = *(ProjectionDataPacket*)event_packet.get();
+                ProjectionDataPacket& packet =
+                    *(ProjectionDataPacket*)event_packet.get();
+
+                auto scene = scenes.get_scene(packet.scene_id);
+                if (!scene) {
+                    std::cout << "Updating non-existing scene\n";
+                }
+                auto& geometry_component =
+                    (GeometryComponent&)scene->object().get_component(
+                        "geometry");
+
+                auto xs = packet.detector_orientation;
+
+                projection proj(packet.projection_id);
+                proj.source_position = {packet.source_position[0],
+                                        packet.source_position[1],
+                                        packet.source_position[2]};
+                proj.set_orientation({xs[6], xs[7], xs[8]},
+                                     {xs[0], xs[1], xs[2]},
+                                     {xs[3], xs[4], xs[5]});
+                proj.parallel = false;
+                proj.data_texture.set_data(packet.data,
+                                           packet.detector_pixels[0],
+                                           packet.detector_pixels[1]);
+
+                geometry_component.add_projection(std::move(proj));
                 break;
             }
 
