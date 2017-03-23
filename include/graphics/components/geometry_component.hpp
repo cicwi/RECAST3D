@@ -17,7 +17,7 @@
 namespace tomovis {
 
 struct projection {
-    projection(int id_) : id(id_), data_texture(16, 16) {
+    projection(int id_) : id(id_), data_texture(32, 32) {
         set_orientation(glm::vec3(-4.0f, -1.0f, -1.0f),
                         glm::vec3(0.0f, 0.0f, 2.0f),
                         glm::vec3(0.0f, 2.0f, 0.0f));
@@ -49,6 +49,8 @@ class GeometryComponent : public ObjectComponent {
     void draw(glm::mat4 world_to_screen) const override;
     std::string identifier() const override { return "geometry"; }
 
+    void tick(float time_elapsed) override;
+
    private:
     int scene_id_;
     SceneObject& object_;
@@ -65,7 +67,9 @@ class GeometryComponent : public ObjectComponent {
     GLuint lines_vbo_handle_;
     std::unique_ptr<ShaderProgram> lines_program_;
 
-    projection proj;
+    float total_time_elapsed_ = -1.0f;
+    int current_projection_ = -1;
+    std::vector<projection> projections_;
 };
 
 }  // namespace tomovis

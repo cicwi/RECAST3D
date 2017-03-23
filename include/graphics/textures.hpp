@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
@@ -20,7 +20,18 @@ class texture {
         fill_texture(data);
     }
 
-    ~texture() { glDeleteTextures(1, &texture_id_); }
+    ~texture() {
+        if (texture_id_ >= 0) {
+            glDeleteTextures(1, &texture_id_);
+        }
+    }
+
+    texture(texture&& other) {
+        x_ = other.x_;
+        y_ = other.y_;
+        texture_id_ = other.texture_id_;
+        other.texture_id_ = -1;
+    }
 
     void set_data(std::vector<T>& data, int x, int y) {
         x_ = x;
@@ -54,7 +65,7 @@ class texture {
     }
 
    private:
-    GLuint texture_id_;
+    GLuint texture_id_ = -1;
     int x_ = -1;
     int y_ = -1;
 };
@@ -73,6 +84,9 @@ class texture3d {
 
     ~texture3d() { glDeleteTextures(1, &texture_id_); }
 
+    texture3d(const texture3d&) = delete;
+    texture3d(const texture3d&&) = delete;
+
     void set_data(int x, int y, int z, std::vector<T>& data) {
         x_ = x;
         y_ = y;
@@ -89,7 +103,6 @@ class texture3d {
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
 
         // FIXME GL_UNSIGNED_BYTE depends on T
         glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, x_, y_, z_, 0, GL_RED,

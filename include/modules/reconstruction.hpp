@@ -25,26 +25,14 @@ class ReconstructionProtocol : public SceneModuleProtocol {
             case packet_desc::slice_data: {
                 auto packet = std::make_unique<SliceDataPacket>();
                 packet->deserialize(std::move(buffer));
-
-                zmq::message_t reply(sizeof(int));
-
-                int success = 1;
-                memcpy(reply.data(), &success, sizeof(int));
-                socket.send(reply);
-
+                message_succes(socket);
                 return std::move(packet);
             }
 
             case packet_desc::volume_data: {
                 auto packet = std::make_unique<VolumeDataPacket>();
                 packet->deserialize(std::move(buffer));
-
-                zmq::message_t reply(sizeof(int));
-
-                int success = 1;
-                memcpy(reply.data(), &success, sizeof(int));
-                socket.send(reply);
-
+                message_succes(socket);
                 return std::move(packet);
             }
 

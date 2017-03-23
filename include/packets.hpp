@@ -16,6 +16,11 @@ enum class packet_desc : int {
     slice_data,
     volume_data,
     set_slice,
+    remove_slice, // TODO
+
+    // GEOMETRY
+    geometry_specification,
+    projection_data,
 };
 
 class Packet {

@@ -42,7 +42,7 @@ void Server::start() {
             auto buffer = memory_buffer(request.size(), (char*)request.data());
 
             if (modules_.find(desc) == modules_.end()) {
-                std::cout << "unknown descriptor: "
+                std::cout << "Unsupported package descriptor: "
                           << (std::underlying_type<decltype(desc)>::type)desc
                           << "\n";
                 continue;
@@ -62,9 +62,6 @@ void Server::tick(float) {
         auto event_packet = std::move(packets_.front());
         packets_.pop();
 
-        // FIXME
-        // question remains; what about the other way around? maybe we can stage
-        // outgoing packets.
         modules_[event_packet->desc]->process(scenes_, std::move(event_packet));
     }
 }

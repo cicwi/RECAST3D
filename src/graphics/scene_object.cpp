@@ -16,6 +16,12 @@ SceneObject::~SceneObject() {
     glDeleteBuffers(1, &vbo_handle_);
 }
 
+void SceneObject::tick(float time_elapsed) {
+    for (auto& id_and_comp : components_) {
+        id_and_comp.second->tick(time_elapsed);
+    }
+}
+
 bool SceneObject::handle_mouse_button(int button, bool down) {
     for (auto& id_and_comp : components_) {
         if (id_and_comp.second->handle_mouse_button(button, down)) {

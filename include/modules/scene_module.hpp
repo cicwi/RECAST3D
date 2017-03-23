@@ -22,6 +22,13 @@ class SceneModuleProtocol {
                          std::unique_ptr<Packet> event_packet) = 0;
 
     virtual std::vector<packet_desc> descriptors() = 0;
+
+    void message_succes(zmq::socket_t& socket) {
+        zmq::message_t reply(sizeof(int));
+        int success = 1;
+        memcpy(reply.data(), &success, sizeof(int));
+        socket.send(reply);
+    }
 };
 
 }  // namespace tomovis

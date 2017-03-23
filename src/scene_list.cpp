@@ -10,7 +10,8 @@ SceneList::SceneList() {}
 SceneList::~SceneList() {}
 
 // TODO make thread safe
-int SceneList::add_scene(std::string name, int id, bool make_active, int dimension) {
+int SceneList::add_scene(std::string name, int id, bool make_active,
+                         int dimension) {
     if (id == -1) {
         id = reserve_id();
     }
@@ -47,31 +48,42 @@ void SceneList::set_active_scene(int index) {
 }
 
 void SceneList::render(glm::mat4 window_matrix) {
-    if (active_scene_) active_scene_->render(window_matrix);
+    if (active_scene_) {
+        active_scene_->render(window_matrix);
+    }
+}
+
+void SceneList::tick(float dt) {
+    if (active_scene_) {
+        return active_scene_->object().tick(dt);
+    }
 }
 
 bool SceneList::handle_mouse_button(int button, bool down) {
-    if (active_scene_)
-        return active_scene_->object().handle_mouse_button(button,
-                                                                    down);
+    if (active_scene_) {
+        return active_scene_->object().handle_mouse_button(button, down);
+    }
     return false;
 }
 
 bool SceneList::handle_scroll(double offset) {
-    if (active_scene_)
+    if (active_scene_) {
         return active_scene_->object().handle_scroll(offset);
+    }
     return false;
 }
 
 bool SceneList::handle_mouse_moved(float x, float y) {
-    if (active_scene_)
+    if (active_scene_) {
         return active_scene_->object().handle_mouse_moved(x, y);
+    }
     return false;
 }
 
 bool SceneList::handle_key(int key, bool down, int mods) {
-    if (active_scene_)
+    if (active_scene_) {
         return active_scene_->object().handle_key(key, down, mods);
+    }
     return false;
 }
 

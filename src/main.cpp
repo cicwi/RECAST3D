@@ -10,6 +10,7 @@
 #include "input.hpp"
 #include "modules/reconstruction.hpp"
 #include "modules/scene_management.hpp"
+#include "modules/geometry.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "server/server.hpp"
@@ -28,6 +29,7 @@ int main() {
     // construct the scenes
     tomovis::SceneList scenes;
     renderer.register_target(scenes);
+    renderer.register_ticker(scenes);
     input.register_handler(scenes);
 
     tomovis::SceneSwitcher scene_switcher(scenes);
@@ -43,6 +45,7 @@ int main() {
     // add more modules to the server
     server.register_module(std::make_shared<tomovis::ManageSceneProtocol>());
     server.register_module(std::make_shared<tomovis::ReconstructionProtocol>());
+    server.register_module(std::make_shared<tomovis::GeometryProtocol>());
 
     server.start();
     renderer.register_ticker(server);

@@ -8,7 +8,10 @@
 namespace tomovis {
 
 GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
-    : object_(object), scene_id_(scene_id), proj(0) {
+    : object_(object), scene_id_(scene_id) {
+    projections_.emplace_back(0);
+    current_projection_ = 0;
+
     static const GLfloat square[4][3] = {{0.0f, 0.0f, 0.0f},
                                          {0.0f, 1.0f, 0.0f},
                                          {1.0f, 1.0f, 0.0f},
@@ -70,54 +73,75 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
 
 GeometryComponent::~GeometryComponent() {}
 
+void GeometryComponent::tick(float time_elapsed) {
+    if (total_time_elapsed_ < 0.0f) {
+        total_time_elapsed_ = 0.01f;
+    } else {
+        total_time_elapsed_ += time_elapsed;
+    }
+    while (total_time_elapsed_ > 1.0f) {
+        current_projection_ = (current_projection_ + 1) % projections_.size();
+        total_time_elapsed_ -= 1.0f;
+    }
+}
+
 void GeometryComponent::draw(glm::mat4 world_to_screen) const {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    cube_program_->use();
 
-    // DRAW SOURCE
-    glm::mat4 object_matrix =
-        glm::translate(proj.source_position) * glm::scale(glm::vec3(0.1f));
+    auto draw_projection = [&](auto& proj) {
+        cube_program_->use();
 
-    auto transform_matrix = world_to_screen * object_matrix;
+        // DRAW SOURCE
+        glm::mat4 object_matrix =
+            glm::translate(proj.source_position) * glm::scale(glm::vec3(0.1f));
 
-    GLint matrix_loc =
-        glGetUniformLocation(cube_program_->handle(), "transform_matrix");
-    glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &transform_matrix[0][0]);
+        auto transform_matrix = world_to_screen * object_matrix;
 
-    glBindVertexArray(cube_vao_handle_);
-    glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+        GLint matrix_loc =
+            glGetUniformLocation(cube_program_->handle(), "transform_matrix");
+        glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &transform_matrix[0][0]);
 
-    // DRAW PROJECTION
-    program_->use();
+        glBindVertexArray(cube_vao_handle_);
+        glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
-    proj.data_texture.bind();
+        // DRAW PROJECTION
+        program_->use();
 
-    GLint or_matrix_loc =
-        glGetUniformLocation(program_->handle(), "orientation_matrix");
-    glUniformMatrix4fv(or_matrix_loc, 1, GL_FALSE,
-                       &proj.detector_orientation[0][0]);
-    GLint ws_matrix_loc =
-        glGetUniformLocation(program_->handle(), "world_to_screen_matrix");
-    glUniformMatrix4fv(ws_matrix_loc, 1, GL_FALSE, &world_to_screen[0][0]);
+        glUniform1i(glGetUniformLocation(program_->handle(), "texture_sampler"), 0);
+        proj.data_texture.bind();
 
-    glBindVertexArray(vao_handle_);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+        GLint or_matrix_loc =
+            glGetUniformLocation(program_->handle(), "orientation_matrix");
+        glUniformMatrix4fv(or_matrix_loc, 1, GL_FALSE,
+                           &proj.detector_orientation[0][0]);
+        GLint ws_matrix_loc =
+            glGetUniformLocation(program_->handle(), "world_to_screen_matrix");
+        glUniformMatrix4fv(ws_matrix_loc, 1, GL_FALSE, &world_to_screen[0][0]);
 
-    // DRAW LINES
-    lines_program_->use();
-    glm::mat4 source_to_det_matrix = proj.detector_orientation;
-    source_to_det_matrix[2] += glm::vec4(-proj.source_position, 0.0f);
-    auto line_transform_matrix = world_to_screen * glm::translate(proj.source_position) * source_to_det_matrix;
+        glBindVertexArray(vao_handle_);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-    GLint line_matrix_loc =
-        glGetUniformLocation(lines_program_->handle(), "transform_matrix");
-    glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &line_transform_matrix[0][0]);
+        // DRAW LINES
+        lines_program_->use();
+        glm::mat4 source_to_det_matrix = proj.detector_orientation;
+        source_to_det_matrix[2] += glm::vec4(-proj.source_position, 0.0f);
+        auto line_transform_matrix = world_to_screen *
+                                     glm::translate(proj.source_position) *
+                                     source_to_det_matrix;
 
-    glLineWidth(2.0f);
-    glBindVertexArray(lines_vao_handle_);
-    glDrawArrays(GL_LINES, 0, 8 * 3);
-    glLineWidth(1.0f);
+        GLint line_matrix_loc =
+            glGetUniformLocation(lines_program_->handle(), "transform_matrix");
+        glUniformMatrix4fv(line_matrix_loc, 1, GL_FALSE,
+                           &line_transform_matrix[0][0]);
+
+        glLineWidth(2.0f);
+        glBindVertexArray(lines_vao_handle_);
+        glDrawArrays(GL_LINES, 0, 8 * 3);
+        glLineWidth(1.0f);
+    };
+
+    draw_projection(projections_[current_projection_]);
 
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);

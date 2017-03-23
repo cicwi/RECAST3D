@@ -9,13 +9,14 @@
 
 #include "components/object_component.hpp"
 #include "packet_listener.hpp"
+#include "ticker.hpp"
 
 namespace tomovis {
 
 class ShaderProgram;
 class SceneCamera;
 
-class SceneObject : public InputHandler, public PacketPublisher {
+class SceneObject : public InputHandler, public PacketPublisher, public Ticker {
    public:
     SceneObject(int scene_id);
     virtual ~SceneObject();
@@ -41,6 +42,7 @@ class SceneObject : public InputHandler, public PacketPublisher {
     bool handle_scroll(double offset) override;
     bool handle_mouse_moved(float x, float y) override;
     bool handle_key(int key, bool down, int mods) override;
+    void tick(float time_elapsed) override;
 
    protected:
     int scene_id_ = -1;
