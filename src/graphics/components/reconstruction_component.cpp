@@ -1,8 +1,10 @@
 #include <iostream>
 
+#include <glm/gtx/transform.hpp>
+
 #include "graphics/colormap.hpp"
 #include "graphics/components/reconstruction_component.hpp"
-#include "graphics/scene_camera.hpp"
+#include "graphics/scene_camera_3d.hpp"
 
 #include "modules/packets/reconstruction_packets.hpp"
 
@@ -73,9 +75,7 @@ ReconstructionComponent::ReconstructionComponent(SceneObject& object,
                                 glm::vec3(2.0f, 0.0f, 0.0f),
                                 glm::vec3(0.0f, 2.0f, 0.0f));
 
-    box_origin_ = glm::vec3(-1.0f);
-    box_size_ = glm::vec3(2.0f);
-
+    set_volume_position(glm::vec3(-1.0f), glm::vec3(1.0f));
     colormap_texture_ = generate_colormap_texture("bone");
 }
 
@@ -89,6 +89,15 @@ ReconstructionComponent::~ReconstructionComponent() {
 
 void ReconstructionComponent::update_image_(int slice) {
     slices_[slice]->update_texture();
+}
+
+void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
+                                                  glm::vec3 max_pt) {
+    auto center = 0.5f * (min_pt + max_pt);
+    volume_transform_ = glm::translate(center) *
+                        glm::scale(glm::vec3(max_pt - min_pt)) *
+                        glm::scale(glm::vec3(0.5f));
+    object_.camera().look_at(glm::vec3(volume_transform_ * glm::vec4(glm::vec3(0.0f), 1.0f)));
 }
 
 void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
@@ -106,6 +115,8 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormap_texture_);
 
+    auto full_transform = world_to_screen * volume_transform_;
+
     auto draw_slice = [&](slice& the_slice) {
         the_slice.get_texture().bind();
 
@@ -113,7 +124,8 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
             glGetUniformLocation(program_->handle(), "world_to_screen_matrix");
         GLint orientation_loc =
             glGetUniformLocation(program_->handle(), "orientation_matrix");
-        glUniformMatrix4fv(transform_loc, 1, GL_FALSE, &world_to_screen[0][0]);
+
+        glUniformMatrix4fv(transform_loc, 1, GL_FALSE, &full_transform[0][0]);
         glUniformMatrix4fv(orientation_loc, 1, GL_FALSE,
                            &the_slice.orientation[0][0]);
 
@@ -154,7 +166,7 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
 
     GLint matrix_loc =
         glGetUniformLocation(cube_program_->handle(), "transform_matrix");
-    glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &world_to_screen[0][0]);
+    glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &full_transform[0][0]);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glBindVertexArray(cube_vao_handle_);
@@ -195,6 +207,7 @@ bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
 
     return false;
 }
+
 bool ReconstructionComponent::handle_mouse_moved(float x, float y) {
     // update slices that is being hovered over
     y = -y;
@@ -268,7 +281,7 @@ int ReconstructionComponent::index_hovering_over(float x, float y) {
         return std::make_pair(does_intersect, distance);
     };
 
-    auto inv_matrix = glm::inverse(object_.camera().matrix());
+    auto inv_matrix = glm::inverse(object_.camera().matrix() * volume_transform_);
     int best_slice_index = -1;
     float best_z = std::numeric_limits<float>::max();
     for (auto& id_slice : slices_) {
@@ -344,7 +357,9 @@ void SliceTranslator::on_drag(glm::vec2 delta) {
         }
         if (to_remove >= 0) {
             comp_.get_slices().erase(to_remove);
-            std::cout << "remove slice: " << to_remove << "\n";
+            // send slice packet
+            auto packet = RemoveSlicePacket(comp_.scene_id(), to_remove);
+            comp_.object().send(packet);
         }
         assert(comp_.dragged_slice());
     }
@@ -364,9 +379,9 @@ void SliceTranslator::on_drag(glm::vec2 delta) {
     auto end_point_normal = base_point_normal + normal;
 
     auto a =
-        comp_.object().camera().matrix() * glm::vec4(base_point_normal, 1.0f);
+        comp_.object().camera().matrix() * comp_.volume_transform() * glm::vec4(base_point_normal, 1.0f);
     auto b =
-        comp_.object().camera().matrix() * glm::vec4(end_point_normal, 1.0f);
+        comp_.object().camera().matrix() * comp_.volume_transform() * glm::vec4(end_point_normal, 1.0f);
     auto normal_delta = b - a;
     float difference =
         glm::dot(glm::vec2(normal_delta.x, normal_delta.y), delta);

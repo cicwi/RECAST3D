@@ -75,17 +75,20 @@ class ReconstructionComponent : public ObjectComponent {
 
     std::map<int, std::unique_ptr<slice>>& slices() { return slices_; }
 
+    auto scene_id() { return scene_id_; }
     auto& object() { return object_; }
     auto& dragged_slice() { return dragged_slice_; }
     auto& get_slices() { return slices_; }
+
+    void set_volume_position(glm::vec3 min_pt, glm::vec3 max_pt);
+    glm::mat4 volume_transform() { return volume_transform_; }
 
    private:
     void update_image_(int slice);
 
     std::map<int, std::unique_ptr<slice>> slices_;
 
-    glm::vec3 box_origin_;
-    glm::vec3 box_size_;
+    glm::mat4 volume_transform_;
 
     GLuint vao_handle_;
     GLuint vbo_handle_;

@@ -20,6 +20,8 @@ class SceneCamera : public InputHandler {
     virtual glm::mat4 matrix() = 0;
     virtual std::vector<parameter<float>>& parameters() = 0;
 
+    virtual void look_at(glm::vec3 /* center */) {}
+
     GLuint colormap() { return colormap_texture_id_; }
     void set_colormap(std::string name);
 

@@ -10,15 +10,12 @@
 
 namespace tomovis {
 
-SceneCamera3d::SceneCamera3d(std::map<int, std::unique_ptr<slice>>& slices)
-    : slices_(slices) {
+SceneCamera3d::SceneCamera3d() {
     parameters_.push_back({"angle", 0.0f, 2.0f * M_PI, &angle_});
     parameters_.push_back({"x", -10.0f, 10.0f, &position_.x});
     parameters_.push_back({"y", -10.0f, 10.0f, &position_.y});
     parameters_.push_back({"z", -10.0f, 10.0f, &position_.z});
     parameters_.push_back({"scale", 0.0f, 1.0f, &scale_});
-    parameters_.push_back(
-        {"x of slice 1", -1.0f, 1.0f, &((slices_[0]->orientation)[0][0])});
 
     position_.z = -5.0f;
 
@@ -37,12 +34,16 @@ void SceneCamera3d::reset_view() {
         glm::rotate(-0.125f * glm::pi<float>(), right_) * view_matrix_;
 }
 
+void SceneCamera3d::look_at(glm::vec3 center) {
+    center_ = center;
+}
+
 glm::mat4 SceneCamera3d::matrix() {
     glm::mat4 camera_matrix = view_matrix_;
 
     camera_matrix =
         glm::lookAt(position_, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)) *
-        camera_matrix;
+         camera_matrix * glm::translate(-center_);
 
     camera_matrix = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 50.0f) *
                     camera_matrix;

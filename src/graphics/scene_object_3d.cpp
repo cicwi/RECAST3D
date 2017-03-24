@@ -13,10 +13,10 @@
 namespace tomovis {
 
 SceneObject3d::SceneObject3d(int scene_id) : SceneObject(scene_id) {
+    camera_ = std::make_unique<SceneCamera3d>();
+
     this->add_component(std::make_unique<ReconstructionComponent>(*this, this->scene_id_));
     this->add_component(std::make_unique<GeometryComponent>(*this, this->scene_id_));
-    camera_ = std::make_unique<SceneCamera3d>(
-        ((ReconstructionComponent&)(*components_["reconstruction"])).slices());
 }
 
 SceneObject3d::~SceneObject3d() {}

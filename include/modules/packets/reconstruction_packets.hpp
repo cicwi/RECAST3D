@@ -83,4 +83,27 @@ class SetSlicePacket : public PacketBase<SetSlicePacket> {
     std::array<float, 9> orientation;
 };
 
+
+class RemoveSlicePacket : public PacketBase<RemoveSlicePacket> {
+   public:
+    RemoveSlicePacket()
+        : PacketBase<RemoveSlicePacket>(packet_desc::remove_slice),
+          scene_id(-1),
+          slice_id(0) {}
+
+    RemoveSlicePacket(int scene_id_, int slice_id_)
+        : PacketBase<RemoveSlicePacket>(packet_desc::remove_slice),
+          scene_id(scene_id_),
+          slice_id(slice_id_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+        buffer | slice_id;
+    }
+
+    int scene_id;
+    int slice_id;
+};
+
 }  // namespace tomovis

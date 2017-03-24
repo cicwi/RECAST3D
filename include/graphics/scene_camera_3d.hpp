@@ -8,7 +8,6 @@
 #include "graphics/scene_camera.hpp"
 
 #include <glm/gtx/rotate_vector.hpp>
-#include "slice.hpp"
 
 namespace tomovis {
 
@@ -32,7 +31,7 @@ class CameraDragMachine {
 
 class SceneCamera3d : public SceneCamera {
    public:
-    SceneCamera3d(std::map<int, std::unique_ptr<slice>>& slices);
+    SceneCamera3d();
 
     glm::mat4 matrix() override;
 
@@ -46,13 +45,12 @@ class SceneCamera3d : public SceneCamera {
 
     void switch_if_necessary(drag_machine_kind kind);
 
-    auto& dragged_slice() { return dragged_slice_; }
-    auto& get_slices() { return slices_; }
-
     bool handle_mouse_button(int button, bool down) override;
     bool handle_scroll(double offset) override;
     bool handle_mouse_moved(float x, float y) override;
     bool handle_key(int key, bool down, int mods) override;
+
+    void look_at(glm::vec3 center) override;
 
    private:
     glm::vec3 position_;
@@ -69,15 +67,11 @@ class SceneCamera3d : public SceneCamera {
 
     glm::vec3 up_;
     glm::vec3 right_;
+    glm::vec3 center_;
 
     glm::mat4 view_matrix_;
-    // I think this should be a shared ptr or weak ptr, this is quite unsafe
-    // but maybe it is okay because camera is part of the object so it should
-    // get deconstructed before the object
-    std::map<int, std::unique_ptr<slice>>& slices_;
 
     std::unique_ptr<CameraDragMachine> drag_machine_;
-    slice* dragged_slice_ = nullptr;
 };
 
 class Rotator : public CameraDragMachine {

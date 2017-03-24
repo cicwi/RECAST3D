@@ -45,6 +45,21 @@ class GeometryProtocol : public SceneModuleProtocol {
             case packet_desc::geometry_specification: {
                 GeometrySpecificationPacket& packet =
                     *(GeometrySpecificationPacket*)event_packet.get();
+
+                auto scene = scenes.get_scene(packet.scene_id);
+                if (!scene) {
+                    std::cout << "Updating non-existing scene\n";
+                    return;
+                }
+                auto& recon_component =
+                    (ReconstructionComponent&)scene->object().get_component(
+                        "reconstruction");
+                auto min_pt = packet.volume_min_point;
+                auto max_pt = packet.volume_max_point;
+                recon_component.set_volume_position(
+                    {min_pt[0], min_pt[1], min_pt[2]},
+                    {max_pt[0], max_pt[1], max_pt[2]});
+
                 break;
             }
 
@@ -55,6 +70,7 @@ class GeometryProtocol : public SceneModuleProtocol {
                 auto scene = scenes.get_scene(packet.scene_id);
                 if (!scene) {
                     std::cout << "Updating non-existing scene\n";
+                    return;
                 }
                 auto& geometry_component =
                     (GeometryComponent&)scene->object().get_component(
