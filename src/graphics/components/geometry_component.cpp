@@ -98,7 +98,7 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) const {
 
         // DRAW SOURCE
         glm::mat4 object_matrix =
-            glm::translate(proj.source_position) * glm::scale(glm::vec3(0.1f));
+            glm::translate(proj.source_position) * glm::scale(glm::vec3(0.01f));
 
         auto transform_matrix = world_to_screen * object_matrix;
 

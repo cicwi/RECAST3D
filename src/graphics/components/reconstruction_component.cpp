@@ -97,7 +97,8 @@ void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
     volume_transform_ = glm::translate(center) *
                         glm::scale(glm::vec3(max_pt - min_pt)) *
                         glm::scale(glm::vec3(0.5f));
-    object_.camera().look_at(glm::vec3(volume_transform_ * glm::vec4(glm::vec3(0.0f), 1.0f)));
+    object_.camera().look_at(
+        glm::vec3(volume_transform_ * glm::vec4(glm::vec3(0.0f), 1.0f)));
 }
 
 void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
@@ -173,8 +174,6 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
     glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    // TODO low-resolution transparent voxel volume if available?
-
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 }
@@ -190,10 +189,6 @@ bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
 
     if (!down) {
         if (dragged_slice_) {
-            std::cout << "should set slice: " << dragged_slice_->id << "\n";
-            // how do we know if the slice is new, or if it should be updated
-            // we dont care, just send a set slice, with same id if it already
-            // knows it.. clients responsibility
             auto packet = SetSlicePacket(scene_id_, dragged_slice_->id,
                                          dragged_slice_->packed_orientation());
             object_.send(packet);
@@ -281,7 +276,8 @@ int ReconstructionComponent::index_hovering_over(float x, float y) {
         return std::make_pair(does_intersect, distance);
     };
 
-    auto inv_matrix = glm::inverse(object_.camera().matrix() * volume_transform_);
+    auto inv_matrix =
+        glm::inverse(object_.camera().matrix() * volume_transform_);
     int best_slice_index = -1;
     float best_z = std::numeric_limits<float>::max();
     for (auto& id_slice : slices_) {
@@ -378,10 +374,10 @@ void SliceTranslator::on_drag(glm::vec2 delta) {
         glm::vec3(o[2][0], o[2][1], o[2][2]) + 0.5f * (axis1 + axis2);
     auto end_point_normal = base_point_normal + normal;
 
-    auto a =
-        comp_.object().camera().matrix() * comp_.volume_transform() * glm::vec4(base_point_normal, 1.0f);
-    auto b =
-        comp_.object().camera().matrix() * comp_.volume_transform() * glm::vec4(end_point_normal, 1.0f);
+    auto a = comp_.object().camera().matrix() * comp_.volume_transform() *
+             glm::vec4(base_point_normal, 1.0f);
+    auto b = comp_.object().camera().matrix() * comp_.volume_transform() *
+             glm::vec4(end_point_normal, 1.0f);
     auto normal_delta = b - a;
     float difference =
         glm::dot(glm::vec2(normal_delta.x, normal_delta.y), delta);

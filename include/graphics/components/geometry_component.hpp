@@ -35,7 +35,6 @@ struct projection {
                                         x.y,  y.y,  base.y, 0.0f,   // 2
                                         x.z,  y.z,  base.z, 0.0f,   // 3
                                         0.0f, 0.0f, 0.0f,   1.0f};  // 4
-
         detector_orientation =
             glm::transpose(glm::make_mat4(orientation_matrix));
     }
