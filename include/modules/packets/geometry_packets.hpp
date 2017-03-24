@@ -26,11 +26,15 @@ class GeometrySpecificationPacket
         buffer | scene_id;
         buffer | parallel;
         buffer | projections;
+        buffer | volume_min_point;
+        buffer | volume_max_point;
     }
 
     int scene_id;
     bool parallel;
     int projections;
+    std::array<float, 3> volume_min_point;
+    std::array<float, 3> volume_max_point;
 };
 
 class ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
