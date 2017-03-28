@@ -3,6 +3,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include "graphics/components/geometry_component.hpp"
+#include "graphics/scene_camera_3d.hpp"
 //#include "modules/packets/geometry_packets.hpp"
 
 namespace tomovis {
@@ -66,8 +67,12 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
+    speed_ = 0.1f;
+
     lines_program_ = std::make_unique<ShaderProgram>(
         "../src/shaders/lines.vert", "../src/shaders/lines.frag");
+
+    colormap_texture_ = object.camera().colormap();
 }
 
 GeometryComponent::~GeometryComponent() {}
@@ -78,7 +83,7 @@ void GeometryComponent::tick(float time_elapsed) {
     if (total_time_elapsed_ < 0.0f) {
         total_time_elapsed_ = 0.01f;
     } else {
-        total_time_elapsed_ += time_elapsed;
+        total_time_elapsed_ += speed_ * time_elapsed;
     }
     while (total_time_elapsed_ > 1.0f) {
         current_projection_ = (current_projection_ + 1) % projections_.size();
@@ -92,6 +97,9 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) const {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_1D, colormap_texture_);
 
     auto draw_projection = [&](auto& proj) {
         cube_program_->use();
@@ -114,6 +122,8 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) const {
 
         glUniform1i(glGetUniformLocation(program_->handle(), "texture_sampler"), 0);
         proj.data_texture.bind();
+
+        glUniform1i(glGetUniformLocation(program_->handle(), "colormap_sampler"), 1);
 
         GLint or_matrix_loc =
             glGetUniformLocation(program_->handle(), "orientation_matrix");

@@ -76,7 +76,7 @@ ReconstructionComponent::ReconstructionComponent(SceneObject& object,
                                 glm::vec3(0.0f, 2.0f, 0.0f));
 
     set_volume_position(glm::vec3(-1.0f), glm::vec3(1.0f));
-    colormap_texture_ = generate_colormap_texture("bone");
+    colormap_texture_ = object.camera().colormap();
 }
 
 ReconstructionComponent::~ReconstructionComponent() {
@@ -84,7 +84,6 @@ ReconstructionComponent::~ReconstructionComponent() {
     glDeleteBuffers(1, &cube_vbo_handle_);
     glDeleteVertexArrays(1, &vao_handle_);
     glDeleteBuffers(1, &vbo_handle_);
-    glDeleteTextures(1, &colormap_texture_);
 }
 
 void ReconstructionComponent::update_image_(int slice) {

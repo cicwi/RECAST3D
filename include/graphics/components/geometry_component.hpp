@@ -74,6 +74,9 @@ class GeometryComponent : public ObjectComponent {
     GLuint lines_vbo_handle_;
     std::unique_ptr<ShaderProgram> lines_program_;
 
+    GLuint colormap_texture_;
+
+    float speed_ = 0.0f;
     float total_time_elapsed_ = -1.0f;
     int current_projection_ = -1;
     std::vector<projection> projections_;

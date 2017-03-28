@@ -29,9 +29,12 @@ SceneCamera3d::SceneCamera3d() {
 void SceneCamera3d::reset_view() {
     // explicitely set to identity
     view_matrix_ = glm::mat4();
-    view_matrix_ = glm::rotate(0.25f * glm::pi<float>(), up_) * view_matrix_;
     view_matrix_ =
-        glm::rotate(-0.125f * glm::pi<float>(), right_) * view_matrix_;
+        glm::rotate(-0.5f * glm::pi<float>(), right_) * view_matrix_;
+    view_matrix_ =
+        glm::rotate(-0.25f * glm::pi<float>(), glm::vec3(0.0, 1.0, 0.0)) * view_matrix_;
+    view_matrix_ =
+        glm::rotate(-0.125f * glm::pi<float>(), glm::vec3(1.0, 0.0, 0.0)) * view_matrix_;
 }
 
 void SceneCamera3d::look_at(glm::vec3 center) {
