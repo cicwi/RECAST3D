@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <imgui.h>
 #include <glm/gtx/transform.hpp>
 
 #include "graphics/components/geometry_component.hpp"
@@ -67,7 +68,7 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
-    speed_ = 0.1f;
+    speed_ = 0.01f;
 
     lines_program_ = std::make_unique<ShaderProgram>(
         "../src/shaders/lines.vert", "../src/shaders/lines.frag");
@@ -77,13 +78,19 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
 
 GeometryComponent::~GeometryComponent() {}
 
+void GeometryComponent::describe() {
+    ImGui::Checkbox("Show geometry", &show_);
+    ImGui::SliderInt("Projection", &current_projection_, 0, projections_.size() - 1);
+    ImGui::SliderFloat("Speed (pps)", &speed_, 0.0f, 0.1f);
+}
+
 void GeometryComponent::tick(float time_elapsed) {
     if (projections_.empty())
         return;
     if (total_time_elapsed_ < 0.0f) {
         total_time_elapsed_ = 0.01f;
     } else {
-        total_time_elapsed_ += speed_ * time_elapsed;
+        total_time_elapsed_ += speed_ * time_elapsed * projections_.size();
     }
     while (total_time_elapsed_ > 1.0f) {
         current_projection_ = (current_projection_ + 1) % projections_.size();
@@ -92,6 +99,10 @@ void GeometryComponent::tick(float time_elapsed) {
 }
 
 void GeometryComponent::draw(glm::mat4 world_to_screen) const {
+    if (!show_) {
+        return;
+    }
+
     if (projections_.empty())
         return;
 

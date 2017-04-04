@@ -21,7 +21,6 @@ class GeometryProtocol : public SceneModuleProtocol {
                                         SceneList& scenes_) override {
         switch (desc) {
             case packet_desc::geometry_specification: {
-                std::cout << "Received geo spec\n";
                 auto packet = std::make_unique<GeometrySpecificationPacket>();
                 packet->deserialize(std::move(buffer));
                 message_succes(socket);
@@ -29,7 +28,6 @@ class GeometryProtocol : public SceneModuleProtocol {
             }
 
             case packet_desc::projection_data: {
-                std::cout << "Received projection data\n";
                 auto packet = std::make_unique<ProjectionDataPacket>();
                 packet->deserialize(std::move(buffer));
                 message_succes(socket);

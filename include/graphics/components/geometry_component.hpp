@@ -56,6 +56,7 @@ class GeometryComponent : public ObjectComponent {
     std::string identifier() const override { return "geometry"; }
 
     void tick(float time_elapsed) override;
+    void describe() override;
     void add_projection(projection&& proj) { projections_.push_back(std::move(proj)); }
 
    private:
@@ -80,6 +81,8 @@ class GeometryComponent : public ObjectComponent {
     float total_time_elapsed_ = -1.0f;
     int current_projection_ = -1;
     std::vector<projection> projections_;
+
+    bool show_ = false;
 };
 
 }  // namespace tomovis

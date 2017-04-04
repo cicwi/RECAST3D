@@ -33,6 +33,7 @@ class PartitioningComponent : public ObjectComponent {
     std::string identifier() const override { return "partitioning"; }
 
     void add_part(part&& p) { parts_.push_back(std::move(p)); }
+    void describe() override;
 
    private:
     SceneObject& object_;
@@ -43,6 +44,7 @@ class PartitioningComponent : public ObjectComponent {
     std::unique_ptr<ShaderProgram> part_program_;
 
     std::vector<part> parts_;
+    bool show_ = true;
 
     float global_scale_ = 0.90f;
 };

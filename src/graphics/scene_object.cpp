@@ -1,5 +1,6 @@
 #include <memory>
 
+#include <imgui.h>
 #include <GL/gl3w.h>
 
 #include "graphics/scene_object.hpp"
@@ -19,6 +20,14 @@ SceneObject::~SceneObject() {
 void SceneObject::tick(float time_elapsed) {
     for (auto& id_and_comp : components_) {
         id_and_comp.second->tick(time_elapsed);
+    }
+}
+
+void SceneObject::describe() {
+    for (auto& id_and_comp : components_) {
+        if (ImGui::CollapsingHeader(id_and_comp.first.c_str(), nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+            id_and_comp.second->describe();
+        }
     }
 }
 

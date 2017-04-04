@@ -33,6 +33,8 @@ class Renderer {
 
     std::set<RenderTarget*, RenderCompare> targets_;
     std::vector<Ticker*> tickers_;
+
+    double previous_time_;
 };
 
 } // namespace tomovis

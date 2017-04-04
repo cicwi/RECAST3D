@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <imgui.h>
 #include <glm/gtx/transform.hpp>
 
 #include "graphics/colormap.hpp"
@@ -86,6 +87,10 @@ ReconstructionComponent::~ReconstructionComponent() {
     glDeleteBuffers(1, &vbo_handle_);
 }
 
+void ReconstructionComponent::describe() {
+    ImGui::Checkbox("Show reconstruction", &show_);
+}
+
 void ReconstructionComponent::update_image_(int slice) {
     slices_[slice]->update_texture();
 }
@@ -101,6 +106,10 @@ void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
 }
 
 void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
+    if (!show_) {
+        return;
+    }
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 
@@ -178,6 +187,10 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
 }
 
 bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
+    if (!show_) {
+        return false;
+    }
+
     if (down) {
         if (hovering_) {
             switch_if_necessary(recon_drag_machine_kind::translator);
@@ -203,6 +216,10 @@ bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
 }
 
 bool ReconstructionComponent::handle_mouse_moved(float x, float y) {
+    if (!show_) {
+        return false;
+    }
+
     // update slices that is being hovered over
     y = -y;
 

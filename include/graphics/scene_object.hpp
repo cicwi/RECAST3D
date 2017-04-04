@@ -16,7 +16,7 @@ namespace tomovis {
 class ShaderProgram;
 class SceneCamera;
 
-class SceneObject : public InputHandler, public PacketPublisher, public Ticker {
+class SceneObject : public InputHandler, public PacketPublisher, public Ticker, public Window {
    public:
     SceneObject(int scene_id);
     virtual ~SceneObject();
@@ -43,6 +43,7 @@ class SceneObject : public InputHandler, public PacketPublisher, public Ticker {
     bool handle_mouse_moved(float x, float y) override;
     bool handle_key(int key, bool down, int mods) override;
     void tick(float time_elapsed) override;
+    void describe() override;
 
    protected:
     int scene_id_ = -1;

@@ -30,6 +30,8 @@ Renderer::Renderer() {
     gl3wInit();
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    previous_time_ = glfwGetTime();
 }
 
 Renderer::~Renderer() {
@@ -40,7 +42,9 @@ void Renderer::main_loop() {
     while (!glfwWindowShouldClose(window_)) {
         glfwPollEvents();
 
-        auto time_elapsed = 0.1f;
+        auto current_time = glfwGetTime();
+        float time_elapsed = current_time - previous_time_;
+        previous_time_ = current_time;
 
         for (auto ticker : tickers_) {
            ticker->tick(time_elapsed);

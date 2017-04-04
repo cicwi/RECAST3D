@@ -80,6 +80,8 @@ class ReconstructionComponent : public ObjectComponent {
     auto& dragged_slice() { return dragged_slice_; }
     auto& get_slices() { return slices_; }
 
+    void describe() override;
+
     void set_volume_position(glm::vec3 min_pt, glm::vec3 max_pt);
     glm::mat4 volume_transform() { return volume_transform_; }
 
@@ -110,6 +112,7 @@ class ReconstructionComponent : public ObjectComponent {
 
     bool dragging_ = false;
     bool hovering_ = false;
+    bool show_ = true;
 
     int scene_id_;
 };

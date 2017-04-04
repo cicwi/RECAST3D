@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 
+#include <imgui.h>
 #include <glm/gtx/transform.hpp>
 
 #include "graphics/components/partitioning_component.hpp"
@@ -55,12 +56,22 @@ PartitioningComponent::PartitioningComponent(SceneObject& object, int scene_id)
 
 PartitioningComponent::~PartitioningComponent() {}
 
+void PartitioningComponent::describe() {
+    ImGui::Checkbox("Show partitioning", &show_);
+    ImGui::SliderFloat("Scale", &global_scale_, 0.5f, 1.0f);
+}
+
 void PartitioningComponent::draw(glm::mat4 world_to_screen) const {
+    if (!show_) {
+        return;
+    }
+
     if (parts_.empty()) {
         return;
     }
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
 
     auto draw_part = [&](auto& the_part) {
         part_program_->use();
@@ -89,6 +100,7 @@ void PartitioningComponent::draw(glm::mat4 world_to_screen) const {
         draw_part(the_part);
     }
 
+    glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 }
 
