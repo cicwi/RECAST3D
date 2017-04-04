@@ -9,6 +9,7 @@
 #include "graphics/scene_camera.hpp"
 #include "input.hpp"
 #include "modules/reconstruction.hpp"
+#include "modules/partitioning.hpp"
 #include "modules/scene_management.hpp"
 #include "modules/geometry.hpp"
 #include "scene.hpp"
@@ -46,6 +47,7 @@ int main() {
     server.register_module(std::make_shared<tomovis::ManageSceneProtocol>());
     server.register_module(std::make_shared<tomovis::ReconstructionProtocol>());
     server.register_module(std::make_shared<tomovis::GeometryProtocol>());
+    server.register_module(std::make_shared<tomovis::PartitioningProtocol>());
 
     server.start();
     renderer.register_ticker(server);
