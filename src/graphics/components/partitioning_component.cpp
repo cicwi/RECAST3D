@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 
 #include <glm/gtx/transform.hpp>
@@ -9,7 +10,7 @@ namespace tomovis {
 inline glm::vec3 hue_to_rgb(float hue) {
     int h = (int)(hue * 360);
     auto c = 1.0f;
-    auto x = c * (1.0f - glm::abs((h / 60 % 2) - 1));
+    auto x = c * (1.0f - glm::abs((std::fmod(h / 60.0f, 2.0f) - 1.0f)));
 
     if (h < 60) {
         return {c, x, 0};
@@ -29,17 +30,15 @@ inline glm::vec3 hue_to_rgb(float hue) {
 PartitioningComponent::PartitioningComponent(SceneObject& object, int scene_id)
     : object_(object), scene_id_(scene_id) {
     static const GLfloat cube[] = {
-        -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,
-        1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
-        1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
-        1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  -1.0f,
-        1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
-        1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  -1.0f, 1.0f};
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f};
 
     glGenVertexArrays(1, &cube_vao_handle_);
     glBindVertexArray(cube_vao_handle_);
@@ -52,9 +51,6 @@ PartitioningComponent::PartitioningComponent(SceneObject& object, int scene_id)
 
     part_program_ = std::make_unique<ShaderProgram>("../src/shaders/part.vert",
                                                     "../src/shaders/part.frag");
-
-    parts_.push_back(part(0, {-1.0, -1.0, -1.0}, {0.0, 0.0, 0.0}));
-    parts_.push_back(part(1, {0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}));
 }
 
 PartitioningComponent::~PartitioningComponent() {}
@@ -70,8 +66,9 @@ void PartitioningComponent::draw(glm::mat4 world_to_screen) const {
         part_program_->use();
 
         glm::mat4 object_matrix =
-            glm::translate(-0.5f * (the_part.max_pt + the_part.min_pt)) *
-            glm::scale(global_scale_ * 0.5f * (the_part.max_pt - the_part.min_pt));
+            glm::translate(0.5f * (the_part.max_pt + the_part.min_pt)) *
+            glm::scale(global_scale_ * (the_part.max_pt - the_part.min_pt)) *
+            glm::translate(-glm::vec3(0.5f));
 
         auto transform_matrix = world_to_screen * object_matrix;
 

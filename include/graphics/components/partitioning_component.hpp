@@ -20,7 +20,7 @@ struct part {
         : id(id_), min_pt(min_pt_), max_pt(max_pt_) {}
 
     int id;
-    glm::vec3 min_pt = {-1.0f, -1.0f, -1.0f};
+    glm::vec3 min_pt = {0.0f, 0.0f, 0.0f};
     glm::vec3 max_pt = {1.0f, 1.0f, 1.0f};
 };
 
@@ -44,7 +44,7 @@ class PartitioningComponent : public ObjectComponent {
 
     std::vector<part> parts_;
 
-    float global_scale_ = 0.95f;
+    float global_scale_ = 0.90f;
 };
 
 }  // namespace tomovis
