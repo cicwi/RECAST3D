@@ -125,4 +125,12 @@ class SliceTranslator : public ReconDragMachine {
     recon_drag_machine_kind kind() override { return recon_drag_machine_kind::translator; }
 };
 
+class SliceRotator : public ReconDragMachine {
+   public:
+    using ReconDragMachine::ReconDragMachine;
+
+    void on_drag(glm::vec2 delta) override;
+    recon_drag_machine_kind kind() override { return recon_drag_machine_kind::rotator; }
+};
+
 }  // namespace tomovis

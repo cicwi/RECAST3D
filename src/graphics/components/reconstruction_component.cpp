@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include <imgui.h>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 
 #include "graphics/colormap.hpp"
@@ -192,10 +194,19 @@ bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
     }
 
     if (down) {
-        if (hovering_) {
-            switch_if_necessary(recon_drag_machine_kind::translator);
-            dragging_ = true;
-            return true;
+        if (button == 0) {
+            if (hovering_) {
+                switch_if_necessary(recon_drag_machine_kind::translator);
+                dragging_ = true;
+                return true;
+            }
+        }
+        if (button == 1) {
+            if (hovering_) {
+                switch_if_necessary(recon_drag_machine_kind::rotator);
+                dragging_ = true;
+                return true;
+            }
         }
     }
 
@@ -334,6 +345,9 @@ void ReconstructionComponent::switch_if_necessary(
             case recon_drag_machine_kind::translator:
                 drag_machine_ = std::make_unique<SliceTranslator>(*this);
                 break;
+            case recon_drag_machine_kind::rotator:
+                drag_machine_ = std::make_unique<SliceRotator>(*this);
+                break;
             default:
                 break;
         }
@@ -407,6 +421,54 @@ void SliceTranslator::on_drag(glm::vec2 delta) {
     o[2][0] += dx[0];
     o[2][1] += dx[1];
     o[2][2] += dx[2];
+}
+
+void SliceRotator::on_drag(glm::vec2 delta) {
+    // 1) what are we dragging, and does it have data?
+    // if it does then we need to make a new slice
+    // else we drag the current slice along the normal
+    if (!comp_.dragged_slice()) {
+        std::unique_ptr<slice> new_slice;
+        int id = (*(comp_.get_slices().rbegin())).first + 1;
+        int to_remove = -1;
+        for (auto& id_the_slice : comp_.get_slices()) {
+            auto& the_slice = id_the_slice.second;
+            if (the_slice->hovered) {
+                if (the_slice->has_data()) {
+                    new_slice = std::make_unique<slice>(id);
+                    new_slice->orientation = the_slice->orientation;
+                    to_remove = the_slice->id;
+                    // FIXME need to generate a new id and upon 'popping'
+                    // send a UpdateSlice packet
+                    comp_.dragged_slice() = new_slice.get();
+                } else {
+                    comp_.dragged_slice() = the_slice.get();
+                }
+                break;
+            }
+        }
+        if (new_slice) {
+            comp_.get_slices()[new_slice->id] = std::move(new_slice);
+        }
+        if (to_remove >= 0) {
+            comp_.get_slices().erase(to_remove);
+            // send slice packet
+            auto packet = RemoveSlicePacket(comp_.scene_id(), to_remove);
+            comp_.object().send(packet);
+        }
+        assert(comp_.dragged_slice());
+    }
+
+    auto slice = comp_.dragged_slice();
+    auto& o = slice->orientation;
+
+    auto axis1 = glm::vec3(o[0][0], o[0][1], o[0][2]);
+    auto axis2 = glm::vec3(o[1][0], o[1][1], o[1][2]);
+    auto base = glm::vec3(o[2][0], o[2][1], o[2][2]);
+
+    axis2 = glm::rotate(axis2, delta.x, axis1);
+
+    slice->set_orientation(base, axis1, axis2);
 }
 
 }  // namespace tomovis
