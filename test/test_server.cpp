@@ -22,8 +22,7 @@ int main() {
     server.set_slice_callback(callback);
 
     // 5. test callback
-    server.serve();
-
+    server.listen();
 
     return 0;
 }

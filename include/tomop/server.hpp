@@ -89,38 +89,36 @@ class server {
         make_slice(1, {-1.0f, 0.0f, -1.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f});
         make_slice(2, {-1.0f, -1.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f});
 
-        serve_thread_ = std::thread([&]() {
-            while (true) {
-                zmq::message_t update;
-                subscribe_socket_.recv(&update);
+        while (true) {
+            zmq::message_t update;
+            subscribe_socket_.recv(&update);
 
-                auto desc = ((packet_desc*)update.data())[0];
-                auto buffer =
-                    memory_buffer(update.size(), (char*)update.data());
+            auto desc = ((packet_desc*)update.data())[0];
+            auto buffer = memory_buffer(update.size(), (char*)update.data());
 
-                switch (desc) {
-                case packet_desc::set_slice: {
-                    auto packet = std::make_unique<SetSlicePacket>();
-                    packet->deserialize(std::move(buffer));
+            switch (desc) {
+            case packet_desc::set_slice: {
+                auto packet = std::make_unique<SetSlicePacket>();
+                packet->deserialize(std::move(buffer));
 
-                    make_slice(packet->slice_id, packet->orientation);
-                    break;
-                }
-                case packet_desc::remove_slice: {
-                    auto packet = std::make_unique<RemoveSlicePacket>();
-                    packet->deserialize(std::move(buffer));
-
-                    auto to_erase = std::find_if(
-                        slices_.begin(), slices_.end(),
-                        [&](auto x) { return x.first == packet->slice_id; });
-                    slices_.erase(to_erase);
-                    break;
-                }
-                default:
-                    break;
-                }
+                make_slice(packet->slice_id, packet->orientation);
+                break;
             }
-        });
+            case packet_desc::remove_slice: {
+                auto packet = std::make_unique<RemoveSlicePacket>();
+                packet->deserialize(std::move(buffer));
+
+                auto to_erase =
+                    std::find_if(slices_.begin(), slices_.end(), [&](auto x) {
+                        return x.first == packet->slice_id;
+                    });
+                slices_.erase(to_erase);
+                break;
+            }
+            default:
+                break;
+            }
+        }
     }
 
     void make_slice(int32_t slice_id, std::array<float, 9> orientation) {
@@ -157,6 +155,8 @@ class server {
             callback) {
         slice_data_callback_ = callback;
     }
+
+    void listen() { serve_thread_ = std::thread(&server::serve, this); }
 
     int32_t scene_id() { return scene_id_; }
 

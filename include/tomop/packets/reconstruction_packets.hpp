@@ -41,7 +41,7 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data) {}
 
     VolumeDataPacket(int32_t scene_id_, std::vector<int32_t> volume_size_,
-                     std::vector<uint8_t>&& data_)
+                     std::vector<uint8_t> data_)
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data),
           scene_id(scene_id_),
           volume_size(volume_size_),
