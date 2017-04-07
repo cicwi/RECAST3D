@@ -134,7 +134,6 @@ real[9] orientation = {a, b, c, d, e, f, g, h, i};
 ```
 compare with the matrix given above.
 
-
 ``` cpp
 // Usage: register a scene with the controller
 // Reply: a `scene_id`

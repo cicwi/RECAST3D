@@ -3,21 +3,18 @@ include(FindPkgConfig)
 
 project(slicevis)
 
-add_subdirectory("../ext/glfw" "../ext/glfw")
-
 include_directories(
     "../include"
     "../ext/imgui/"
     "../ext/cppzmq/"
     "../ext/zmq/include/"
-    "../ext/glfw/include/"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
 )
 
-# link_directories(
-#     "../ext/submodule/lib"
-# )
+link_directories(
+    "~/.local/lib/"
+)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -g -O3")
 
@@ -70,6 +67,8 @@ link_directories("../ext/zmq/lib")
 
 set(
     LIB_NAMES
+    "dl"
+    "glfw"
     "GL"
     "zmq"
     "pthread"
@@ -83,7 +82,7 @@ set(
 # endforeach(source_file)
 
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})
-target_link_libraries(${EXEC_NAME} ${LIB_NAMES} glfw)
+target_link_libraries(${EXEC_NAME} ${LIB_NAMES})
 
 add_executable(client ${EXAMPLE_NAME})
 target_link_libraries(client "zmq" "pthread")

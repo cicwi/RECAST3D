@@ -78,6 +78,12 @@ ReconstructionComponent::ReconstructionComponent(SceneObject& object,
                                 glm::vec3(2.0f, 0.0f, 0.0f),
                                 glm::vec3(0.0f, 2.0f, 0.0f));
 
+    for (auto& slice : slices_) {
+        auto packet = SetSlicePacket(scene_id_, slice.first,
+                                     slice.second->packed_orientation());
+        object_.send(packet);
+    }
+
     set_volume_position(glm::vec3(-1.0f), glm::vec3(1.0f));
     colormap_texture_ = object.camera().colormap();
 }
