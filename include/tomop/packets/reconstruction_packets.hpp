@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "../packets.hpp"
 
 namespace tomop {
@@ -11,8 +13,8 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
           scene_id(-1),
           slice_id(0) {}
 
-    SliceDataPacket(int scene_id_, int slice_id_, std::vector<int> slice_size_,
-                    std::vector<unsigned char>&& data_)
+    SliceDataPacket(int32_t scene_id_, int32_t slice_id_, std::vector<int32_t> slice_size_,
+                    std::vector<uint8_t>&& data_)
         : PacketBase<SliceDataPacket>(packet_desc::slice_data),
           scene_id(scene_id_),
           slice_id(slice_id_),
@@ -27,10 +29,10 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
         buffer | data;
     }
 
-    int scene_id;
-    int slice_id;
-    std::vector<int> slice_size;
-    std::vector<unsigned char> data;
+    int32_t scene_id;
+    int32_t slice_id;
+    std::vector<int32_t> slice_size;
+    std::vector<uint8_t> data;
 };
 
 class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
@@ -38,8 +40,8 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
     VolumeDataPacket()
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data) {}
 
-    VolumeDataPacket(int scene_id_, std::vector<int> volume_size_,
-                     std::vector<unsigned char>&& data_)
+    VolumeDataPacket(int32_t scene_id_, std::vector<int32_t> volume_size_,
+                     std::vector<uint8_t>&& data_)
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data),
           scene_id(scene_id_),
           volume_size(volume_size_),
@@ -52,9 +54,9 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
         buffer | data;
     }
 
-    int scene_id;
-    std::vector<int> volume_size;
-    std::vector<unsigned char> data;
+    int32_t scene_id;
+    std::vector<int32_t> volume_size;
+    std::vector<uint8_t> data;
 };
 
 class SetSlicePacket : public PacketBase<SetSlicePacket> {
@@ -64,7 +66,7 @@ class SetSlicePacket : public PacketBase<SetSlicePacket> {
           scene_id(-1),
           slice_id(0) {}
 
-    SetSlicePacket(int scene_id_, int slice_id_,
+    SetSlicePacket(int32_t scene_id_, int32_t slice_id_,
                     const std::array<float, 9>& orientation_)
         : PacketBase<SetSlicePacket>(packet_desc::set_slice),
           scene_id(scene_id_),
@@ -78,8 +80,8 @@ class SetSlicePacket : public PacketBase<SetSlicePacket> {
         buffer | orientation;
     }
 
-    int scene_id;
-    int slice_id;
+    int32_t scene_id;
+    int32_t slice_id;
     std::array<float, 9> orientation;
 };
 
@@ -91,7 +93,7 @@ class RemoveSlicePacket : public PacketBase<RemoveSlicePacket> {
           scene_id(-1),
           slice_id(0) {}
 
-    RemoveSlicePacket(int scene_id_, int slice_id_)
+    RemoveSlicePacket(int32_t scene_id_, int32_t slice_id_)
         : PacketBase<RemoveSlicePacket>(packet_desc::remove_slice),
           scene_id(scene_id_),
           slice_id(slice_id_) {}
@@ -102,8 +104,8 @@ class RemoveSlicePacket : public PacketBase<RemoveSlicePacket> {
         buffer | slice_id;
     }
 
-    int scene_id;
-    int slice_id;
+    int32_t scene_id;
+    int32_t slice_id;
 };
 
 }  // namespace tomop

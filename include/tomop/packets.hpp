@@ -36,6 +36,13 @@ class Packet {
         memory_buffer& membuf;
     };
 
+    void send(zmq::socket_t& socket) {
+        auto packet_size = size();
+        zmq::message_t request(packet_size);
+        memcpy(request.data(), &serialize(packet_size).buffer[0], packet_size);
+        socket.send(request);
+    }
+
     virtual std::size_t size() = 0;
     virtual memory_buffer serialize(int size) = 0;
     virtual void deserialize(memory_buffer buffer) = 0;
@@ -48,12 +55,6 @@ class PacketBase : public Packet {
    public:
     PacketBase(packet_desc desc_) : Packet(desc_) {}
 
-    void send(zmq::socket_t& socket) {
-        auto packet_size = size();
-        zmq::message_t request(packet_size);
-        memcpy(request.data(), &serialize(packet_size).buffer[0], packet_size);
-        socket.send(request);
-    }
 
     std::size_t size() override {
         scale total;

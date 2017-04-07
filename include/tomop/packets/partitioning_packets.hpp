@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "../packets.hpp"
 
 namespace tomop {
@@ -11,7 +13,7 @@ class SetPartPacket : public PacketBase<SetPartPacket> {
           scene_id(-1),
           part_id(-1) {}
 
-    SetPartPacket(int scene_id_, int part_id_,
+    SetPartPacket(int32_t scene_id_, int32_t part_id_,
                          std::array<float, 3> min_pt_,
                          std::array<float, 3> max_pt_)
         : PacketBase<SetPartPacket>(packet_desc::set_part),
@@ -28,8 +30,8 @@ class SetPartPacket : public PacketBase<SetPartPacket> {
         buffer | max_pt;
     }
 
-    int scene_id;
-    int part_id;
+    int32_t scene_id;
+    int32_t part_id;
     std::array<float, 3> min_pt;
     std::array<float, 3> max_pt;
 };
