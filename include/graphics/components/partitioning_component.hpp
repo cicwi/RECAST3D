@@ -46,7 +46,7 @@ class PartitioningComponent : public ObjectComponent {
     std::vector<part> parts_;
     bool show_ = true;
 
-    float global_scale_ = 0.90f;
+    float global_scale_ = 1.0f;
 };
 
 }  // namespace tomovis

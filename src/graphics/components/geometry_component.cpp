@@ -68,7 +68,7 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
-    speed_ = 0.01f;
+    speed_ = 0.0f;
 
     lines_program_ = std::make_unique<ShaderProgram>(
         "../src/shaders/lines.vert", "../src/shaders/lines.frag");
