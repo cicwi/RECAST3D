@@ -13,3 +13,6 @@
 [submodule "ext/libzmq"]
 	path = ext/libzmq
 	url = https://github.com/zeromq/libzmq
+[submodule "ext/assimp"]
+	path = ext/assimp
+	url = https://github.com/assimp/assimp

@@ -57,6 +57,7 @@ set(
     "../src/graphics/slice.cpp"
     "../src/graphics/components/reconstruction_component.cpp"
     "../src/graphics/components/geometry_component.cpp"
+    "../src/graphics/components/mesh_component.cpp"
     "../src/graphics/components/partitioning_component.cpp"
     "../src/graphics/interface/scene_control.cpp"
     "../src/graphics/interface/scene_switcher.cpp"
@@ -80,6 +81,7 @@ set(
     "GL"
     "zmq"
     "pthread"
+    "assimp"
 )
 
 ## multiple binaries:
