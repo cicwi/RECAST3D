@@ -16,8 +16,8 @@ namespace tomovis {
 
 MeshComponent::MeshComponent(SceneObject& object, int scene_id)
     : object_(object), scene_id_(scene_id) {
-    auto scene = aiImportFile("../data/clock.obj",
-                              aiProcessPreset_TargetRealtime_MaxQuality);
+    auto scene = aiImportFile("../data/clock_lowres.obj",
+                              aiProcessPreset_TargetRealtime_Fast);
 
     if (scene) {
         std::cout << "SCENE!\n";
