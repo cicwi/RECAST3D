@@ -21,12 +21,19 @@ MeshComponent::MeshComponent(SceneObject& object, int scene_id)
 
     if (scene) {
         std::cout << "SCENE!\n";
+        std::cout << "INFO:\n";
+        std::cout << "> hasMeshes: " << scene->HasMeshes() << "\n";
+        std::cout << "> numMeshes: " << scene->mNumMeshes << "\n";
+        std::cout << "> numVertices0: " << scene->mMeshes[0]->mNumVertices << "\n";
+        std::cout << "> numVertices1: " << scene->mMeshes[1]->mNumVertices << "\n";
+        std::cout << "> numVertices2: " << scene->mMeshes[2]->mNumVertices << "\n";
         //get_bounding_box(&scene_min, &scene_max);
         //scene_center.x = (scene_min.x + scene_max.x) / 2.0f;
         //scene_center.y = (scene_min.y + scene_max.y) / 2.0f;
         //scene_center.z = (scene_min.z + scene_max.z) / 2.0f;
+    } else {
+      std::cout << "Exit stage left!\n";
     }
-    std::cout << "Exit stage left!\n";
 }
 
 MeshComponent::~MeshComponent() {}
