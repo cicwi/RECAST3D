@@ -16,7 +16,7 @@ Interface::Interface(GLFWwindow* window) {
     // Load Fonts
     // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("../iosevka-medium.ttf", 20.0f);
+    io.Fonts->AddFontFromFileTTF("../data/iosevka-medium.ttf", 20.0f);
     io.MouseDrawCursor = false;
 
     // prevent ini file
