@@ -12,6 +12,8 @@
 #include "graphics/shader_program.hpp"
 #include "object_component.hpp"
 
+struct aiScene;
+
 namespace tomovis {
 
 class MeshComponent : public ObjectComponent {
@@ -28,6 +30,8 @@ class MeshComponent : public ObjectComponent {
    private:
     SceneObject& object_;
     int scene_id_;
+
+    const aiScene* scene_;
 
     bool show_ = false;
 };

@@ -16,27 +16,30 @@ namespace tomovis {
 
 MeshComponent::MeshComponent(SceneObject& object, int scene_id)
     : object_(object), scene_id_(scene_id) {
-    auto scene = aiImportFile("../data/clock_lowres.obj",
+    scene_ = aiImportFile("../data/clock_lowres.obj",
                               aiProcessPreset_TargetRealtime_Fast);
 
-    if (scene) {
+    if (scene_) {
         std::cout << "SCENE!\n";
         std::cout << "INFO:\n";
-        std::cout << "> hasMeshes: " << scene->HasMeshes() << "\n";
-        std::cout << "> numMeshes: " << scene->mNumMeshes << "\n";
-        std::cout << "> numVertices0: " << scene->mMeshes[0]->mNumVertices << "\n";
-        std::cout << "> numVertices1: " << scene->mMeshes[1]->mNumVertices << "\n";
-        std::cout << "> numVertices2: " << scene->mMeshes[2]->mNumVertices << "\n";
-        //get_bounding_box(&scene_min, &scene_max);
-        //scene_center.x = (scene_min.x + scene_max.x) / 2.0f;
-        //scene_center.y = (scene_min.y + scene_max.y) / 2.0f;
-        //scene_center.z = (scene_min.z + scene_max.z) / 2.0f;
+        std::cout << "> hasMeshes: " << scene_->HasMeshes() << "\n";
+        std::cout << "> numMeshes: " << scene_->mNumMeshes << "\n";
+        std::cout << "> numVertices0: " << scene_->mMeshes[0]->mNumVertices
+                  << "\n";
+        std::cout << "> numVertices1: " << scene_->mMeshes[1]->mNumVertices
+                  << "\n";
+        std::cout << "> numVertices2: " << scene_->mMeshes[2]->mNumVertices
+                  << "\n";
     } else {
-      std::cout << "Exit stage left!\n";
+        std::cout << "Exit stage left!\n";
     }
 }
 
-MeshComponent::~MeshComponent() {}
+MeshComponent::~MeshComponent() {
+    if (scene_) {
+        aiReleaseImport(scene_);
+    }
+}
 
 void MeshComponent::describe() { ImGui::Checkbox("Show mesh", &show_); }
 
