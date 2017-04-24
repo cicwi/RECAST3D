@@ -15,7 +15,6 @@ struct slice {
     void set_orientation(glm::vec3 base, glm::vec3 x, glm::vec3 y);
 
     std::vector<unsigned char> data;
-    std::vector<int> size;
 
     int id = -1;
     int replaces_id = -1;
@@ -23,6 +22,8 @@ struct slice {
     bool inactive = false;
     bool has_data() { return !data.empty(); }
     bool transparent() { return hovered || !has_data(); }
+
+    std::vector<int> size;
 
     auto& get_texture() { return tex_; }
 

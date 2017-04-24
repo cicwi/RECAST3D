@@ -54,7 +54,7 @@ bool Interface::handle_scroll(double offset) {
     return io.WantCaptureMouse;
 }
 
-bool Interface::handle_key(int key, bool down, int mods) {
+bool Interface::handle_key(int key, bool down, int /* mods */) {
     ImGui_ImplGlfwGL3_KeyCallback(nullptr, key, 0,
                                   down ? GLFW_PRESS : GLFW_RELEASE, 0);
     auto io = ImGui::GetIO();
@@ -67,7 +67,7 @@ bool Interface::handle_char(unsigned int c) {
     return io.WantCaptureKeyboard;
 }
 
-bool Interface::handle_mouse_moved(float x, float y) {
+bool Interface::handle_mouse_moved(float /* x */, float /* y */) {
     auto io = ImGui::GetIO();
     return io.WantCaptureMouse;
 }

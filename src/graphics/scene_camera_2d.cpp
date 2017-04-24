@@ -27,7 +27,7 @@ glm::mat4 SceneCamera2d::matrix() {
     return camera_matrix;
 }
 
-bool SceneCamera2d::handle_mouse_button(int button, bool down) {
+bool SceneCamera2d::handle_mouse_button(int /* button */, bool down) {
     dragging_ = down;
     return true;
 }
@@ -37,7 +37,7 @@ bool SceneCamera2d::handle_scroll(double offset) {
     return true;
 }
 
-bool SceneCamera2d::handle_key(int key, bool down, int mods) {
+bool SceneCamera2d::handle_key(int key, bool down, int /* mods */) {
     float offset = 0.05f;
     if (down) {
         switch (key) {

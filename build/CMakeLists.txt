@@ -17,7 +17,7 @@ link_directories(
     "../ext/libzmq/build/lib/"
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -g -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -Werror -g -O3")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(EXEC_NAME "slicevis")
@@ -29,6 +29,13 @@ set(
     "../ext/imgui/imgui_demo.cpp"
     "../ext/imgui/examples/opengl3_example/imgui_impl_glfw_gl3.cpp"
     "../ext/imgui/examples/libs/gl3w/GL/gl3w.c"
+)
+
+# ignore warnings from external libs
+set_source_files_properties(
+  ${IMGUI_SOURCE_NAMES}
+  PROPERTIES
+  COMPILE_FLAGS "-w"
 )
 
 set(

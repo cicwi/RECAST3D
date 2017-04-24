@@ -18,7 +18,7 @@ class GeometryProtocol : public SceneModuleProtocol {
    public:
     std::unique_ptr<Packet> read_packet(packet_desc desc, memory_buffer& buffer,
                                         zmq::socket_t& socket,
-                                        SceneList& scenes_) override {
+                                        SceneList& /* scenes_ */) override {
         switch (desc) {
             case packet_desc::geometry_specification: {
                 auto packet = std::make_unique<GeometrySpecificationPacket>();

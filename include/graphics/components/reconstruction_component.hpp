@@ -100,12 +100,13 @@ class ReconstructionComponent : public ObjectComponent {
     GLuint cube_vbo_handle_;
     std::unique_ptr<ShaderProgram> cube_program_;
 
+    SceneObject& object_;
+
     GLuint colormap_texture_;
     texture3d<unsigned char> volume_texture_;
 
     std::unique_ptr<ReconDragMachine> drag_machine_;
     slice* dragged_slice_ = nullptr;
-    SceneObject& object_;
 
     float prev_x_ = -1.1f;
     float prev_y_ = -1.1f;

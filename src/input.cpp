@@ -44,7 +44,7 @@ void Input::char_callback(GLFWwindow* window, unsigned int c) {
     }
 }
 
-void Input::tick(float time_elapsed) {
+void Input::tick(float /* time_elapsed */) {
     double mouse_x = 0.0;
     double mouse_y = 0.0;
     glfwGetCursorPos(window_, &mouse_x, &mouse_y);

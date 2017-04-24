@@ -26,8 +26,8 @@ class SceneObject : public InputHandler, public PacketPublisher, public Ticker, 
     float& pixel_size() { return pixel_size_; }
     virtual SceneCamera& camera() { return *camera_; }
 
-    virtual void set_data(std::vector<unsigned char>& data, int slice = 0) {}
-    virtual void set_size(std::vector<int>& size, int slice = 0) {}
+    virtual void set_data(std::vector<unsigned char>& /* data */, int /* slice */ = 0) {}
+    virtual void set_size(std::vector<int>& /* size */, int /* slice */ = 0) {}
 
     void add_component(std::unique_ptr<ObjectComponent> component) {
         components_.insert(
@@ -48,7 +48,7 @@ class SceneObject : public InputHandler, public PacketPublisher, public Ticker, 
    protected:
     int scene_id_ = -1;
 
-    virtual void update_image_(int slice = 0) {}
+    virtual void update_image_(int /* slice */ = 0) {}
 
     GLuint vao_handle_;
     GLuint vbo_handle_;
