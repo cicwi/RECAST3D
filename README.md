@@ -7,6 +7,7 @@ Dependencies
 * `dear imgui,`, `catch`, `zmq` and `cppzmq` provided as submodules
 * `OpenGL`
 * `glfw3`
+* `glm`
 
 Install
 =======
