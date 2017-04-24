@@ -7,13 +7,14 @@ include_directories(
     "../include"
     "../ext/imgui/"
     "../ext/cppzmq/"
-    "../ext/zmq/include/"
+    "../ext/libzmq/include/"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
 )
 
 link_directories(
     "~/.local/lib/"
+    "../ext/libzmq/build/lib/"
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -g -O3")

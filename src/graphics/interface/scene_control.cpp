@@ -18,7 +18,7 @@ void SceneControl::describe() {
 
     auto& scene = *scenes_.active_scene();
 
-    ImGui::SetNextWindowSizeConstraint(ImVec2(280, 500), ImVec2(FLT_MAX, FLT_MAX)); // Width > 100, Height > 100
+    ImGui::SetNextWindowSizeConstraints(ImVec2(280, 500), ImVec2(FLT_MAX, FLT_MAX)); // Width > 100, Height > 100
     ImGui::Begin("Scene controls");
     ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);    // 2/3 of the space for widget and 1/3 for labels
 
