@@ -50,6 +50,8 @@ class SceneCamera3d : public SceneCamera {
     bool handle_mouse_moved(float x, float y) override;
     bool handle_key(int key, bool down, int mods) override;
 
+    void tick(float time_elapsed) override;
+
     void look_at(glm::vec3 center) override;
 
    private:

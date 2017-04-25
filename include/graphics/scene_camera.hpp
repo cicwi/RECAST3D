@@ -9,10 +9,11 @@
 
 #include "configurable.hpp"
 #include "input_handler.hpp"
+#include "ticker.hpp"
 
 namespace tomovis {
 
-class SceneCamera : public InputHandler {
+class SceneCamera : public InputHandler, public Ticker {
   public:
     SceneCamera();
     virtual ~SceneCamera(){};
@@ -21,6 +22,7 @@ class SceneCamera : public InputHandler {
     virtual std::vector<parameter<float>>& parameters() = 0;
 
     virtual void look_at(glm::vec3 /* center */) {}
+    void tick(float) override {}
 
     GLuint colormap() { return colormap_texture_id_; }
     void set_colormap(std::string name);

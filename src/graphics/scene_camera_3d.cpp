@@ -130,4 +130,9 @@ bool SceneCamera3d::handle_mouse_moved(float x, float y) {
     return false;
 }
 
+
+void SceneCamera3d::tick(float time_elapsed) {
+    (void)time_elapsed;
+}
+
 }  // namespace tomovis
