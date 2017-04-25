@@ -28,6 +28,9 @@ Interface::Interface(GLFWwindow* window) {
     }
     io.MouseDrawCursor = false;
 
+    ImGuiStyle& style = ImGui::GetStyle();  
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+
     // prevent ini file
     io.IniFilename = "";
 }
