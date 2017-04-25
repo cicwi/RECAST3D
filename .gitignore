@@ -1,2 +1,4 @@
 **.swp
 bin/*
+build/
+test/build/
