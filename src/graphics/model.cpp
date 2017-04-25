@@ -24,7 +24,8 @@ Model::Model(std::string file) {
         std::cout << "> numVertices2: " << scene_->mMeshes[2]->mNumVertices
                   << "\n";
     } else {
-        std::cout << "Exit stage left!\n";
+        // Exit ... stage left
+        std::cout << "ERROR: Model not found: " << file << "\n";
     }
 }
 
