@@ -47,6 +47,7 @@ set(
     "../src/scene.cpp"
     "../src/scene_list.cpp"
     "../src/server/server.cpp"
+    "../src/graphics/mesh.cpp"
     "../src/graphics/model.cpp"
     "../src/graphics/scene_object.cpp"
     "../src/graphics/scene_object_2d.cpp"

@@ -11,7 +11,7 @@
 namespace tomovis {
 
 MovieComponent::MovieComponent(SceneObject& object, int scene_id)
-    : object_(object), scene_id_(scene_id), model_("../data/clock_lowpoly.obj") {
+    : object_(object), scene_id_(scene_id), model_("../data/ape.obj") {
 }
 
 MovieComponent::~MovieComponent() {
