@@ -9,7 +9,7 @@
 #include "graphics/shader_program.hpp"
 #include "object_component.hpp"
 
-struct aiScene;
+#include "graphics/model.hpp"
 
 namespace tomovis {
 
@@ -27,8 +27,7 @@ class MovieComponent : public ObjectComponent {
    private:
     SceneObject& object_;
     int scene_id_;
-
-    const aiScene* scene_;
+    Model model_;
 };
 
 }  // namespace tomovis
