@@ -28,7 +28,7 @@ class MovieComponent : public ObjectComponent {
     SceneObject& object_;
     int scene_id_;
 
-    bool show_ = false;
+    const aiScene* scene_;
 };
 
 }  // namespace tomovis

@@ -5,8 +5,13 @@
 #include <memory>
 #include <vector>
 
-#include "scene_module.hpp"
 #include "modules/packets/scene_management_packets.hpp"
+#include "scene.hpp"
+#include "scene_module.hpp"
+
+#include "graphics/components/reconstruction_component.hpp"
+#include "graphics/components/geometry_component.hpp"
+#include "graphics/components/partitioning_component.hpp"
 
 namespace tomovis {
 
@@ -15,43 +20,50 @@ namespace tomovis {
 // and an executor that knows how to execute a packet
 
 class ManageSceneProtocol : public SceneModuleProtocol {
-   public:
+  public:
     std::unique_ptr<Packet> read_packet(packet_desc desc, memory_buffer& buffer,
                                         zmq::socket_t& socket,
                                         SceneList& scenes_) override {
         switch (desc) {
-            case packet_desc::make_scene: {
-                zmq::message_t reply(sizeof(int));
+        case packet_desc::make_scene: {
+            zmq::message_t reply(sizeof(int));
 
-                auto packet = std::make_unique<MakeScenePacket>();
-                packet->deserialize(std::move(buffer));
+            auto packet = std::make_unique<MakeScenePacket>();
+            packet->deserialize(std::move(buffer));
 
-                // reserve id from scenes_ and return it
-                packet->scene_id = scenes_.reserve_id();
-                memcpy(reply.data(), &packet->scene_id, sizeof(int));
-                socket.send(reply);
+            // reserve id from scenes_ and return it
+            packet->scene_id = scenes_.reserve_id();
+            memcpy(reply.data(), &packet->scene_id, sizeof(int));
+            socket.send(reply);
 
-                return std::move(packet);
+            return std::move(packet);
 
-                break;
-            }
+            break;
+        }
 
-            default: { return nullptr; }
+        default: { return nullptr; }
         }
     }
 
     void process(SceneList& scenes,
                  std::unique_ptr<Packet> event_packet) override {
         switch (event_packet->desc) {
-            case packet_desc::make_scene: {
-                MakeScenePacket& packet = *(MakeScenePacket*)event_packet.get();
-                std::cout << "Making scene: " << packet.name << "\n";
-                scenes.add_scene(packet.name, packet.scene_id, true,
-                                 packet.dimension);
-                break;
-            }
+        case packet_desc::make_scene: {
+            MakeScenePacket& packet = *(MakeScenePacket*)event_packet.get();
+            std::cout << "Making scene: " << packet.name << "\n";
+            scenes.add_scene(packet.name, packet.scene_id, true,
+                             packet.dimension);
+            auto& obj = scenes.active_scene()->object();
+            obj.add_component(std::make_unique<ReconstructionComponent>(
+                obj, packet.scene_id));
+            obj.add_component(
+                std::make_unique<GeometryComponent>(obj, packet.scene_id));
+            obj.add_component(
+                std::make_unique<PartitioningComponent>(obj, packet.scene_id));
+            break;
+        }
 
-            default: { break; }
+        default: { break; }
         }
     }
 
@@ -60,4 +72,4 @@ class ManageSceneProtocol : public SceneModuleProtocol {
     }
 };
 
-}  // namespace tomovis
+} // namespace tomovis

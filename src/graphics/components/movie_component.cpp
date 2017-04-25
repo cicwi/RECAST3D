@@ -9,15 +9,15 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#include "graphics/components/mesh_component.hpp"
+#include "graphics/components/movie_component.hpp"
 #include "graphics/scene_camera_3d.hpp"
 
 namespace tomovis {
 
-MeshComponent::MeshComponent(SceneObject& object, int scene_id)
+MovieComponent::MovieComponent(SceneObject& object, int scene_id)
     : object_(object), scene_id_(scene_id) {
     scene_ = aiImportFile("../data/clock_lowres.obj",
-                              aiProcessPreset_TargetRealtime_Fast);
+                          aiProcessPreset_TargetRealtime_Fast);
 
     if (scene_) {
         std::cout << "SCENE!\n";
@@ -35,20 +35,16 @@ MeshComponent::MeshComponent(SceneObject& object, int scene_id)
     }
 }
 
-MeshComponent::~MeshComponent() {
+MovieComponent::~MovieComponent() {
     if (scene_) {
         aiReleaseImport(scene_);
     }
 }
 
-void MeshComponent::describe() { ImGui::Checkbox("Show mesh", &show_); }
+void MovieComponent::describe() {}
 
-void MeshComponent::tick(float /* time_elapsed */) {}
+void MovieComponent::tick(float /* time_elapsed */) {}
 
-void MeshComponent::draw(glm::mat4 /* world_to_screen */) const {
-    if (!show_) {
-        return;
-    }
-}
+void MovieComponent::draw(glm::mat4 /* world_to_screen */) const {}
 
 } // namespace tomovis

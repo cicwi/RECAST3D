@@ -8,6 +8,7 @@ include_directories(
     "../ext/imgui/"
     "../ext/cppzmq/"
     "../ext/libzmq/include/"
+    "../ext/assimp/include"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
 )
@@ -58,6 +59,7 @@ set(
     "../src/graphics/components/reconstruction_component.cpp"
     "../src/graphics/components/geometry_component.cpp"
     "../src/graphics/components/mesh_component.cpp"
+    "../src/graphics/components/movie_component.cpp"
     "../src/graphics/components/partitioning_component.cpp"
     "../src/graphics/interface/scene_control.cpp"
     "../src/graphics/interface/scene_switcher.cpp"
