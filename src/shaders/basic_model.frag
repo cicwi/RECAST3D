@@ -1,6 +1,6 @@
 #version 330
 
-varying in vec3 normal;
+in vec3 normal;
 out vec4 fragColor;
 
 void main() {
