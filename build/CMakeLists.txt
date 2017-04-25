@@ -85,6 +85,7 @@ set(
     "zmq"
     "pthread"
     "assimp"
+    "stdc++fs"
 )
 
 ## multiple binaries:
