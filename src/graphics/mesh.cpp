@@ -3,7 +3,9 @@
 
 #include <assimp/scene.h>
 #include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "graphics/mesh.hpp"
 
@@ -65,7 +67,82 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
 
 Mesh::~Mesh() {}
 
-void Mesh::draw(glm::mat4 world, glm::mat4 model, glm::vec3 camera_position) const {
+void Mesh::animate(std::vector<PositionKeyframe> positions,
+                   std::vector<RotationKeyframe> rotations, float speed,
+                   float duration) {
+    positions_ = positions;
+    for (auto frame : positions_) {
+        std::cout << frame.time_step << " + " << glm::to_string(frame.position)
+                  << "\n";
+    }
+    rotations_ = rotations;
+    for (auto frame : rotations_) {
+        std::cout << frame.time_step << " + " << glm::to_string(frame.quaternion)
+                  << "\n";
+    }
+    speed_ = speed;
+    animated_ = true;
+    animation_duration_ = duration;
+}
+
+template <typename Frame>
+std::pair<Frame, Frame> find_two(std::vector<Frame> frames, float t) {
+    // find frame
+    auto current_frame =
+        std::find_if(frames.begin(), frames.end(), [&](auto frame) {
+            return frame.time_step >= t;
+        });
+
+    --current_frame;
+
+    auto f1 = *current_frame;
+
+    current_frame++;
+    if (current_frame == frames.end()) {
+        current_frame = frames.begin();
+    }
+
+    auto f2 = *current_frame;
+
+    return {f1, f2};
+}
+
+void Mesh::tick(float time_elapsed) {
+    if (!animated_) {
+        return;
+    }
+
+    internal_time_ += speed_ * time_elapsed;
+    auto cyclic_time = internal_time_;
+    while (cyclic_time > animation_duration_) {
+        cyclic_time -= animation_duration_;
+    }
+
+    auto frames = find_two(positions_, cyclic_time);
+    auto f1 = frames.first;
+    auto f2 = frames.second;
+    if (f2.time_step == f1.time_step) {
+        return;
+    }
+    auto alpha = (cyclic_time - f1.time_step) / (f2.time_step - f1.time_step);
+    auto ipos = (1.0f - alpha) * f1.position + alpha * f2.position;
+
+    auto rframes = find_two(rotations_, cyclic_time);
+    auto g1 = rframes.first;
+    auto g2 = rframes.second;
+    if (g2.time_step == g1.time_step) {
+        return;
+    }
+    auto beta = (cyclic_time - g1.time_step) / (g2.time_step - g1.time_step);
+    auto irot = (1.0f - beta) * g1.quaternion + beta * g2.quaternion;
+    auto iquat = glm::quat(irot.w, irot.x, irot.y, irot.z);
+
+    mesh_matrix_ =
+        glm::translate(ipos) * glm::mat4_cast(iquat);
+}
+
+void Mesh::draw(glm::mat4 world, glm::mat4 model,
+                glm::vec3 camera_position) const {
     glEnable(GL_DEPTH_TEST);
 
     program_->use();
@@ -76,13 +153,17 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model, glm::vec3 camera_position) con
     GLint model_loc = glGetUniformLocation(program_->handle(), "model_matrix");
     glUniformMatrix4fv(model_loc, 1, GL_FALSE, &model[0][0]);
 
-    GLint camera_loc = glGetUniformLocation(program_->handle(), "camera_position");
+    GLint mesh_loc = glGetUniformLocation(program_->handle(), "mesh_matrix");
+    glUniformMatrix4fv(mesh_loc, 1, GL_FALSE, &mesh_matrix_[0][0]);
+
+    GLint camera_loc =
+        glGetUniformLocation(program_->handle(), "camera_position");
     glUniform3fv(camera_loc, 1, &camera_position[0]);
 
     // draw with element buffer
     glBindVertexArray(vao_handle_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_handle_);
-    glDrawElements(GL_TRIANGLES, index_count_, GL_UNSIGNED_INT, (void*)0);
+    glDrawElements(GL_TRIANGLES, index_count_, GL_UNSIGNED_INT, nullptr);
 
     glDisable(GL_DEPTH_TEST);
 }

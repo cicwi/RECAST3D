@@ -29,9 +29,15 @@ class Model : public Ticker {
     glm::mat4 model_matrix() const;
 
     float load_progress();
+
+    void toggle_pause() { paused_ = !paused_; }
+    void toggle_rotate() { rotate_ = !rotate_; }
+
   private:
     const aiScene* scene_;
     std::vector<std::unique_ptr<Mesh>> meshes_;
+
+    void represent_();
 
     float phi_ = 0.0f;
     void cancel_load_();
@@ -43,6 +49,8 @@ class Model : public Ticker {
     std::unique_ptr<Assimp::Importer> importer_;
 
     bool to_load_ = false;
+    bool paused_ = false;
+    bool rotate_ = false;
 };
 
 } // namespace tomovis

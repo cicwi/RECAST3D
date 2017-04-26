@@ -1,8 +1,10 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "graphics/interface/window.hpp"
 #include "input_handler.hpp"
-
 
 namespace tomovis {
 
@@ -28,6 +30,9 @@ class SceneSwitcher : public Window, public InputHandler {
   private:
     SceneList& scenes_;
     bool adding_movie_ = false;
+
+    std::vector<std::string> short_options_;
+    std::vector<std::string> model_options_;
 };
 
 } // namespace tomovis

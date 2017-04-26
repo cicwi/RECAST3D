@@ -28,6 +28,14 @@ void MovieComponent::describe() {
             ImGui::EndPopup();
         }
     }
+
+    if (ImGui::Button("Toggle")) {
+        model_.toggle_pause();
+    }
+
+    if (ImGui::Button("Rotate")) {
+        model_.toggle_rotate();
+    }
 }
 
 void MovieComponent::tick(float time_elapsed) {

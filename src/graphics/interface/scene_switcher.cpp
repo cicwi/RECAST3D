@@ -1,8 +1,12 @@
+#include <functional>
 #include <sstream>
 
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
+
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
 
 #include "graphics/components/movie_component.hpp"
 #include "graphics/components/reconstruction_component.hpp"
@@ -13,7 +17,21 @@
 
 namespace tomovis {
 
-SceneSwitcher::SceneSwitcher(SceneList& scenes) : scenes_(scenes) {}
+SceneSwitcher::SceneSwitcher(SceneList& scenes) : scenes_(scenes) {
+    for (auto entry : fs::directory_iterator("../data/")) {
+        std::string name = entry.path().native();
+        model_options_.push_back(name);
+
+        int short_length = 15;
+        std::string short_name = entry.path().filename();
+        if ((int)short_name.size() < short_length) {
+            short_options_.push_back(short_name);
+        } else {
+            short_options_.push_back(short_name.substr(0, short_length - 2) +
+                                     "..");
+        }
+    }
+}
 
 SceneSwitcher::~SceneSwitcher() {}
 
@@ -58,20 +76,19 @@ void SceneSwitcher::describe() {
             ImGui::Text("Choose the model");
             ImGui::Separator();
 
-            static std::string model_file = "../data/ape.obj";
-            static char text_buffer[128];
-
-            std::copy(model_file.data(),
-                      model_file.data() + model_file.size() + 1,
-                      text_buffer);
-
-            if (ImGui::InputText("model", text_buffer, 128)) {
-                model_file = std::string(text_buffer);
-            }
+            static int current_item = 0;
+            ImGui::ListBox("Model", &current_item,
+                           [](void* data, int idx, const char** out) -> bool {
+                               std::vector<std::string> model_options =
+                                   *(std::vector<std::string>*)data;
+                               *out = model_options[idx].c_str();
+                               return true;
+                           },
+                           (void*)&short_options_, (int)model_options_.size());
 
             if (ImGui::Button("OK", ImVec2(120, 0))) {
                 ImGui::CloseCurrentPopup();
-                add_movie_scene(std::string(text_buffer));
+                add_movie_scene(model_options_[current_item]);
                 adding_movie_ = false;
             }
 
@@ -131,16 +148,15 @@ void SceneSwitcher::add_scene_3d() {
         std::make_unique<ReconstructionComponent>(obj, obj.scene_id()));
 }
 
-void SceneSwitcher::show_movie_modal() {
-    adding_movie_ = true;
-}
+void SceneSwitcher::show_movie_modal() { adding_movie_ = true; }
 
 void SceneSwitcher::add_movie_scene(std::string file) {
     std::stringstream ss;
     ss << "Movie Scene #" << scenes_.scenes().size() + 1;
     scenes_.set_active_scene(scenes_.add_scene(ss.str(), -1, true, 3));
     auto& obj = scenes_.active_scene()->object();
-    obj.add_component(std::make_unique<MovieComponent>(obj, obj.scene_id(), file));
+    obj.add_component(
+        std::make_unique<MovieComponent>(obj, obj.scene_id(), file));
 }
 
 void SceneSwitcher::delete_scene() {
