@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include <imgui.h>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
+#include <imgui.h>
 
 #include "graphics/colormap.hpp"
 #include "graphics/components/reconstruction_component.hpp"
@@ -123,11 +123,9 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
 
     program_->use();
 
-    glUniform1i(glGetUniformLocation(program_->handle(), "texture_sampler"), 0);
-    glUniform1i(glGetUniformLocation(program_->handle(), "colormap_sampler"),
-                1);
-    glUniform1i(glGetUniformLocation(program_->handle(), "volume_data_sampler"),
-                3);
+    program_->uniform("texture_sampler", 0);
+    program_->uniform("colormap_sampler", 1);
+    program_->uniform("volume_data_sampler", 3);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormap_texture_);
@@ -137,21 +135,10 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
     auto draw_slice = [&](slice& the_slice) {
         the_slice.get_texture().bind();
 
-        GLint transform_loc =
-            glGetUniformLocation(program_->handle(), "world_to_screen_matrix");
-        GLint orientation_loc =
-            glGetUniformLocation(program_->handle(), "orientation_matrix");
-
-        glUniformMatrix4fv(transform_loc, 1, GL_FALSE, &full_transform[0][0]);
-        glUniformMatrix4fv(orientation_loc, 1, GL_FALSE,
-                           &the_slice.orientation[0][0]);
-
-        GLint hovered_loc = glGetUniformLocation(program_->handle(), "hovered");
-        glUniform1i(hovered_loc, (int)(the_slice.hovered));
-
-        GLint has_data_loc =
-            glGetUniformLocation(program_->handle(), "has_data");
-        glUniform1i(has_data_loc, (int)(the_slice.has_data()));
+        program_->uniform("world_to_screen_matrix", full_transform);
+        program_->uniform("orientation_matrix", the_slice.orientation);
+        program_->uniform("hovered", (int)(the_slice.hovered));
+        program_->uniform("has_data", (int)(the_slice.has_data()));
 
         glBindVertexArray(vao_handle_);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -180,10 +167,7 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
     volume_texture_.unbind();
 
     cube_program_->use();
-
-    GLint matrix_loc =
-        glGetUniformLocation(cube_program_->handle(), "transform_matrix");
-    glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &full_transform[0][0]);
+    cube_program_->uniform("transform_matrix", full_transform);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glBindVertexArray(cube_vao_handle_);
@@ -269,7 +253,8 @@ int ReconstructionComponent::index_hovering_over(float x, float y) {
             auto alpha = glm::dot(normal, direction);
             if (glm::abs(alpha) > 0.001f) {
                 distance = glm::dot((base - origin), normal) / alpha;
-                if (distance >= 0.001f) return true;
+                if (distance >= 0.001f)
+                    return true;
             }
             return false;
         };
@@ -348,14 +333,14 @@ void ReconstructionComponent::switch_if_necessary(
     recon_drag_machine_kind kind) {
     if (!drag_machine_ || drag_machine_->kind() != kind) {
         switch (kind) {
-            case recon_drag_machine_kind::translator:
-                drag_machine_ = std::make_unique<SliceTranslator>(*this);
-                break;
-            case recon_drag_machine_kind::rotator:
-                drag_machine_ = std::make_unique<SliceRotator>(*this);
-                break;
-            default:
-                break;
+        case recon_drag_machine_kind::translator:
+            drag_machine_ = std::make_unique<SliceTranslator>(*this);
+            break;
+        case recon_drag_machine_kind::rotator:
+            drag_machine_ = std::make_unique<SliceRotator>(*this);
+            break;
+        default:
+            break;
         }
     }
 }
@@ -477,4 +462,4 @@ void SliceRotator::on_drag(glm::vec2 delta) {
     slice->set_orientation(base, axis1, axis2);
 }
 
-}  // namespace tomovis
+} // namespace tomovis

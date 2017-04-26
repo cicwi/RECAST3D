@@ -83,14 +83,10 @@ void PartitioningComponent::draw(glm::mat4 world_to_screen) const {
 
         auto transform_matrix = world_to_screen * object_matrix;
 
-        GLint matrix_loc =
-            glGetUniformLocation(part_program_->handle(), "transform_matrix");
-        glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &transform_matrix[0][0]);
+        part_program_->uniform("transform_matrix", transform_matrix);
 
         auto color = hue_to_rgb((float)the_part.id / parts_.size());
-        GLint rgb_loc =
-            glGetUniformLocation(part_program_->handle(), "rgb_color");
-        glUniform3fv(rgb_loc, 1, &color[0]);
+        part_program_->uniform("rgb_color", color);
 
         glBindVertexArray(cube_vao_handle_);
         glDrawArrays(GL_TRIANGLES, 0, 12 * 3);

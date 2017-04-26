@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include <imgui.h>
 #include <glm/gtx/transform.hpp>
+#include <imgui.h>
 
 #include "graphics/components/geometry_component.hpp"
 #include "graphics/scene_camera_3d.hpp"
@@ -80,7 +80,8 @@ GeometryComponent::~GeometryComponent() {}
 
 void GeometryComponent::describe() {
     ImGui::Checkbox("Show geometry", &show_);
-    ImGui::SliderInt("Projection", &current_projection_, 0, projections_.size() - 1);
+    ImGui::SliderInt("Projection", &current_projection_, 0,
+                     projections_.size() - 1);
     ImGui::SliderFloat("Speed (pps)", &speed_, 0.0f, 0.1f);
 }
 
@@ -121,9 +122,7 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) const {
 
         auto transform_matrix = world_to_screen * object_matrix;
 
-        GLint matrix_loc =
-            glGetUniformLocation(cube_program_->handle(), "transform_matrix");
-        glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, &transform_matrix[0][0]);
+        cube_program_->uniform("transform_matrix", transform_matrix);
 
         glBindVertexArray(cube_vao_handle_);
         glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
@@ -131,18 +130,13 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) const {
         // DRAW PROJECTION
         program_->use();
 
-        glUniform1i(glGetUniformLocation(program_->handle(), "texture_sampler"), 0);
+        program_->uniform("texture_sampler", 0);
         proj.data_texture.bind();
 
-        glUniform1i(glGetUniformLocation(program_->handle(), "colormap_sampler"), 1);
+        program_->uniform("colormap_sampler", 1);
 
-        GLint or_matrix_loc =
-            glGetUniformLocation(program_->handle(), "orientation_matrix");
-        glUniformMatrix4fv(or_matrix_loc, 1, GL_FALSE,
-                           &proj.detector_orientation[0][0]);
-        GLint ws_matrix_loc =
-            glGetUniformLocation(program_->handle(), "world_to_screen_matrix");
-        glUniformMatrix4fv(ws_matrix_loc, 1, GL_FALSE, &world_to_screen[0][0]);
+        program_->uniform("orientation_matrix", proj.detector_orientation);
+        program_->uniform("world_to_screen_matrix", world_to_screen);
 
         glBindVertexArray(vao_handle_);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -155,10 +149,7 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) const {
                                      glm::translate(proj.source_position) *
                                      source_to_det_matrix;
 
-        GLint line_matrix_loc =
-            glGetUniformLocation(lines_program_->handle(), "transform_matrix");
-        glUniformMatrix4fv(line_matrix_loc, 1, GL_FALSE,
-                           &line_transform_matrix[0][0]);
+        lines_program_->uniform("transform_matrix", line_transform_matrix);
 
         glLineWidth(2.0f);
         glBindVertexArray(lines_vao_handle_);
@@ -172,4 +163,4 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) const {
     glDisable(GL_DEPTH_TEST);
 }
 
-}  // namespace tomovis
+} // namespace tomovis

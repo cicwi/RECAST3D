@@ -145,7 +145,6 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
     program_->uniform("camera_position", camera_position);
 
     // set material
-    
     program_->uniform("material.ambient_color", material_.ambient_color);
     program_->uniform("material.diffuse_color", material_.diffuse_color);
     program_->uniform("material.specular_color", material_.specular_color);
