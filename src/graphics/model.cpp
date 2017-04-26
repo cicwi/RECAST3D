@@ -9,10 +9,12 @@
 #include <assimp/scene.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include "graphics/mesh.hpp"
 #include "graphics/model.hpp"
 #include "graphics/node_animation.hpp"
+#include "graphics/material.hpp"
 
 namespace tomovis {
 
@@ -51,7 +53,6 @@ void Model::async_load_(std::string file) {
             return;
         }
 
-
         to_load_ = true;
     });
 }
@@ -64,15 +65,45 @@ Model::~Model() {
 }
 
 glm::mat4 Model::model_matrix() const {
-    return glm::rotate(phi_, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(scale_));
+    return glm::rotate(phi_, glm::vec3(0.0f, 1.0f, 0.0f)) *
+           glm::scale(glm::vec3(scale_));
 }
 
 float Model::load_progress() { return progress_->progress(); }
 void Model::cancel_load_() { progress_->keep_on_keeping_on_ = false; }
 
 void Model::represent_() {
+
+    // next, materials
+    if (scene_->HasMaterials()) {
+        std::cout << "Scene has " << scene_->mNumMaterials << " mats!\n";
+    }
+
+    std::vector<Material> materials; 
+    for (size_t i = 0; i < scene_->mNumMaterials; ++i) {
+        Material material;
+        auto mat = scene_->mMaterials[i];
+        aiColor3D ambient;
+        aiColor3D diffuse;
+        aiColor3D specular;
+        float opacity;
+        float shininess;
+        mat->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
+        mat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+        mat->Get(AI_MATKEY_COLOR_SPECULAR, specular);
+        mat->Get(AI_MATKEY_OPACITY, opacity);
+        mat->Get(AI_MATKEY_SHININESS, shininess);
+        material.ambient_color = glm::vec3(ambient.r, ambient.g, ambient.b);
+        material.diffuse_color = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
+        material.specular_color = glm::vec3(specular.r, specular.g, specular.b);
+        material.opacity = opacity;
+        material.shininess = (int)shininess;
+        materials.push_back(material);
+    }
+  
     for (size_t i = 0; i < scene_->mNumMeshes; ++i) {
         meshes_.push_back(std::make_unique<Mesh>(scene_->mMeshes[i]));
+        meshes_[i]->material_ = materials[scene_->mMeshes[i]->mMaterialIndex];
     }
 
     // load animations
@@ -80,7 +111,8 @@ void Model::represent_() {
     if (scene_->HasAnimations()) {
         std::cout << "Scene has animations!\n";
         std::cout << "#: " << scene_->mNumAnimations << "\n";
-        std::cout << "#c1: " << scene_->mAnimations[0]->mNumMeshChannels << "\n";
+        std::cout << "#c1: " << scene_->mAnimations[0]->mNumMeshChannels
+                  << "\n";
         std::cout << "#c2: " << scene_->mAnimations[0]->mNumChannels << "\n";
 
         std::queue<aiNode*> nodes;
@@ -95,7 +127,9 @@ void Model::represent_() {
             std::cout << "Node: " << node->mName.C_Str() << "\n";
         }
 
-        std::cout << "Anim for node: " << scene_->mAnimations[0]->mChannels[0]->mNodeName.C_Str() << "\n";
+        std::cout << "Anim for node: "
+                  << scene_->mAnimations[0]->mChannels[0]->mNodeName.C_Str()
+                  << "\n";
 
         for (size_t i = 0; i < scene_->mNumAnimations; ++i) {
             auto anim = scene_->mAnimations[i];
@@ -111,7 +145,8 @@ void Model::represent_() {
                     PositionKeyframe frame;
                     auto key = channel->mPositionKeys[k];
                     frame.time_step = key.mTime;
-                    frame.position = glm::vec3(key.mValue.x, key.mValue.y, key.mValue.z);
+                    frame.position =
+                        glm::vec3(key.mValue.x, key.mValue.y, key.mValue.z);
                     positions.push_back(frame);
                 }
 
@@ -119,17 +154,20 @@ void Model::represent_() {
                     RotationKeyframe frame;
                     auto key = channel->mRotationKeys[k];
                     frame.time_step = key.mTime;
-                    frame.quaternion = glm::quat(key.mValue.w, key.mValue.x, key.mValue.y, key.mValue.z);
+                    frame.quaternion = glm::quat(key.mValue.w, key.mValue.x,
+                                                 key.mValue.y, key.mValue.z);
                     rotations.push_back(frame);
                 }
 
                 auto node = scene_->mRootNode->FindNode(channel->mNodeName);
                 for (size_t k = 0; k < node->mNumMeshes; ++k) {
-                    meshes_[node->mMeshes[k]]->animate(positions, rotations, speed, duration);
+                    meshes_[node->mMeshes[k]]->animate(positions, rotations,
+                                                       speed, duration);
                 }
             }
         }
     }
+
 
     to_load_ = false;
 }

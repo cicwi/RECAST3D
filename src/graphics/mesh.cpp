@@ -146,20 +146,20 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
     glEnable(GL_DEPTH_TEST);
 
     program_->use();
-    GLint transform_loc =
-        glGetUniformLocation(program_->handle(), "world_matrix");
-    glUniformMatrix4fv(transform_loc, 1, GL_FALSE, &world[0][0]);
 
-    GLint model_loc = glGetUniformLocation(program_->handle(), "model_matrix");
-    glUniformMatrix4fv(model_loc, 1, GL_FALSE, &model[0][0]);
+    program_->uniform("world_matrix", world);
+    program_->uniform("model_matrix", model);
+    program_->uniform("mesh_matrix", mesh_matrix_);
+    program_->uniform("camera_position", camera_position);
 
-    GLint mesh_loc = glGetUniformLocation(program_->handle(), "mesh_matrix");
-    glUniformMatrix4fv(mesh_loc, 1, GL_FALSE, &mesh_matrix_[0][0]);
-
-    GLint camera_loc =
-        glGetUniformLocation(program_->handle(), "camera_position");
-    glUniform3fv(camera_loc, 1, &camera_position[0]);
-
+    // set material
+    
+    program_->uniform("material.ambient_color", material_.ambient_color);
+    program_->uniform("material.diffuse_color", material_.diffuse_color);
+    program_->uniform("material.specular_color", material_.specular_color);
+    program_->uniform("material.opacity", material_.opacity);
+    program_->uniform("material.shininess", material_.shininess);
+    
     // draw with element buffer
     glBindVertexArray(vao_handle_);
     glDrawElements(GL_TRIANGLES, index_count_, GL_UNSIGNED_INT, nullptr);

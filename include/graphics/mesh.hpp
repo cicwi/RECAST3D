@@ -9,10 +9,13 @@
 #include "node_animation.hpp"
 #include "shader_program.hpp"
 #include "ticker.hpp"
+#include "material.hpp"
 
 struct aiMesh;
 
 namespace tomovis {
+
+class Model;
 
 class Mesh : public Ticker {
   public:
@@ -29,7 +32,10 @@ class Mesh : public Ticker {
     void tick(float time_elapsed) override;
 
   private:
+    friend Model;
+
     const aiMesh* asset_mesh_;
+    Material material_;
 
     GLuint index_handle_;
     unsigned int index_count_ = 0;

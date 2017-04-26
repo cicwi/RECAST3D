@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <glm/glm.hpp>
+
 #include "graphics/shader_program.hpp"
 
 namespace tomovis {
@@ -79,8 +81,23 @@ ShaderProgram::~ShaderProgram() {
     glDeleteShader(frag_shader_);
 }
 
-void ShaderProgram::use() {
-    glUseProgram(shader_program_);
+void ShaderProgram::use() { glUseProgram(shader_program_); }
+
+void ShaderProgram::uniform(std::string name, glm::mat4 m) {
+    glUniformMatrix4fv(glGetUniformLocation(handle(), name.c_str()), 1,
+                       GL_FALSE, &m[0][0]);
+}
+
+void ShaderProgram::uniform(std::string name, glm::vec3 v) {
+    glUniform3fv(glGetUniformLocation(handle(), name.c_str()), 1, &v[0]);
+}
+
+void ShaderProgram::uniform(std::string name, float x) {
+    glUniform1f(glGetUniformLocation(handle(), name.c_str()), x);
+}
+
+void ShaderProgram::uniform(std::string name, int x) {
+    glUniform1i(glGetUniformLocation(handle(), name.c_str()), x);
 }
 
 } // namespace tomovis
