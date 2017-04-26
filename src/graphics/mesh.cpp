@@ -136,11 +136,9 @@ void Mesh::tick(float time_elapsed) {
         return;
     }
     auto beta = (cyclic_time - g1.time_step) / (g2.time_step - g1.time_step);
-    auto irot = (1.0f - beta) * g1.quaternion + beta * g2.quaternion;
-    auto iquat = glm::quat(irot.w, irot.x, irot.y, irot.z);
 
     mesh_matrix_ =
-        glm::translate(ipos) * glm::mat4_cast(iquat);
+        glm::translate(ipos) * glm::mat4_cast(glm::mix(g1.quaternion, g2.quaternion, beta));
 }
 
 void Mesh::draw(glm::mat4 world, glm::mat4 model,

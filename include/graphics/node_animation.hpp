@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace tomovis {
 
@@ -13,7 +14,7 @@ struct PositionKeyframe : public Keyframe {
 };
 
 struct RotationKeyframe : public Keyframe {
-    glm::vec4 quaternion;
+    glm::quat quaternion;
 };
 
 } // namespace tomovis

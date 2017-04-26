@@ -24,6 +24,8 @@ SceneSwitcher::SceneSwitcher(SceneList& scenes) : scenes_(scenes) {
 SceneSwitcher::~SceneSwitcher() {}
 
 void SceneSwitcher::reload_data_() {
+    model_options_.clear();
+    short_options_.clear();
     for (auto entry : fs::directory_iterator("../data/")) {
         std::string name = entry.path().native();
         model_options_.push_back(name);

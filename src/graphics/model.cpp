@@ -119,7 +119,7 @@ void Model::represent_() {
                     RotationKeyframe frame;
                     auto key = channel->mRotationKeys[k];
                     frame.time_step = key.mTime;
-                    frame.quaternion = glm::vec4(key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w);
+                    frame.quaternion = glm::quat(key.mValue.w, key.mValue.x, key.mValue.y, key.mValue.z);
                     rotations.push_back(frame);
                 }
 
@@ -146,7 +146,7 @@ void Model::tick(float time_elapsed) {
     if (rotate_) {
         const float twopi = 2.0f * glm::pi<float>();
 
-        phi_ += 0.1f * time_elapsed;
+        phi_ += 0.5f * time_elapsed;
         while (phi_ > twopi) {
             phi_ -= twopi;
         }
