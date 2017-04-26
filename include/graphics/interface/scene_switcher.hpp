@@ -31,6 +31,8 @@ class SceneSwitcher : public Window, public InputHandler {
     SceneList& scenes_;
     bool adding_movie_ = false;
 
+    void reload_data_();
+
     std::vector<std::string> short_options_;
     std::vector<std::string> model_options_;
 };

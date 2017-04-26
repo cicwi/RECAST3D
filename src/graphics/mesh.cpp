@@ -24,14 +24,16 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
 
     for (size_t i = 0; i < asset_mesh_->mNumFaces; ++i) {
         if (asset_mesh_->mFaces[i].mNumIndices != 3) {
-            std::cout << "Only triangulated meshes are supported! ("
+            std::cout << "WARNING: Only triangulated meshes are supported! ("
                       << asset_mesh_->mFaces[i].mNumIndices << ")\n";
-            return;
         }
     }
 
     std::vector<unsigned int> indices;
     for (size_t i = 0; i < asset_mesh_->mNumFaces; ++i) {
+        if (asset_mesh_->mFaces[i].mNumIndices != 3) {
+          continue;
+        }
         indices.push_back(asset_mesh_->mFaces[i].mIndices[0]);
         indices.push_back(asset_mesh_->mFaces[i].mIndices[1]);
         indices.push_back(asset_mesh_->mFaces[i].mIndices[2]);
@@ -162,7 +164,6 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
 
     // draw with element buffer
     glBindVertexArray(vao_handle_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_handle_);
     glDrawElements(GL_TRIANGLES, index_count_, GL_UNSIGNED_INT, nullptr);
 
     glDisable(GL_DEPTH_TEST);

@@ -64,7 +64,7 @@ Model::~Model() {
 }
 
 glm::mat4 Model::model_matrix() const {
-    return glm::rotate(phi_, glm::vec3(0.0f, 1.0f, 0.0f));
+    return glm::rotate(phi_, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::scale(glm::vec3(scale_));
 }
 
 float Model::load_progress() { return progress_->progress(); }

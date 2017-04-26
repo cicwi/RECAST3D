@@ -33,12 +33,15 @@ class Model : public Ticker {
     void toggle_pause() { paused_ = !paused_; }
     void toggle_rotate() { rotate_ = !rotate_; }
 
+    float& scale() { return scale_; }
+
   private:
     const aiScene* scene_;
     std::vector<std::unique_ptr<Mesh>> meshes_;
 
     void represent_();
 
+    float scale_ = 1.0f;
     float phi_ = 0.0f;
     void cancel_load_();
 

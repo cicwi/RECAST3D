@@ -36,6 +36,8 @@ void MovieComponent::describe() {
     if (ImGui::Button("Rotate")) {
         model_.toggle_rotate();
     }
+
+    ImGui::SliderFloat("Scale", &model_.scale(), 0.05f, 1.0f);
 }
 
 void MovieComponent::tick(float time_elapsed) {

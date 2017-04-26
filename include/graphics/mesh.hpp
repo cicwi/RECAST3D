@@ -32,7 +32,7 @@ class Mesh : public Ticker {
     const aiMesh* asset_mesh_;
 
     GLuint index_handle_;
-    unsigned int index_count_;
+    unsigned int index_count_ = 0;
 
     std::vector<PositionKeyframe> positions_;
     std::vector<RotationKeyframe> rotations_;

@@ -18,6 +18,12 @@ namespace fs = std::experimental::filesystem;
 namespace tomovis {
 
 SceneSwitcher::SceneSwitcher(SceneList& scenes) : scenes_(scenes) {
+    reload_data_();
+}
+
+SceneSwitcher::~SceneSwitcher() {}
+
+void SceneSwitcher::reload_data_() {
     for (auto entry : fs::directory_iterator("../data/")) {
         std::string name = entry.path().native();
         model_options_.push_back(name);
@@ -32,8 +38,6 @@ SceneSwitcher::SceneSwitcher(SceneList& scenes) : scenes_(scenes) {
         }
     }
 }
-
-SceneSwitcher::~SceneSwitcher() {}
 
 void SceneSwitcher::describe() {
     if (ImGui::BeginMainMenuBar()) {
@@ -76,6 +80,10 @@ void SceneSwitcher::describe() {
             ImGui::Text("Choose the model");
             ImGui::Separator();
 
+            if (ImGui::Button("Refresh")) {
+                reload_data_();
+            }
+
             static int current_item = 0;
             ImGui::ListBox("Model", &current_item,
                            [](void* data, int idx, const char** out) -> bool {
@@ -85,6 +93,8 @@ void SceneSwitcher::describe() {
                                return true;
                            },
                            (void*)&short_options_, (int)model_options_.size());
+
+            ImGui::Text(model_options_[current_item].c_str());
 
             if (ImGui::Button("OK", ImVec2(120, 0))) {
                 ImGui::CloseCurrentPopup();
