@@ -14,8 +14,8 @@
 namespace tomovis {
 
 class MovieComponent : public ObjectComponent {
-   public:
-    MovieComponent(SceneObject& object, int scene_id);
+  public:
+    MovieComponent(SceneObject& object, int scene_id, std::string file);
     ~MovieComponent();
 
     void draw(glm::mat4 world_to_screen) const override;
@@ -24,10 +24,11 @@ class MovieComponent : public ObjectComponent {
     void tick(float time_elapsed) override;
     void describe() override;
 
-   private:
+  private:
     SceneObject& object_;
     int scene_id_;
     Model model_;
+    float time_ = 0.0f;
 };
 
-}  // namespace tomovis
+} // namespace tomovis

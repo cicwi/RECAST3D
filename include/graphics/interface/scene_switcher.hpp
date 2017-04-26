@@ -21,11 +21,13 @@ class SceneSwitcher : public Window, public InputHandler {
     void next_scene();
     void add_scene();
     void add_scene_3d();
-    void add_movie_scene();
+    void show_movie_modal();
+    void add_movie_scene(std::string model_file);
     void delete_scene();
 
   private:
     SceneList& scenes_;
+    bool adding_movie_ = false;
 };
 
 } // namespace tomovis

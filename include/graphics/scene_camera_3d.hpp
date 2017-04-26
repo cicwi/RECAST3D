@@ -39,7 +39,6 @@ class SceneCamera3d : public SceneCamera {
 
     void reset_view();
 
-    auto& view_matrix() { return view_matrix_; }
     auto& up() { return up_; }
     auto& right() { return right_; }
 
@@ -52,7 +51,13 @@ class SceneCamera3d : public SceneCamera {
 
     void tick(float time_elapsed) override;
 
-    void look_at(glm::vec3 center) override;
+    void set_look_at(glm::vec3 center) override;
+    void set_position(glm::vec3 position);
+
+    glm::vec3 position() override { return position_; }
+    glm::vec3 look_at() override { return center_; }
+
+    void rotate(float phi, float psi);
 
    private:
     glm::vec3 position_;
@@ -71,8 +76,6 @@ class SceneCamera3d : public SceneCamera {
     glm::vec3 right_;
     glm::vec3 center_;
 
-    glm::mat4 view_matrix_;
-
     std::unique_ptr<CameraDragMachine> drag_machine_;
 };
 
@@ -82,10 +85,7 @@ class Rotator : public CameraDragMachine {
 
     void on_drag(glm::vec2 delta) override {
         // rotate 'right' with angle '-dx' around 'up'
-        camera_.view_matrix() =
-            glm::rotate(3.0f * delta.x, camera_.up()) * camera_.view_matrix();
-        camera_.view_matrix() = glm::rotate(3.0f * delta.y, camera_.right()) *
-                                camera_.view_matrix();
+        camera_.rotate(3.0f * delta.x, 3.0f * delta.y);
     }
 
     drag_machine_kind kind() override { return drag_machine_kind::rotator; }

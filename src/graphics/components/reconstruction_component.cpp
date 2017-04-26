@@ -109,7 +109,7 @@ void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
     volume_transform_ = glm::translate(center) *
                         glm::scale(glm::vec3(max_pt - min_pt)) *
                         glm::scale(glm::vec3(0.5f));
-    object_.camera().look_at(
+    object_.camera().set_look_at(
         glm::vec3(volume_transform_ * glm::vec4(glm::vec3(0.0f), 1.0f)));
 }
 

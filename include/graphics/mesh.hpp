@@ -18,7 +18,8 @@ class Mesh {
     Mesh(aiMesh* asset_mesh);
     ~Mesh();
 
-    void draw(glm::mat4 model_to_screen) const;
+    void draw(glm::mat4 world_to_screen, glm::mat4 model,
+              glm::vec3 camera_position) const;
 
   private:
     const aiMesh* asset_mesh_;

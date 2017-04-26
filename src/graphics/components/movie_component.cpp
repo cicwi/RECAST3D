@@ -10,19 +10,33 @@
 
 namespace tomovis {
 
-MovieComponent::MovieComponent(SceneObject& object, int scene_id)
-    : object_(object), scene_id_(scene_id), model_("../data/ape.obj") {
+MovieComponent::MovieComponent(SceneObject& object, int scene_id,
+                               std::string file)
+    : object_(object), scene_id_(scene_id), model_(file) {}
+
+MovieComponent::~MovieComponent() {}
+
+void MovieComponent::describe() {
+    if (model_.load_progress() < 1.0f) {
+        ImGui::OpenPopup("Loading movie");
+        if (ImGui::BeginPopupModal("Loading movie", NULL,
+                                   ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::ProgressBar(model_.load_progress(), ImVec2(0.0f, 0.0f));
+            ImGui::SameLine();
+            ImGui::Text("Loading..");
+
+            ImGui::EndPopup();
+        }
+    }
 }
 
-MovieComponent::~MovieComponent() {
+void MovieComponent::tick(float time_elapsed) {
+    time_ += time_elapsed;
+    model_.tick(time_elapsed);
 }
-
-void MovieComponent::describe() {}
-
-void MovieComponent::tick(float /* time_elapsed */) {}
 
 void MovieComponent::draw(glm::mat4 world_to_screen) const {
-    model_.draw(world_to_screen);
+    model_.draw(world_to_screen, object_.camera().position());
 }
 
 } // namespace tomovis

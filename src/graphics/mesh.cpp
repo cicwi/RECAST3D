@@ -22,7 +22,8 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
 
     for (size_t i = 0; i < asset_mesh_->mNumFaces; ++i) {
         if (asset_mesh_->mFaces[i].mNumIndices != 3) {
-            std::cout << "Only meshes with triangles as supported!\n";
+            std::cout << "Only triangulated meshes are supported! ("
+                      << asset_mesh_->mFaces[i].mNumIndices << ")\n";
             return;
         }
     }
@@ -64,15 +65,19 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
 
 Mesh::~Mesh() {}
 
-void Mesh::draw(glm::mat4 model_to_screen) const {
+void Mesh::draw(glm::mat4 world, glm::mat4 model, glm::vec3 camera_position) const {
     glEnable(GL_DEPTH_TEST);
-
-    model_to_screen = model_to_screen * glm::scale(glm::vec3(1.0f));
 
     program_->use();
     GLint transform_loc =
-        glGetUniformLocation(program_->handle(), "transform_matrix");
-    glUniformMatrix4fv(transform_loc, 1, GL_FALSE, &model_to_screen[0][0]);
+        glGetUniformLocation(program_->handle(), "world_matrix");
+    glUniformMatrix4fv(transform_loc, 1, GL_FALSE, &world[0][0]);
+
+    GLint model_loc = glGetUniformLocation(program_->handle(), "model_matrix");
+    glUniformMatrix4fv(model_loc, 1, GL_FALSE, &model[0][0]);
+
+    GLint camera_loc = glGetUniformLocation(program_->handle(), "camera_position");
+    glUniform3fv(camera_loc, 1, &camera_position[0]);
 
     // draw with element buffer
     glBindVertexArray(vao_handle_);

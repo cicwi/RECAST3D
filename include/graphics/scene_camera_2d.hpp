@@ -18,6 +18,9 @@ class SceneCamera2d : public SceneCamera {
     bool handle_mouse_moved(float x, float y) override;
     bool handle_key(int key, bool down, int mods) override;
 
+    glm::vec3 position() override { return glm::vec3(0.0f); }
+    glm::vec3 look_at() override { return glm::vec3(0.0f); }
+
    private:
     glm::vec2 position_;
     std::vector<parameter<float>> parameters_;

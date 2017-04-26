@@ -4,8 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
-#include "graphics/components/reconstruction_component.hpp"
 #include "graphics/components/movie_component.hpp"
+#include "graphics/components/reconstruction_component.hpp"
 #include "graphics/interface/scene_switcher.hpp"
 #include "graphics/interface/window.hpp"
 #include "scene.hpp"
@@ -27,7 +27,7 @@ void SceneSwitcher::describe() {
             if (ImGui::MenuItem("Add scene (3D)", "ctrl + b"))
                 add_scene_3d();
             if (ImGui::MenuItem("Add movie", "ctrl + m"))
-                add_movie_scene();
+                show_movie_modal();
 
             if (ImGui::MenuItem("Delete scene", "ctrl + d"))
                 delete_scene();
@@ -50,6 +50,34 @@ void SceneSwitcher::describe() {
         }
         ImGui::EndMainMenuBar();
     }
+
+    if (adding_movie_) {
+        ImGui::OpenPopup("Model name");
+        if (ImGui::BeginPopupModal("Model name", NULL,
+                                   ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Choose the model");
+            ImGui::Separator();
+
+            static std::string model_file = "../data/ape.obj";
+            static char text_buffer[128];
+
+            std::copy(model_file.data(),
+                      model_file.data() + model_file.size() + 1,
+                      text_buffer);
+
+            if (ImGui::InputText("model", text_buffer, 128)) {
+                model_file = std::string(text_buffer);
+            }
+
+            if (ImGui::Button("OK", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+                add_movie_scene(std::string(text_buffer));
+                adding_movie_ = false;
+            }
+
+            ImGui::EndPopup();
+        }
+    }
 }
 
 bool SceneSwitcher::handle_key(int key, bool down, int mods) {
@@ -66,7 +94,7 @@ bool SceneSwitcher::handle_key(int key, bool down, int mods) {
         return true;
     }
     if (down && key == GLFW_KEY_M && (mods & GLFW_MOD_CONTROL)) {
-        add_movie_scene();
+        show_movie_modal();
         return true;
     }
     if (down && key == GLFW_KEY_D && (mods & GLFW_MOD_CONTROL)) {
@@ -88,7 +116,6 @@ void SceneSwitcher::next_scene() {
     scenes_.set_active_scene((*active_scene_it).first);
 }
 
-
 void SceneSwitcher::add_scene() {
     std::stringstream ss;
     ss << "Scene #" << scenes_.scenes().size() + 1;
@@ -104,13 +131,16 @@ void SceneSwitcher::add_scene_3d() {
         std::make_unique<ReconstructionComponent>(obj, obj.scene_id()));
 }
 
-void SceneSwitcher::add_movie_scene() {
+void SceneSwitcher::show_movie_modal() {
+    adding_movie_ = true;
+}
+
+void SceneSwitcher::add_movie_scene(std::string file) {
     std::stringstream ss;
     ss << "Movie Scene #" << scenes_.scenes().size() + 1;
     scenes_.set_active_scene(scenes_.add_scene(ss.str(), -1, true, 3));
     auto& obj = scenes_.active_scene()->object();
-    obj.add_component(
-        std::make_unique<MovieComponent>(obj, obj.scene_id()));
+    obj.add_component(std::make_unique<MovieComponent>(obj, obj.scene_id(), file));
 }
 
 void SceneSwitcher::delete_scene() {

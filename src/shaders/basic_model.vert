@@ -3,11 +3,14 @@
 layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec3 in_normal;
 
-uniform mat4 transform_matrix;
+uniform mat4 world_matrix;
+uniform mat4 model_matrix;
 
 out vec3 normal;
+out vec3 fragment_position;
 
 void main() {
-    gl_Position = transform_matrix * vec4(in_position.x, in_position.y, in_position.z, 1.0f);
-    normal = in_normal;
+    gl_Position = world_matrix * model_matrix * vec4(in_position.x, in_position.y, in_position.z, 1.0f);
+    normal = (model_matrix * vec4(in_normal, 1.0f)).xyz;
+    fragment_position = in_position;
 }
