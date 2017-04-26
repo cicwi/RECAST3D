@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <thread>
 #include <vector>
@@ -47,9 +46,9 @@ class Model : public Ticker {
 
     std::thread load_model_thread_;
     void async_load_(std::string file);
-    std::unique_ptr<ProgressUpdate> progress_;
+    ProgressUpdate* progress_;
 
-    std::unique_ptr<Assimp::Importer> importer_;
+    Assimp::Importer* importer_;
 
     bool to_load_ = false;
     bool paused_ = false;

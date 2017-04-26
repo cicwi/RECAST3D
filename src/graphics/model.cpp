@@ -8,13 +8,13 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/transform.hpp>
 
+#include "graphics/material.hpp"
 #include "graphics/mesh.hpp"
 #include "graphics/model.hpp"
 #include "graphics/node_animation.hpp"
-#include "graphics/material.hpp"
 
 namespace tomovis {
 
@@ -40,11 +40,11 @@ Model::Model(std::string file) {
 }
 
 void Model::async_load_(std::string file) {
-    progress_ = std::make_unique<ProgressUpdate>();
+    progress_ = new ProgressUpdate;
 
     load_model_thread_ = std::thread([&, file]() {
-        importer_ = std::make_unique<Assimp::Importer>();
-        importer_->SetProgressHandler(progress_.get());
+        importer_ = new Assimp::Importer;
+        importer_->SetProgressHandler(progress_);
         scene_ = importer_->ReadFile(file, aiProcessPreset_TargetRealtime_Fast);
 
         if (!scene_) {
@@ -58,10 +58,13 @@ void Model::async_load_(std::string file) {
 }
 
 Model::~Model() {
-    if (scene_) {
-        aiReleaseImport(scene_);
+    if (load_model_thread_.joinable()) {
+        load_model_thread_.join();
     }
-    load_model_thread_.join();
+
+    if (importer_) {
+        delete importer_;
+    }
 }
 
 glm::mat4 Model::model_matrix() const {
@@ -79,7 +82,7 @@ void Model::represent_() {
         std::cout << "Scene has " << scene_->mNumMaterials << " mats!\n";
     }
 
-    std::vector<Material> materials; 
+    std::vector<Material> materials;
     for (size_t i = 0; i < scene_->mNumMaterials; ++i) {
         Material material;
         auto mat = scene_->mMaterials[i];
@@ -100,7 +103,7 @@ void Model::represent_() {
         material.shininess = (int)shininess;
         materials.push_back(material);
     }
-  
+
     for (size_t i = 0; i < scene_->mNumMeshes; ++i) {
         meshes_.push_back(std::make_unique<Mesh>(scene_->mMeshes[i]));
         meshes_[i]->material_ = materials[scene_->mMeshes[i]->mMaterialIndex];
@@ -167,7 +170,6 @@ void Model::represent_() {
             }
         }
     }
-
 
     to_load_ = false;
 }
