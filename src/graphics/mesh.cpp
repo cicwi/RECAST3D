@@ -73,15 +73,7 @@ void Mesh::animate(std::vector<PositionKeyframe> positions,
                    std::vector<RotationKeyframe> rotations, float speed,
                    float duration) {
     positions_ = positions;
-    for (auto frame : positions_) {
-        std::cout << frame.time_step << " + " << glm::to_string(frame.position)
-                  << "\n";
-    }
     rotations_ = rotations;
-    for (auto frame : rotations_) {
-        std::cout << frame.time_step << " + " << glm::to_string(frame.quaternion)
-                  << "\n";
-    }
     speed_ = speed;
     animated_ = true;
     animation_duration_ = duration;

@@ -113,22 +113,6 @@ void Model::represent_() {
     // apply to proper meshes
     if (scene_->HasAnimations()) {
         std::cout << "Scene has animations!\n";
-        std::cout << "#: " << scene_->mNumAnimations << "\n";
-        std::cout << "#c1: " << scene_->mAnimations[0]->mNumMeshChannels
-                  << "\n";
-        std::cout << "#c2: " << scene_->mAnimations[0]->mNumChannels << "\n";
-
-        std::queue<aiNode*> nodes;
-        nodes.push(scene_->mRootNode);
-        while (!nodes.empty()) {
-            auto node = nodes.front();
-            nodes.pop();
-            for (size_t i = 0; i < node->mNumChildren; ++i) {
-                nodes.push(node->mChildren[i]);
-            }
-
-            std::cout << "Node: " << node->mName.C_Str() << "\n";
-        }
 
         std::cout << "Anim for node: "
                   << scene_->mAnimations[0]->mChannels[0]->mNodeName.C_Str()
