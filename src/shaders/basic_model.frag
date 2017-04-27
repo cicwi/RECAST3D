@@ -24,9 +24,9 @@ void main() {
     vec3 view_direction = normalize(camera_position - fragment_position);
     vec3 reflect_direction = reflect(-light_direction, nnormal);
 
-    vec3 ambient = 0.3f * material.ambient_color;
-    vec3 diffuse = 0.7f * max(dot(light_direction, nnormal), 0.0f) * material.diffuse_color;
-    vec3 specular = 0.5f * pow(max(dot(view_direction, reflect_direction), 0.0), material.shininess) * material.specular_color;
+    vec3 ambient = material.ambient_color * material.diffuse_color;
+    vec3 diffuse = max(dot(light_direction, nnormal), 0.0f) * material.diffuse_color;
+    vec3 specular = pow(max(dot(view_direction, reflect_direction), 0.0), material.shininess) * material.specular_color;
 
     fragColor = vec4(ambient + diffuse + specular, 1.0f);
 }

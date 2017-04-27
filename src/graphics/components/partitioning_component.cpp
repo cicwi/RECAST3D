@@ -1,8 +1,8 @@
 #include <cmath>
 #include <iostream>
 
-#include <imgui.h>
 #include <glm/gtx/transform.hpp>
+#include <imgui.h>
 
 #include "graphics/components/partitioning_component.hpp"
 
@@ -100,4 +100,4 @@ void PartitioningComponent::draw(glm::mat4 world_to_screen) const {
     glDisable(GL_DEPTH_TEST);
 }
 
-}  // namespace tomovis
+} // namespace tomovis
