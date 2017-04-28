@@ -63,6 +63,7 @@ set(
     "../src/graphics/components/geometry_component.cpp"
     "../src/graphics/components/mesh_component.cpp"
     "../src/graphics/components/movie_component.cpp"
+    "../src/graphics/components/movie/projection_object.cpp"
     "../src/graphics/components/partitioning_component.cpp"
     "../src/graphics/interface/scene_control.cpp"
     "../src/graphics/interface/scene_switcher.cpp"

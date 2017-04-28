@@ -10,6 +10,7 @@
 #include "object_component.hpp"
 
 #include "graphics/model.hpp"
+#include "movie/projection_object.hpp"
 
 namespace tomovis {
 
@@ -28,6 +29,7 @@ class MovieComponent : public ObjectComponent {
     SceneObject& object_;
     int scene_id_;
     Model model_;
+    ProjectionObject projection_;
     float time_ = 0.0f;
 };
 
