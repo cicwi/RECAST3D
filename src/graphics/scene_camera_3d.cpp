@@ -23,7 +23,7 @@ SceneCamera3d::SceneCamera3d() {
 
 void SceneCamera3d::reset_view() {
     // explicitely set to identity
-    position_ = glm::vec3(0.0f, 0.0f, -5.0f);
+    position_ = glm::vec3(0.0f, 0.0f, 5.0f);
     up_ = glm::vec3(0.0f, 1.0f, 0.0f);
     right_ = glm::vec3(1.0f, 0.0f, 0.0f);
 }

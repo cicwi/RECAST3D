@@ -19,7 +19,7 @@ uniform ads_material material;
 
 void main() {
     vec3 nnormal = normalize(normal);
-    vec3 light_direction = normalize(vec3(-0.6f, -0.6f, -0.8f));
+    vec3 light_direction = normalize(vec3(0.4f, 0.4f, 0.8f));
 
     vec3 view_direction = normalize(camera_position - fragment_position);
     vec3 reflect_direction = reflect(-light_direction, nnormal);

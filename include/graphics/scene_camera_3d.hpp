@@ -84,8 +84,7 @@ class Rotator : public CameraDragMachine {
     using CameraDragMachine::CameraDragMachine;
 
     void on_drag(glm::vec2 delta) override {
-        // rotate 'right' with angle '-dx' around 'up'
-        camera_.rotate(3.0f * delta.x, 3.0f * delta.y);
+        camera_.rotate(3.0f * delta.x, -3.0f * delta.y);
     }
 
     drag_machine_kind kind() override { return drag_machine_kind::rotator; }

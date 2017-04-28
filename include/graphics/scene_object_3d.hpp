@@ -16,7 +16,6 @@ class SceneObject3d : public SceneObject {
     void draw(glm::mat4 window_matrix) override;
 
    private:
-    // overwrite specific (3d) camera to use
     std::map<int, std::unique_ptr<slice>> slices_;
 };
 

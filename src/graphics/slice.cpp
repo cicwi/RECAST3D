@@ -1,6 +1,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "graphics/slice.hpp"
+#include "math_common.hpp"
 
 namespace tomovis {
 
@@ -14,12 +15,7 @@ void slice::update_texture() {
 }
 
 void slice::set_orientation(glm::vec3 base, glm::vec3 x, glm::vec3 y) {
-    float orientation_matrix[16] = {x.x,  y.x,  base.x, 0.0f,   // 1
-                                    x.y,  y.y,  base.y, 0.0f,   // 2
-                                    x.z,  y.z,  base.z, 0.0f,   // 3
-                                    0.0f, 0.0f, 0.0f,   1.0f};  // 4
-
-    orientation = glm::transpose(glm::make_mat4(orientation_matrix));
+    orientation = create_orientation_matrix(base, x, y);
 }
 
 }  // namespace tomovis

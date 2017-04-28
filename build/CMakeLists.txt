@@ -44,6 +44,7 @@ set(
     SOURCE_NAMES
     ${IMGUI_SOURCE_NAMES}
     "../src/main.cpp"
+    "../src/math_common.cpp"
     "../src/input.cpp"
     "../src/scene.cpp"
     "../src/scene_list.cpp"
