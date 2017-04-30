@@ -11,6 +11,7 @@
 
 #include "graphics/model.hpp"
 #include "movie/projection_object.hpp"
+#include "movie/recorder.hpp"
 
 namespace tomovis {
 
@@ -30,6 +31,7 @@ class MovieComponent : public ObjectComponent {
     int scene_id_;
     Model model_;
     ProjectionObject projection_;
+    Recorder recorder_;
     float time_ = 0.0f;
 };
 

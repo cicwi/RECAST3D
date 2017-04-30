@@ -38,12 +38,15 @@ void MovieComponent::describe() {
     }
 
     ImGui::SliderFloat("Scale", &model_.scale(), 0.05f, 1.0f);
+
+    recorder_.describe();
 }
 
 void MovieComponent::tick(float time_elapsed) {
     time_ += time_elapsed;
     model_.tick(time_elapsed);
     projection_.tick(time_elapsed);
+    recorder_.tick(time_elapsed);
 }
 
 void MovieComponent::draw(glm::mat4 world_to_screen) const {
