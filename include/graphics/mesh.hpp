@@ -48,7 +48,8 @@ class Mesh : public Ticker {
     float internal_time_ = 0.0f;
     float animation_duration_ = 1.0f;
 
-    glm::mat4 mesh_matrix_;
+    glm::mat4 mesh_rotate_;
+    glm::mat4 mesh_translate_;
 
     GLuint vao_handle_;
     GLuint vbo_handle_;

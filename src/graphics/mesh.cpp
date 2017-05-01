@@ -3,9 +3,9 @@
 
 #include <assimp/scene.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #include "graphics/mesh.hpp"
 
@@ -32,7 +32,7 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
     std::vector<unsigned int> indices;
     for (size_t i = 0; i < asset_mesh_->mNumFaces; ++i) {
         if (asset_mesh_->mFaces[i].mNumIndices != 3) {
-          continue;
+            continue;
         }
         indices.push_back(asset_mesh_->mFaces[i].mIndices[0]);
         indices.push_back(asset_mesh_->mFaces[i].mIndices[1]);
@@ -83,10 +83,12 @@ template <typename Frame>
 std::pair<Frame, Frame> find_two(std::vector<Frame> frames, float t) {
     // find frame
     auto current_frame =
-        std::find_if(frames.begin(), frames.end(), [&](auto frame) {
-            return frame.time_step >= t;
-        });
+        std::find_if(frames.begin(), frames.end(),
+                     [&](auto frame) { return frame.time_step >= t; });
 
+    if (current_frame == frames.begin()) {
+        current_frame = frames.end();
+    }
     --current_frame;
 
     auto f1 = *current_frame;
@@ -106,6 +108,17 @@ void Mesh::tick(float time_elapsed) {
         return;
     }
 
+    auto cyclic_distance = [](float t1, float t2, float period) {
+        auto result = t2 - t1;
+        while (result > period) {
+            result -= period;
+        }
+        while (result < 0) {
+            result += period;
+        }
+        return result;
+    };
+
     internal_time_ += speed_ * time_elapsed;
     auto cyclic_time = internal_time_;
     while (cyclic_time > animation_duration_) {
@@ -118,7 +131,9 @@ void Mesh::tick(float time_elapsed) {
     if (f2.time_step == f1.time_step) {
         return;
     }
-    auto alpha = (cyclic_time - f1.time_step) / (f2.time_step - f1.time_step);
+    auto alpha =
+        cyclic_distance(f1.time_step, cyclic_time, animation_duration_) /
+        cyclic_distance(f1.time_step, f2.time_step, animation_duration_);
     auto ipos = (1.0f - alpha) * f1.position + alpha * f2.position;
 
     auto rframes = find_two(rotations_, cyclic_time);
@@ -127,10 +142,15 @@ void Mesh::tick(float time_elapsed) {
     if (g2.time_step == g1.time_step) {
         return;
     }
-    auto beta = (cyclic_time - g1.time_step) / (g2.time_step - g1.time_step);
+    auto beta =
+        cyclic_distance(g1.time_step, cyclic_time, animation_duration_) /
+        cyclic_distance(g1.time_step, g2.time_step, animation_duration_);
 
-    mesh_matrix_ =
-        glm::translate(ipos) * glm::mat4_cast(glm::mix(g1.quaternion, g2.quaternion, beta));
+    assert(beta >= 0);
+    assert(beta <= 1);
+
+    mesh_translate_ = glm::translate(ipos);
+    mesh_rotate_ = glm::mat4_cast(glm::slerp(g1.quaternion, g2.quaternion, beta));
 }
 
 void Mesh::draw(glm::mat4 world, glm::mat4 model,
@@ -141,7 +161,8 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
 
     program_->uniform("world_matrix", world);
     program_->uniform("model_matrix", model);
-    program_->uniform("mesh_matrix", mesh_matrix_);
+    program_->uniform("mesh_rotate", mesh_rotate_);
+    program_->uniform("mesh_translate", mesh_translate_);
     program_->uniform("camera_position", camera_position);
 
     // set material
@@ -150,7 +171,7 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
     program_->uniform("material.specular_color", material_.specular_color);
     program_->uniform("material.opacity", material_.opacity);
     program_->uniform("material.shininess", material_.shininess);
-    
+
     // draw with element buffer
     glBindVertexArray(vao_handle_);
     glDrawElements(GL_TRIANGLES, index_count_, GL_UNSIGNED_INT, nullptr);
