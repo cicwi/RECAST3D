@@ -20,7 +20,7 @@ class MovieComponent : public ObjectComponent {
     MovieComponent(SceneObject& object, int scene_id, std::string file);
     ~MovieComponent();
 
-    void draw(glm::mat4 world_to_screen) const override;
+    void draw(glm::mat4 world_to_screen) override;
     std::string identifier() const override { return "movie"; }
 
     void tick(float time_elapsed) override;

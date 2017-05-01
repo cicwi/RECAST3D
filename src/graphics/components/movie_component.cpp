@@ -52,12 +52,12 @@ void MovieComponent::tick(float time_elapsed) {
     time_ += time_elapsed;
     model_.tick(time_elapsed);
     projection_.tick(time_elapsed);
-    recorder_.tick(time_elapsed);
 }
 
-void MovieComponent::draw(glm::mat4 world_to_screen) const {
+void MovieComponent::draw(glm::mat4 world_to_screen) {
     model_.draw(world_to_screen, object_.camera().position());
     projection_.draw(world_to_screen, model_);
+    recorder_.capture();
 }
 
 } // namespace tomovis

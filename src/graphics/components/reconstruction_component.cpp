@@ -113,7 +113,7 @@ void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
         glm::vec3(volume_transform_ * glm::vec4(glm::vec3(0.0f), 1.0f)));
 }
 
-void ReconstructionComponent::draw(glm::mat4 world_to_screen) const {
+void ReconstructionComponent::draw(glm::mat4 world_to_screen) {
     if (!show_) {
         return;
     }

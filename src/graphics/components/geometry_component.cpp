@@ -73,7 +73,7 @@ void GeometryComponent::tick(float time_elapsed) {
     }
 }
 
-void GeometryComponent::draw(glm::mat4 world_to_screen) const {
+void GeometryComponent::draw(glm::mat4 world_to_screen) {
     if (!show_) {
         return;
     }

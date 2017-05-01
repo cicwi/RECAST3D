@@ -61,7 +61,7 @@ void PartitioningComponent::describe() {
     ImGui::SliderFloat("Scale", &global_scale_, 0.5f, 1.0f);
 }
 
-void PartitioningComponent::draw(glm::mat4 world_to_screen) const {
+void PartitioningComponent::draw(glm::mat4 world_to_screen) {
     if (!show_) {
         return;
     }

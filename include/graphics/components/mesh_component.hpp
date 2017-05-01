@@ -21,7 +21,7 @@ class MeshComponent : public ObjectComponent {
     MeshComponent(SceneObject& object, int scene_id);
     ~MeshComponent();
 
-    void draw(glm::mat4 world_to_screen) const override;
+    void draw(glm::mat4 world_to_screen) override;
     std::string identifier() const override { return "mesh"; }
 
     void tick(float time_elapsed) override;

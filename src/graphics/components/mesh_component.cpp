@@ -45,7 +45,7 @@ void MeshComponent::describe() { ImGui::Checkbox("Show mesh", &show_); }
 
 void MeshComponent::tick(float /* time_elapsed */) {}
 
-void MeshComponent::draw(glm::mat4 /* world_to_screen */) const {
+void MeshComponent::draw(glm::mat4 /* world_to_screen */) {
     if (!show_) {
         return;
     }
