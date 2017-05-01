@@ -8,6 +8,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include "graphics/mesh.hpp"
+#include "graphics/shader_program.hpp"
 
 namespace tomovis {
 
@@ -62,9 +63,6 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
     glBufferData(GL_ARRAY_BUFFER, asset_mesh_->mNumVertices * 3 * sizeof(float),
                  (void*)asset_mesh_->mNormals, GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-    program_ = std::make_unique<ShaderProgram>(
-        "../src/shaders/basic_model.vert", "../src/shaders/basic_model.frag");
 }
 
 Mesh::~Mesh() {}
@@ -154,23 +152,27 @@ void Mesh::tick(float time_elapsed) {
 }
 
 void Mesh::draw(glm::mat4 world, glm::mat4 model,
-                glm::vec3 camera_position) const {
+                glm::vec3 camera_position, ShaderProgram* program) const {
+    if (!program) {
+        return;
+    }
+
     glEnable(GL_DEPTH_TEST);
 
-    program_->use();
+    program->use();
 
-    program_->uniform("world_matrix", world);
-    program_->uniform("model_matrix", model);
-    program_->uniform("mesh_rotate", mesh_rotate_);
-    program_->uniform("mesh_translate", mesh_translate_);
-    program_->uniform("camera_position", camera_position);
+    program->uniform("world_matrix", world);
+    program->uniform("model_matrix", model);
+    program->uniform("mesh_rotate", mesh_rotate_);
+    program->uniform("mesh_translate", mesh_translate_);
+    program->uniform("camera_position", camera_position);
 
     // set material
-    program_->uniform("material.ambient_color", material_.ambient_color);
-    program_->uniform("material.diffuse_color", material_.diffuse_color);
-    program_->uniform("material.specular_color", material_.specular_color);
-    program_->uniform("material.opacity", material_.opacity);
-    program_->uniform("material.shininess", material_.shininess);
+    program->uniform("material.ambient_color", material_.ambient_color);
+    program->uniform("material.diffuse_color", material_.diffuse_color);
+    program->uniform("material.specular_color", material_.specular_color);
+    program->uniform("material.opacity", material_.opacity);
+    program->uniform("material.shininess", material_.shininess);
 
     // draw with element buffer
     glBindVertexArray(vao_handle_);

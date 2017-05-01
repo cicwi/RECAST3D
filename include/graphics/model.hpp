@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "ticker.hpp"
+#include "shader_program.hpp"
 
 struct aiScene;
 
@@ -22,7 +23,8 @@ class Model : public Ticker {
     Model(std::string file);
     ~Model();
 
-    void draw(glm::mat4 world_to_screen, glm::vec3 camera_position) const;
+    void draw(glm::mat4 world_to_screen, glm::vec3 camera_position,
+                 ShaderProgram* program = nullptr) const;
     void tick(float time_elapsed) override;
 
     glm::mat4 model_matrix() const;
@@ -53,6 +55,9 @@ class Model : public Ticker {
     bool to_load_ = false;
     bool paused_ = false;
     bool rotate_ = false;
+
+    // FIXME: replace with single program
+    std::unique_ptr<ShaderProgram> program_;
 };
 
 } // namespace tomovis

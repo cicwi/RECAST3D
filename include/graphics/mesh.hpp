@@ -7,7 +7,6 @@
 #include <glm/glm.hpp>
 
 #include "node_animation.hpp"
-#include "shader_program.hpp"
 #include "ticker.hpp"
 #include "material.hpp"
 
@@ -16,14 +15,15 @@ struct aiMesh;
 namespace tomovis {
 
 class Model;
+class ShaderProgram;
 
 class Mesh : public Ticker {
   public:
     Mesh(aiMesh* asset_mesh);
     ~Mesh();
 
-    void draw(glm::mat4 world_to_screen, glm::mat4 model,
-              glm::vec3 camera_position) const;
+    void draw(glm::mat4 world, glm::mat4 model,
+                glm::vec3 camera_position, ShaderProgram* program) const;
 
     void animate(std::vector<PositionKeyframe> positions,
                  std::vector<RotationKeyframe> rotations, float speed,
@@ -54,8 +54,6 @@ class Mesh : public Ticker {
     GLuint vao_handle_;
     GLuint vbo_handle_;
     GLuint vbo_normals_handle_;
-    // FIXME: replace with single program
-    std::unique_ptr<ShaderProgram> program_;
 };
 
 } // namespace tomovis

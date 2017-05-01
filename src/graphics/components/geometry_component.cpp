@@ -5,6 +5,7 @@
 
 #include "graphics/components/geometry_component.hpp"
 #include "graphics/scene_camera_3d.hpp"
+#include "graphics/primitives.hpp"
 //#include "modules/packets/geometry_packets.hpp"
 
 namespace tomovis {
@@ -13,16 +14,11 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
     : object_(object), scene_id_(scene_id) {
     current_projection_ = 0;
 
-    static const GLfloat square[4][3] = {{0.0f, 0.0f, 0.0f},
-                                         {0.0f, 1.0f, 0.0f},
-                                         {1.0f, 1.0f, 0.0f},
-                                         {1.0f, 0.0f, 0.0f}};
-
     glGenVertexArrays(1, &vao_handle_);
     glBindVertexArray(vao_handle_);
     glGenBuffers(1, &vbo_handle_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_handle_);
-    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 

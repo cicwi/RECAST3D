@@ -37,6 +37,9 @@ class ProgressUpdate : public Assimp::ProgressHandler {
 Model::Model(std::string file) {
     std::cout << "Loading model: '" << file << "' ...\n";
     async_load_(file);
+
+    program_ = std::make_unique<ShaderProgram>(
+        "../src/shaders/basic_model.vert", "../src/shaders/basic_model.frag");
 }
 
 void Model::async_load_(std::string file) {
@@ -181,10 +184,12 @@ void Model::tick(float time_elapsed) {
     }
 }
 
-void Model::draw(glm::mat4 world_to_screen, glm::vec3 camera_position) const {
+void Model::draw(glm::mat4 world_to_screen, glm::vec3 camera_position,
+                 ShaderProgram* program) const {
     auto model = model_matrix();
     for (auto& mesh : meshes_) {
-        mesh->draw(world_to_screen, model, camera_position);
+        mesh->draw(world_to_screen, model, camera_position,
+                   program ? program : program_.get());
     }
 }
 

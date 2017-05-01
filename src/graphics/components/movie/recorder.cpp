@@ -7,7 +7,6 @@ Recorder::Recorder() {}
 Recorder::~Recorder() {}
 
 void Recorder::describe() {
-  ImGui::Separator();
     if (ImGui::Button("rec")) {
         recording_ = true;
     }

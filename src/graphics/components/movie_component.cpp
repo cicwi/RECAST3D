@@ -39,7 +39,13 @@ void MovieComponent::describe() {
 
     ImGui::SliderFloat("Scale", &model_.scale(), 0.05f, 1.0f);
 
+    ImGui::Separator();
+
     recorder_.describe();
+
+    ImGui::Separator();
+    
+    projection_.describe();
 }
 
 void MovieComponent::tick(float time_elapsed) {
