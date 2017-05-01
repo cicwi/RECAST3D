@@ -42,7 +42,7 @@ ProjectionObject::ProjectionObject() {
     glBindVertexArray(cube_vao_handle_);
     glGenBuffers(1, &cube_vbo_handle_);
     glBindBuffer(GL_ARRAY_BUFFER, cube_vbo_handle_);
-    glBufferData(GL_ARRAY_BUFFER, 9 * 12 * sizeof(GLfloat), cube(),
+    glBufferData(GL_ARRAY_BUFFER, 9 * 12 * sizeof(GLfloat), pyramid(),
                  GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
@@ -114,8 +114,8 @@ void ProjectionObject::draw_tomo_(const Model& model) const {
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
 
-    auto beam_matrix = glm::translate(glm::vec3(-1.0f)) *
-                       glm::scale(glm::vec3(2.0f)) *
+    auto beam_matrix = glm::translate(glm::vec3(-1.0f, -1.0f, 0.0f)) *
+                       glm::scale(glm::vec3(2.0f, 2.0f, 1.0f)) *
                        glm::inverse(beam_transform_());
 
     model.draw(beam_matrix, detector_base_, shadow_program_.get());
@@ -128,8 +128,8 @@ void ProjectionObject::draw_tomo_(const Model& model) const {
 }
 
 glm::mat4 ProjectionObject::beam_transform_() const {
-    glm::mat4 transform =
-        glm::translate(glm::vec3(-1.0f)) * glm::scale(glm::vec3(2.0f));
+    glm::mat4 transform = glm::translate(glm::vec3(-1.0f, -1.0f, 0.0f)) *
+                          glm::scale(glm::vec3(2.0f, 2.0f, 1.0f));
     auto near = 0.02f;
     auto dist = glm::distance(source_, detector_center_());
     auto detect_x = 0.5f * glm::length(detector_axis1_);
@@ -141,8 +141,8 @@ glm::mat4 ProjectionObject::beam_transform_() const {
     return glm::translate(source_) * glm::inverse(frust) * transform;
 }
 
-void ProjectionObject::draw(glm::mat4 world_to_screen,
-                            const Model& model) const {
+void ProjectionObject::draw(glm::mat4 world_to_screen, const Model& model,
+                            glm::vec3 camera_position) const {
     draw_tomo_(model);
 
     glEnable(GL_DEPTH_TEST);
@@ -159,18 +159,28 @@ void ProjectionObject::draw(glm::mat4 world_to_screen,
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
     glEnable(GL_BLEND);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
+    //glEnable(GL_CULL_FACE);
+    
+    glDepthMask(GL_FALSE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto beam_to_screen = world_to_screen * beam_transform_();
+    auto beam_to_world =
+        glm::translate(source_) *
+        glm::scale(glm::vec3(0.5f * glm::length(detector_axis1_),
+                             0.5f * glm::length(detector_axis2_),
+                             -0.99f * glm::distance(source_, detector_center_()))) *
+        glm::translate(glm::vec3(-1.0f, -1.0f, 0.0f)) *
+        glm::scale(glm::vec3(2.0f, 2.0f, 1.0f));
 
     beam_program_->use();
-    beam_program_->uniform("transform_matrix", beam_to_screen);
+    beam_program_->uniform("transform_matrix", world_to_screen);
+    beam_program_->uniform("beam_matrix", beam_to_world);
+    beam_program_->uniform("camera_position", camera_position);
     glBindVertexArray(cube_vao_handle_);
-    glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+    glDrawArrays(GL_TRIANGLES, 0, 12 * 9);
 
-    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
+    //glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
 
     glDisable(GL_DEPTH_TEST);

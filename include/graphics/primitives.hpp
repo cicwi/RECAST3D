@@ -6,5 +6,6 @@ namespace tomovis {
 
 const GLfloat* square();
 const GLfloat* cube();
+const GLfloat* pyramid();
 
 } // namespace tomovis

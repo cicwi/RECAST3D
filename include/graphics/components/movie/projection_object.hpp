@@ -18,7 +18,8 @@ class ProjectionObject : public Ticker, public Window {
     ~ProjectionObject();
 
     void describe();
-    void draw(glm::mat4 world_to_screen, const Model& model) const;
+    void draw(glm::mat4 world_to_screen, const Model& model,
+              glm::vec3 camera_position) const;
     void tick(float time_elapsed) override;
 
   private:

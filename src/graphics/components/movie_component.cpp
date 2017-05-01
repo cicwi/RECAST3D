@@ -44,7 +44,7 @@ void MovieComponent::describe() {
     recorder_.describe();
 
     ImGui::Separator();
-    
+
     projection_.describe();
 }
 
@@ -55,8 +55,9 @@ void MovieComponent::tick(float time_elapsed) {
 }
 
 void MovieComponent::draw(glm::mat4 world_to_screen) {
-    model_.draw(world_to_screen, object_.camera().position());
-    projection_.draw(world_to_screen, model_);
+    auto camera_position = object_.camera().position();
+    model_.draw(world_to_screen, camera_position);
+    projection_.draw(world_to_screen, model_, camera_position);
     recorder_.capture();
 }
 
