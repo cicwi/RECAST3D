@@ -25,7 +25,7 @@ class ProjectionObject : public Ticker, public Window {
     bool initialize_fbo_();
     void bind_fbo_texture_() const;
     void draw_tomo_(const Model& model) const;
-    glm::mat4 beam_transform_();
+    glm::mat4 beam_transform_() const;
     glm::vec3 detector_center_() const;
 
     glm::vec3 source_;
@@ -43,6 +43,10 @@ class ProjectionObject : public Ticker, public Window {
     std::unique_ptr<ShaderProgram> shadow_program_;
 
     glm::mat4 orientation_matrix_;
+
+    std::unique_ptr<ShaderProgram> beam_program_;
+    GLuint cube_vao_handle_;
+    GLuint cube_vbo_handle_;
 };
 
 } // namespace tomovis

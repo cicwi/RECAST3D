@@ -16,7 +16,8 @@ ProjectionObject::ProjectionObject() {
     glBindVertexArray(vao_handle_);
     glGenBuffers(1, &vbo_handle_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_handle_);
-    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square(),
+                 GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
@@ -26,13 +27,25 @@ ProjectionObject::ProjectionObject() {
     shadow_program_ = std::make_unique<ShaderProgram>(
         "../src/shaders/shadow_model.vert", "../src/shaders/shadow_model.frag");
 
-    source_ = glm::vec3(-3.0f, 0.0, 3.0f);
-    detector_base_ = glm::vec3(0.0f, -2.0f, -2.0f);
+    source_ = glm::vec3(0.0f, 0.0, 3.0f);
+    detector_base_ = glm::vec3(-2.0f, -2.0f, -2.0f);
     detector_axis1_ = glm::vec3(4.0f, 0.0f, 0.0f);
     detector_axis2_ = glm::vec3(0.0f, 4.0f, 0.0f);
 
     orientation_matrix_ = create_orientation_matrix(
         detector_base_, detector_axis1_, detector_axis2_);
+
+    beam_program_ = std::make_unique<ShaderProgram>("../src/shaders/beam.vert",
+                                                    "../src/shaders/beam.frag");
+
+    glGenVertexArrays(1, &cube_vao_handle_);
+    glBindVertexArray(cube_vao_handle_);
+    glGenBuffers(1, &cube_vbo_handle_);
+    glBindBuffer(GL_ARRAY_BUFFER, cube_vbo_handle_);
+    glBufferData(GL_ARRAY_BUFFER, 9 * 12 * sizeof(GLfloat), cube(),
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
 
     if (!initialize_fbo_()) {
         std::cout << "Could not initialize FBO\n";
@@ -101,22 +114,31 @@ void ProjectionObject::draw_tomo_(const Model& model) const {
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE);
 
-    auto beam_matrix = glm::lookAt(
-        source_, detector_center_(),
-        detector_axis2_);
-    beam_matrix =
-        glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 50.0f) * beam_matrix;
+    auto beam_matrix = glm::translate(glm::vec3(-1.0f)) *
+                       glm::scale(glm::vec3(2.0f)) *
+                       glm::inverse(beam_transform_());
 
     model.draw(beam_matrix, detector_base_, shadow_program_.get());
 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_BLEND);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 }
 
-glm::mat4 ProjectionObject::beam_transform_() {
-    return glm::translate(-source_);
+glm::mat4 ProjectionObject::beam_transform_() const {
+    glm::mat4 transform =
+        glm::translate(glm::vec3(-1.0f)) * glm::scale(glm::vec3(2.0f));
+    auto near = 0.1f;
+    auto dist = glm::distance(source_, detector_center_());
+    auto detect_x = 0.5f * glm::length(detector_axis1_);
+    auto detect_y = 0.5f * glm::length(detector_axis2_);
+    auto x = (near / dist) * detect_x;
+    auto y = (near / dist) * detect_y;
+
+    glm::mat4 frust = glm::frustum(-x, x, -y, y, near, dist - near);
+    return glm::translate(source_) * glm::inverse(frust) * transform;
 }
 
 void ProjectionObject::draw(glm::mat4 world_to_screen,
@@ -135,6 +157,24 @@ void ProjectionObject::draw(glm::mat4 world_to_screen,
 
     glBindVertexArray(vao_handle_);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+    glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    // glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE,
+    // GL_ZERO);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    auto beam_to_screen = world_to_screen * beam_transform_();
+
+    beam_program_->use();
+    beam_program_->uniform("transform_matrix", beam_to_screen);
+    glBindVertexArray(cube_vao_handle_);
+    glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
+
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
 
     glDisable(GL_DEPTH_TEST);
 }
