@@ -51,7 +51,7 @@ void MovieComponent::tick(float time_elapsed) {
 
 void MovieComponent::draw(glm::mat4 world_to_screen) const {
     model_.draw(world_to_screen, object_.camera().position());
-    projection_.draw(world_to_screen);
+    projection_.draw(world_to_screen, model_);
 }
 
 } // namespace tomovis
