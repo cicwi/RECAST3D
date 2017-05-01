@@ -130,14 +130,14 @@ void ProjectionObject::draw_tomo_(const Model& model) const {
 glm::mat4 ProjectionObject::beam_transform_() const {
     glm::mat4 transform =
         glm::translate(glm::vec3(-1.0f)) * glm::scale(glm::vec3(2.0f));
-    auto near = 0.1f;
+    auto near = 0.02f;
     auto dist = glm::distance(source_, detector_center_());
     auto detect_x = 0.5f * glm::length(detector_axis1_);
     auto detect_y = 0.5f * glm::length(detector_axis2_);
     auto x = (near / dist) * detect_x;
     auto y = (near / dist) * detect_y;
 
-    glm::mat4 frust = glm::frustum(-x, x, -y, y, near, dist - near);
+    glm::mat4 frust = glm::frustum(-x, x, -y, y, near, dist + near);
     return glm::translate(source_) * glm::inverse(frust) * transform;
 }
 
@@ -161,9 +161,6 @@ void ProjectionObject::draw(glm::mat4 world_to_screen,
     glEnable(GL_BLEND);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
-    // glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-    // glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE,
-    // GL_ZERO);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     auto beam_to_screen = world_to_screen * beam_transform_();
