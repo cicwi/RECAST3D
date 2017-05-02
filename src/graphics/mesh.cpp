@@ -161,8 +161,7 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
         return;
     }
 
-    glEnable(GL_DEPTH_TEST);
-   program->use();
+    program->use();
 
     program->uniform("world_matrix", world);
     program->uniform("model_matrix", model);
@@ -180,8 +179,6 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
     // draw with element buffer
     glBindVertexArray(vao_handle_);
     glDrawElements(GL_TRIANGLES, index_count_, GL_UNSIGNED_INT, nullptr);
-
-    glDisable(GL_DEPTH_TEST);
 }
 
 } // namespace tomovis

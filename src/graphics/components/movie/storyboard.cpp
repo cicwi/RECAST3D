@@ -18,7 +18,7 @@ Storyboard::~Storyboard() {}
 
 float mix(float x, float y, float a) { return (1.0f - a) * x + a * y; }
 
-glm::vec3 mix(glm::vec3 x, glm::vec3 y, float a) { return glm::mix(x, y, a); }
+glm::vec3 mix(glm::vec3 x, glm::vec3 y, float a) { return glm::mix(x, y, 3.0f * a * a - 2.0f * a * a * a); }
 
 Material mix(Material x, Material y, float a) {
     Material z;

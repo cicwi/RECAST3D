@@ -105,7 +105,7 @@ void Model::represent_() {
         material.ambient_color = glm::vec3(ambient.r, ambient.g, ambient.b);
         material.diffuse_color = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
         material.specular_color = glm::vec3(specular.r, specular.g, specular.b);
-        if (opacity <= 0.01f) {
+        if (opacity <= 0.01f || opacity > 1.0f) {
             opacity = 1.0f;
         }
         std::cout << "Opacity: " << opacity << "\n";

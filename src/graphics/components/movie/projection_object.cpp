@@ -105,6 +105,7 @@ glm::vec3 ProjectionObject::detector_center_() const {
 
 void ProjectionObject::draw_tomo_(const Model& model) const {
     glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
 
     GLint viewport[4];
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle_);
