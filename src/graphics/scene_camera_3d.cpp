@@ -26,6 +26,8 @@ void SceneCamera3d::reset_view() {
     position_ = glm::vec3(0.0f, 0.0f, 5.0f);
     up_ = glm::vec3(0.0f, 1.0f, 0.0f);
     right_ = glm::vec3(1.0f, 0.0f, 0.0f);
+
+    SceneCamera3d::rotate(-0.25f * glm::pi<float>(), 0.0f);
 }
 
 void SceneCamera3d::set_look_at(glm::vec3 center) { center_ = center; }

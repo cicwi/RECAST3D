@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <stack>
 #include <vector>
 
 #include <assimp/Importer.hpp>
@@ -15,6 +16,8 @@
 #include "graphics/mesh.hpp"
 #include "graphics/model.hpp"
 #include "graphics/node_animation.hpp"
+
+#include <glm/gtc/type_ptr.hpp>
 
 namespace tomovis {
 
@@ -155,6 +158,31 @@ void Model::represent_() {
                                                        speed, duration);
                 }
             }
+        }
+    }
+
+    // load transformations
+    std::stack<std::pair<int, aiNode*>> nodes;
+    nodes.push(std::make_pair(0, scene_->mRootNode));
+    while (!nodes.empty()) {
+        auto node_id = nodes.top();
+        auto node = node_id.second;
+        nodes.pop();
+
+        std::cout << "| ";
+        for (int i = 0; i < node_id.first; ++i) {
+            std::cout << "> ";
+        }
+        std::cout << node->mName.C_Str() << "\n";
+
+        for (size_t i = 0; i < node->mNumChildren; ++i) {
+            nodes.push(std::make_pair(node_id.first + 1, node->mChildren[i]));
+        }
+
+        auto node_transform =
+            glm::transpose(glm::make_mat4((float*)&node->mTransformation));
+        for (size_t i = 0; i < node->mNumMeshes; ++i) {
+            meshes_[node->mMeshes[i]]->transform(node_transform);
         }
     }
 

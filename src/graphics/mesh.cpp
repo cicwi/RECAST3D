@@ -77,6 +77,10 @@ void Mesh::animate(std::vector<PositionKeyframe> positions,
     animation_duration_ = duration;
 }
 
+void Mesh::transform(glm::mat4 transformation) {
+    static_mesh_transformation_ = transformation;
+}
+
 template <typename Frame>
 std::pair<Frame, Frame> find_two(std::vector<Frame> frames, float t) {
     // find frame
@@ -164,7 +168,7 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
     program->uniform("world_matrix", world);
     program->uniform("model_matrix", model);
     program->uniform("mesh_rotate", mesh_rotate_);
-    program->uniform("mesh_translate", mesh_translate_);
+    program->uniform("mesh_translate", static_mesh_transformation_ * mesh_translate_);
     program->uniform("camera_position", camera_position);
 
     // set material

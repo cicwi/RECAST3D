@@ -1,3 +1,5 @@
+#include <glm/gtc/type_ptr.hpp>
+
 #include "math_common.hpp"
 
 namespace tomovis {

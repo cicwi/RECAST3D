@@ -27,7 +27,7 @@ ProjectionObject::ProjectionObject() {
     shadow_program_ = std::make_unique<ShaderProgram>(
         "../src/shaders/shadow_model.vert", "../src/shaders/shadow_model.frag");
 
-    source_ = glm::vec3(0.0f, 0.0, 3.0f);
+    source_ = glm::vec3(0.0f, 0.0, 6.0f);
     detector_base_ = glm::vec3(-2.0f, -2.0f, -2.0f);
     detector_axis1_ = glm::vec3(4.0f, 0.0f, 0.0f);
     detector_axis2_ = glm::vec3(0.0f, 4.0f, 0.0f);

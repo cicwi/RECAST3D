@@ -29,6 +29,8 @@ class Mesh : public Ticker {
                  std::vector<RotationKeyframe> rotations, float speed,
                  float duration);
 
+    void transform(glm::mat4 transformation);
+
     void tick(float time_elapsed) override;
 
   private:
@@ -48,6 +50,7 @@ class Mesh : public Ticker {
     float internal_time_ = 0.0f;
     float animation_duration_ = 1.0f;
 
+    glm::mat4 static_mesh_transformation_;
     glm::mat4 mesh_rotate_;
     glm::mat4 mesh_translate_;
 
