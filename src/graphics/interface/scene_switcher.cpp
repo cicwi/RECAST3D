@@ -19,6 +19,7 @@ namespace tomovis {
 
 SceneSwitcher::SceneSwitcher(SceneList& scenes) : scenes_(scenes) {
     reload_data_();
+    current_item_ = 0;
 }
 
 SceneSwitcher::~SceneSwitcher() {}
@@ -86,21 +87,21 @@ void SceneSwitcher::describe() {
                 reload_data_();
             }
 
-            static int current_item = 0;
-            ImGui::ListBox("Model", &current_item,
+            ImGui::Separator();
+            ImGui::ListBox("Choose file", &current_item_,
                            [](void* data, int idx, const char** out) -> bool {
-                               std::vector<std::string> model_options =
+                               const std::vector<std::string>& model_options =
                                    *(std::vector<std::string>*)data;
                                *out = model_options[idx].c_str();
                                return true;
                            },
-                           (void*)&short_options_, (int)model_options_.size());
+                           (void*)&short_options_, (int)short_options_.size());
 
-            ImGui::Text(model_options_[current_item].c_str());
+            ImGui::Text(model_options_[current_item_].c_str());
 
             if (ImGui::Button("OK", ImVec2(120, 0))) {
                 ImGui::CloseCurrentPopup();
-                add_movie_scene(model_options_[current_item]);
+                add_movie_scene(model_options_[current_item_]);
                 adding_movie_ = false;
             }
 

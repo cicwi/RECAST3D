@@ -33,6 +33,7 @@ class SceneSwitcher : public Window, public InputHandler {
 
     void reload_data_();
 
+    int current_item_ = 0;
     std::vector<std::string> short_options_;
     std::vector<std::string> model_options_;
 };
