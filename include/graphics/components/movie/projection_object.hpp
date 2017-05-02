@@ -22,6 +22,7 @@ class ProjectionObject : public Ticker, public Window {
               glm::vec3 camera_position) const;
     void tick(float time_elapsed) override;
 
+    glm::vec3& source() { return source_; }
   private:
     bool initialize_fbo_();
     void bind_fbo_texture_() const;

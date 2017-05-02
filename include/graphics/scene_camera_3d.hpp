@@ -54,8 +54,8 @@ class SceneCamera3d : public SceneCamera {
     void set_look_at(glm::vec3 center) override;
     void set_position(glm::vec3 position);
 
-    glm::vec3 position() override { return position_; }
-    glm::vec3 look_at() override { return center_; }
+    glm::vec3& position() override { return position_; }
+    glm::vec3& look_at() override { return center_; }
 
     void rotate(float phi, float psi);
 

@@ -162,8 +162,7 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
     }
 
     glEnable(GL_DEPTH_TEST);
-
-    program->use();
+   program->use();
 
     program->uniform("world_matrix", world);
     program->uniform("model_matrix", model);

@@ -12,6 +12,7 @@ Recorder::Recorder() {}
 Recorder::~Recorder() {}
 
 void Recorder::describe() {
+    ImGui::Text("Recorder");
     if (ImGui::Button("rec")) {
         start();
     }

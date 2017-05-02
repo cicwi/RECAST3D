@@ -33,11 +33,15 @@ class Mesh : public Ticker {
 
     void tick(float time_elapsed) override;
 
+    Material& material() { return material_; }
+    Material mesh_material() { return mesh_material_; }
+
   private:
     friend Model;
 
     const aiMesh* asset_mesh_;
     Material material_;
+    Material mesh_material_;
 
     GLuint index_handle_;
     unsigned int index_count_ = 0;

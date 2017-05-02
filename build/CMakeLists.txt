@@ -66,6 +66,7 @@ set(
     "../src/graphics/components/mesh_component.cpp"
     "../src/graphics/components/movie_component.cpp"
     "../src/graphics/components/movie/projection_object.cpp"
+    "../src/graphics/components/movie/storyboard.cpp"
     "../src/graphics/components/movie/recorder.cpp"
     "../src/graphics/components/partitioning_component.cpp"
     "../src/graphics/interface/scene_control.cpp"

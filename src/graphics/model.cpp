@@ -105,6 +105,10 @@ void Model::represent_() {
         material.ambient_color = glm::vec3(ambient.r, ambient.g, ambient.b);
         material.diffuse_color = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
         material.specular_color = glm::vec3(specular.r, specular.g, specular.b);
+        if (opacity <= 0.01f) {
+            opacity = 1.0f;
+        }
+        std::cout << "Opacity: " << opacity << "\n";
         material.opacity = opacity;
         material.shininess = (int)shininess;
         materials.push_back(material);
@@ -112,7 +116,9 @@ void Model::represent_() {
 
     for (size_t i = 0; i < scene_->mNumMeshes; ++i) {
         meshes_.push_back(std::make_unique<Mesh>(scene_->mMeshes[i]));
-        meshes_[i]->material_ = materials[scene_->mMeshes[i]->mMaterialIndex];
+        meshes_[i]->mesh_material_ =
+            materials[scene_->mMeshes[i]->mMaterialIndex];
+        meshes_[i]->material() = meshes_[i]->mesh_material_;
     }
 
     // load animations

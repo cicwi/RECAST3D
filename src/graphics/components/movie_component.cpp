@@ -5,6 +5,7 @@
 #include <glm/gtx/transform.hpp>
 #include <imgui.h>
 
+#include "graphics/components/movie/storyboard.hpp"
 #include "graphics/components/movie_component.hpp"
 #include "graphics/scene_camera_3d.hpp"
 
@@ -12,7 +13,9 @@ namespace tomovis {
 
 MovieComponent::MovieComponent(SceneObject& object, int scene_id,
                                std::string file)
-    : object_(object), scene_id_(scene_id), model_(file) {}
+    : object_(object), scene_id_(scene_id), model_(file) {
+    storyboard_ = std::make_unique<Storyboard>(this);
+}
 
 MovieComponent::~MovieComponent() {}
 
@@ -46,18 +49,29 @@ void MovieComponent::describe() {
     ImGui::Separator();
 
     projection_.describe();
+
+    ImGui::Separator();
+
+    storyboard_->describe();
 }
 
 void MovieComponent::tick(float time_elapsed) {
     time_ += time_elapsed;
+    storyboard_->tick(time_elapsed);
     model_.tick(time_elapsed);
     projection_.tick(time_elapsed);
 }
 
 void MovieComponent::draw(glm::mat4 world_to_screen) {
     auto camera_position = object_.camera().position();
-    model_.draw(world_to_screen, camera_position);
+
     projection_.draw(world_to_screen, model_, camera_position);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    model_.draw(world_to_screen, camera_position);
+    glDisable(GL_CULL_FACE);
+
     recorder_.capture();
 }
 

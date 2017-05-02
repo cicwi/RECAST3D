@@ -36,6 +36,8 @@ class Model : public Ticker {
 
     float& scale() { return scale_; }
 
+    std::vector<std::unique_ptr<Mesh>>& meshes() { return meshes_; }
+
   private:
     const aiScene* scene_;
     std::vector<std::unique_ptr<Mesh>> meshes_;

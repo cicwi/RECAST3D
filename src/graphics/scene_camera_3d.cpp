@@ -39,7 +39,9 @@ void SceneCamera3d::rotate(float phi, float psi) {
     auto rotate_right = glm::rotate(-psi, right_);
     up_ = glm::vec3(rotate_right * glm::vec4(up_, 1.0f));
     right_ = glm::vec3(rotate_up * glm::vec4(right_, 1.0f));
-    position_ = glm::vec3(rotate_right * rotate_up * glm::vec4(position_ - center_, 1.0f)) + center_;
+    position_ = glm::vec3(rotate_right * rotate_up *
+                          glm::vec4(position_ - center_, 1.0f)) +
+                center_;
 }
 
 glm::mat4 SceneCamera3d::matrix() {
@@ -52,16 +54,27 @@ glm::mat4 SceneCamera3d::matrix() {
 }
 
 bool SceneCamera3d::handle_mouse_button(int /* button */, bool down) {
+    if (interaction_disabled_) {
+        return false;
+    }
     dragging_ = down;
     return true;
 }
 
 bool SceneCamera3d::handle_scroll(double offset) {
+    if (interaction_disabled_) {
+        return false;
+    }
+
     position_ *= (1.0 - offset / 20.0);
     return true;
 }
 
 bool SceneCamera3d::handle_key(int key, bool down, int /* mods */) {
+    if (interaction_disabled_) {
+        return false;
+    }
+
     float offset = 0.05f;
     if (down) {
         switch (key) {
@@ -106,6 +119,10 @@ void SceneCamera3d::switch_if_necessary(drag_machine_kind kind) {
 }
 
 bool SceneCamera3d::handle_mouse_moved(float x, float y) {
+    if (interaction_disabled_) {
+        return false;
+    }
+
     // update slices that is being hovered over
     y = -y;
 
