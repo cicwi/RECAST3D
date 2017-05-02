@@ -256,15 +256,10 @@ void Path3::compute_tangents_() {
 }
 
 Eigen::VectorXf
-Path3::arc_length_lin_approx(Eigen::VectorXf const& params) const {
-    // Compute an approximation to the arc lengths at `params` using a piecewise
-    // constant path instead of the
-    // actual spline.
-    // This is done by computing the path points at `params` and then
-    // accumulating the lengths of the differences
-    // of the points.
-    assert((params.array() >= 0).all() &&
-           (params.array() <= num_pieces()).all());
+Path3::arc_length_lin_approx(size_t num_params) const {
+    // Compute an approximation to the arc lengths at `num_params` equidistant parameters using a piecewise constant path instead of the actual spline.
+    // This is done by computing the path points at the parameters and then accumulating the lengths of the differences of the points.
+    Eigen::VectorXf params = Eigen::VectorXf::LinSpaced(num_params, 0, num_pieces());
     Eigen::Matrix<float, Eigen::Dynamic, 3> path_pts = this->operator()(params);
     Eigen::VectorXf alens(params.size());
     alens(0) = 0.0;
@@ -291,7 +286,7 @@ Eigen::VectorXf Path3::arc_length_params_lin_approx(size_t num_params) const {
     Eigen::VectorXf alen_params(num_params);
     Eigen::VectorXf params =
         Eigen::VectorXf::LinSpaced(num_params, 0.0f, num_pieces());
-    Eigen::VectorXf alens = arc_length_lin_approx(params);
+    Eigen::VectorXf alens = arc_length_lin_approx(num_params);
     Eigen::VectorXf target_alens =
         Eigen::VectorXf::LinSpaced(num_params, 0.0f, total_length(num_params));
     std::vector<Eigen::DenseIndex> pieces =
@@ -316,9 +311,7 @@ Eigen::VectorXf Path3::arc_length_params_lin_approx(size_t num_params) const {
 }
 
 float Path3::total_length(size_t num_params) const {
-    Eigen::VectorXf params =
-        Eigen::VectorXf::LinSpaced(num_params, 0, num_pieces());
-    Eigen::VectorXf alens = arc_length_lin_approx(params);
+    Eigen::VectorXf alens = arc_length_lin_approx(num_params);
     return alens(alens.size() - 1);
 }
 

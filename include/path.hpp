@@ -77,7 +77,7 @@ class Path3 {
     Eigen::VectorXf system_rhs(bdry_cond bc_left, bdry_cond bc_right,
                                int dim) const;
 
-    Eigen::VectorXf arc_length_lin_approx(Eigen::VectorXf const& params) const;
+    Eigen::VectorXf arc_length_lin_approx(size_t num_params) const;
     Eigen::VectorXf arc_length_params_lin_approx(size_t num_params) const;
     float total_length(size_t num_params) const;
 

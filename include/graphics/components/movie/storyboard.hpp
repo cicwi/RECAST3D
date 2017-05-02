@@ -49,29 +49,30 @@ class PropertyAnimation : public Animation {
     T& target_;
 };
 
-// TODO: very rudimentary, need something special to the camera class
+enum class motion_mode : int { natural_speed, constant_speed, custom_speed };
+
 class MoveAlongPath : public Animation {
   public:
     MoveAlongPath(float at, float duration, Path3 const& path,
-                  glm::vec3& target)
-        : Animation(at, duration), path_(path), target_(target) {}
+                  glm::vec3& target,
+                  motion_mode mode = motion_mode::natural_speed);
 
-    void update(float time) override {
-        if (time < at_ || time > at_ + duration_) {
-            return;
-        }
+    MoveAlongPath(std::vector<float> time_points, Path3 const& path,
+                  glm::vec3& target);
 
-        float alpha = (time - at_) / duration_ * path_.num_nodes();
-        auto point = path_(alpha);
-        target_[0] = point(0);
-        target_[1] = point(1);
-        target_[2] = point(2);
-    }
+    void update(float time) override;
 
   private:
     Path3 path_;
+    std::vector<float> time_points_;
     glm::vec3& target_;
+    motion_mode motion_mode_;
+    float max_param_;
+    Eigen::VectorXf arc_lengths_;
+    int last_index_ = 0;
 };
+
+// TODO: add AnimateCamera with more functionality depending on the path
 
 class TriggerAnimation : public Animation {
   public:

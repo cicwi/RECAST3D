@@ -5,9 +5,10 @@
 #include <vector>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include "path.hpp"
 #include "graphics/scene_camera.hpp"
 
-#include <glm/gtx/rotate_vector.hpp>
 
 namespace tomovis {
 
@@ -53,6 +54,7 @@ class SceneCamera3d : public SceneCamera {
 
     void set_look_at(glm::vec3 center) override;
     void set_position(glm::vec3 position);
+    void move_to_position(glm::vec3 position, float duration = 1.0f);
 
     glm::vec3& position() override { return position_; }
     glm::vec3& look_at() override { return center_; }
