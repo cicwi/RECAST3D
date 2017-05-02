@@ -15,5 +15,5 @@ struct ads_material {
 uniform ads_material material;
 
 void main() {
-    fragColor = vec4(vec3(0.1f * material.opacity), 0.1f);
+    fragColor = vec4(vec3(material.opacity * 0.1f), 1.0f);
 }

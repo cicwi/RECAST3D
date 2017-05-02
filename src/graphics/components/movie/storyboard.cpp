@@ -32,6 +32,7 @@ Material mix(Material x, Material y, float a) {
 
 void Storyboard::script_() {
     animations_.clear();
+    movie_->projection()->source() = glm::vec3(0.0f, 0.0f, 6.0f);
 
     Material bland;
     Material bland_transparent;
@@ -44,10 +45,6 @@ void Storyboard::script_() {
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
         2.0f, 2.0f, glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(2.0f, 2.0f, 5.0f),
         movie_->object().camera().position()));
-
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        6.0f, 2.0f, glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, 3.0f),
-        movie_->projection()->source()));
 
     size_t i = 0;
     for (auto& mesh : movie_->model()->meshes()) {
@@ -62,15 +59,23 @@ void Storyboard::script_() {
     }
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        8.0f, 2.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(0.0f, 0.0f, 2.0f),
+        7.0f, 2.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 0.0f),
         movie_->object().camera().position()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        8.0f, 2.0f, movie_->object().camera().look_at(), glm::vec3(0.0f, 0.5f, 0.0f),
+        9.0f, 2.0f, glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, 1.5f),
+        movie_->projection()->source()));
+
+    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+        11.0f, 2.0f, glm::vec3(8.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.5f, 2.0f),
+        movie_->object().camera().position()));
+
+    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+        11.0f, 2.0f, movie_->object().camera().look_at(), glm::vec3(0.0f, 0.5f, 0.0f),
         movie_->object().camera().look_at()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        12.0f, 2.0f, glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, -5.0f),
+        14.0f, 2.0f, glm::vec3(0.0f, 0.5f, 2.0f), glm::vec3(0.0f, 0.0f, -8.0f),
         movie_->object().camera().position()));
 }
 

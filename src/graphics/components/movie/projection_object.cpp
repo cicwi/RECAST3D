@@ -104,6 +104,8 @@ glm::vec3 ProjectionObject::detector_center_() const {
 }
 
 void ProjectionObject::draw_tomo_(const Model& model) const {
+    glDisable(GL_DEPTH_TEST);
+
     GLint viewport[4];
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_handle_);
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -125,6 +127,8 @@ void ProjectionObject::draw_tomo_(const Model& model) const {
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 glm::mat4 ProjectionObject::beam_transform_() const {
