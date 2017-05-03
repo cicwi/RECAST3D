@@ -5,8 +5,8 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/material.hpp"
 #include "graphics/interface/window.hpp"
+#include "graphics/material.hpp"
 #include "ticker.hpp"
 
 namespace tomovis {
@@ -39,6 +39,7 @@ class PropertyAnimation : public Animation {
         }
 
         float alpha = (time - at_) / duration_;
+        alpha = 3.0f * alpha * alpha - 2.0f * alpha * alpha * alpha;
         target_ = mix(begin_, end_, alpha);
     }
 
@@ -78,6 +79,7 @@ class Storyboard : public Window, public Ticker {
   private:
     void script_();
     void initial_scene_();
+
 
     bool running_ = false;
     float t_ = 0.0f;

@@ -19,7 +19,7 @@ Storyboard::~Storyboard() {}
 float mix(float x, float y, float a) { return (1.0f - a) * x + a * y; }
 
 glm::vec3 mix(glm::vec3 x, glm::vec3 y, float a) {
-    return glm::mix(x, y, 3.0f * a * a - 2.0f * a * a * a);
+    return glm::mix(x, y, a);
 }
 
 Material mix(Material x, Material y, float a) {
@@ -66,8 +66,7 @@ void Storyboard::script_() {
         2.0f, 2.0f, glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(2.0f, 2.0f, 5.0f),
         movie_->object().camera().position()));
 
-    /** Phase 1 */
-
+    // Phase 1
 
     animations_.push_back(std::make_unique<TriggerAnimation>(4.0f, [&]() {
         movie_->model()->toggle_rotate(); }));
@@ -88,7 +87,7 @@ void Storyboard::script_() {
     }
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        15.0f, 2.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 0.0f),
+        15.0f, 2.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 2.0f),
         movie_->object().camera().position()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
@@ -96,19 +95,11 @@ void Storyboard::script_() {
         movie_->projection()->source()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        21.0f, 2.0f, glm::vec3(8.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.5f, 2.0f),
+        21.0f, 2.0f, glm::vec3(8.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 3.5f),
         movie_->object().camera().position()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        21.0f, 2.0f, movie_->object().camera().look_at(), glm::vec3(0.0f, 0.5f, 0.0f),
-        movie_->object().camera().look_at()));
-
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        26.0f, 2.0f, glm::vec3(0.0f, 0.5f, 2.0f), glm::vec3(0.0f, 0.0f, -8.0f),
-        movie_->object().camera().position()));
-
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        26.0f, 2.0f, glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+        21.0f, 2.0f, movie_->object().camera().look_at(), glm::vec3(0.0f, -0.5f, 0.0f),
         movie_->object().camera().look_at()));
 }
 
