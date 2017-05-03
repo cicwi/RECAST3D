@@ -37,7 +37,7 @@ class SceneCamera3d : public SceneCamera {
 
     std::vector<parameter<float>>& parameters() override { return parameters_; }
 
-    void reset_view();
+    void reset_view() override;
 
     auto& up() { return up_; }
     auto& right() { return right_; }

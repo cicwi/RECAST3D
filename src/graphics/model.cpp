@@ -207,7 +207,7 @@ void Model::tick(float time_elapsed) {
     if (rotate_) {
         const float twopi = 2.0f * glm::pi<float>();
 
-        phi_ += 0.5f * time_elapsed;
+        phi_ += speed_ * (time_elapsed * twopi);
         while (phi_ > twopi) {
             phi_ -= twopi;
         }

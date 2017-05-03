@@ -34,7 +34,11 @@ class Model : public Ticker {
     void toggle_pause() { paused_ = !paused_; }
     void toggle_rotate() { rotate_ = !rotate_; }
 
+    void rotate(bool should_rotate) { rotate_ = should_rotate; }
+    void rotations_per_second(float rps) { speed_ = rps; }
+
     float& scale() { return scale_; }
+    float& phi() { return phi_; }
 
     std::vector<std::unique_ptr<Mesh>>& meshes() { return meshes_; }
 
@@ -44,6 +48,7 @@ class Model : public Ticker {
 
     void represent_();
 
+    float speed_ = 0.25f;
     float scale_ = 1.0f;
     float phi_ = 0.0f;
     void cancel_load_();

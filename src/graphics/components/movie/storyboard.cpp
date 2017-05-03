@@ -18,7 +18,9 @@ Storyboard::~Storyboard() {}
 
 float mix(float x, float y, float a) { return (1.0f - a) * x + a * y; }
 
-glm::vec3 mix(glm::vec3 x, glm::vec3 y, float a) { return glm::mix(x, y, 3.0f * a * a - 2.0f * a * a * a); }
+glm::vec3 mix(glm::vec3 x, glm::vec3 y, float a) {
+    return glm::mix(x, y, 3.0f * a * a - 2.0f * a * a * a);
+}
 
 Material mix(Material x, Material y, float a) {
     Material z;
@@ -30,13 +32,31 @@ Material mix(Material x, Material y, float a) {
     return z;
 }
 
-void Storyboard::script_() {
-    animations_.clear();
+void Storyboard::initial_scene_() {
+    Material bland;
+    for (auto& mesh : movie_->model()->meshes()) {
+        mesh->material() = bland;
+    }
+
+    movie_->object().camera().reset_view();
+    movie_->object().camera().position() = glm::vec3(0.0f, 0.0f, 10.0f);
     movie_->projection()->source() = glm::vec3(0.0f, 0.0f, 6.0f);
+    movie_->model()->rotations_per_second(0.125f);
+    movie_->model()->phi() = 0.0f;
+}
+
+void Storyboard::script_() {
+    // Set initial scene
+    animations_.clear();
 
     Material bland;
     Material bland_transparent;
     bland_transparent.opacity = 0.1f;
+
+    initial_scene_();
+
+    // Phase 0
+    // Introduce scene
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
         0.0f, 2.0f, glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 2.0f, 5.0f),
@@ -46,37 +66,50 @@ void Storyboard::script_() {
         2.0f, 2.0f, glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(2.0f, 2.0f, 5.0f),
         movie_->object().camera().position()));
 
+    /** Phase 1 */
+
+
+    animations_.push_back(std::make_unique<TriggerAnimation>(4.0f, [&]() {
+        movie_->model()->toggle_rotate(); }));
+
+    animations_.push_back(std::make_unique<TriggerAnimation>(8.0f, [&]() {
+        movie_->model()->toggle_rotate(); }));
+
     size_t i = 0;
     for (auto& mesh : movie_->model()->meshes()) {
-        mesh->material() = bland;
         animations_.push_back(std::make_unique<PropertyAnimation<Material>>(
-            4.0f, 2.0f, bland, mesh->mesh_material(), mesh->material()));
-        if (i != 3) {
+            10.0f, 2.0f, bland, mesh->mesh_material(), mesh->material()));
+        if (i != 10) {
             animations_.push_back(std::make_unique<PropertyAnimation<Material>>(
-                6.0f, 0.5f, mesh->mesh_material(), bland_transparent, mesh->material()));
+                14.0f, 1.0f, mesh->mesh_material(), bland_transparent,
+                mesh->material()));
         }
         ++i;
     }
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        7.0f, 2.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 0.0f),
+        15.0f, 2.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 0.0f),
         movie_->object().camera().position()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        9.0f, 2.0f, glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, 1.5f),
+        17.0f, 2.0f, glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, 1.5f),
         movie_->projection()->source()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        11.0f, 2.0f, glm::vec3(8.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.5f, 2.0f),
+        21.0f, 2.0f, glm::vec3(8.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.5f, 2.0f),
         movie_->object().camera().position()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        11.0f, 2.0f, movie_->object().camera().look_at(), glm::vec3(0.0f, 0.5f, 0.0f),
+        21.0f, 2.0f, movie_->object().camera().look_at(), glm::vec3(0.0f, 0.5f, 0.0f),
         movie_->object().camera().look_at()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        14.0f, 2.0f, glm::vec3(0.0f, 0.5f, 2.0f), glm::vec3(0.0f, 0.0f, -8.0f),
+        26.0f, 2.0f, glm::vec3(0.0f, 0.5f, 2.0f), glm::vec3(0.0f, 0.0f, -8.0f),
         movie_->object().camera().position()));
+
+    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+        26.0f, 2.0f, glm::vec3(0.0f, 0.5f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+        movie_->object().camera().look_at()));
 }
 
 void Storyboard::describe() {
@@ -94,6 +127,7 @@ void Storyboard::describe() {
         movie_->object().camera().toggle_interaction();
         running_ = false;
         t_ = 0.0f;
+        initial_scene_();
     }
 }
 

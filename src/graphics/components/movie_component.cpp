@@ -65,14 +65,14 @@ void MovieComponent::tick(float time_elapsed) {
 void MovieComponent::draw(glm::mat4 world_to_screen) {
     auto camera_position = object_.camera().position();
 
-    projection_.draw(world_to_screen, model_, camera_position);
-
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     model_.draw(world_to_screen, camera_position);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
+
+    projection_.draw(world_to_screen, model_, camera_position);
 
     recorder_.capture();
 }

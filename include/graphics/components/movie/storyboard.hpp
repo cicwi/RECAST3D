@@ -48,6 +48,25 @@ class PropertyAnimation : public Animation {
     T& target_;
 };
 
+class TriggerAnimation : public Animation {
+  public:
+    TriggerAnimation(float at, std::function<void()> callback)
+        : Animation(at, 0.0f), callback_(callback) {}
+
+    void update(float time) override {
+        if (fired_ || time < at_) {
+            return;
+        }
+
+        callback_();
+        fired_ = true;
+    }
+
+  private:
+    std::function<void()> callback_;
+    bool fired_ = false;
+};
+
 class Storyboard : public Window, public Ticker {
   public:
     Storyboard(MovieComponent* movie);
@@ -58,6 +77,7 @@ class Storyboard : public Window, public Ticker {
 
   private:
     void script_();
+    void initial_scene_();
 
     bool running_ = false;
     float t_ = 0.0f;

@@ -29,6 +29,7 @@ class SceneCamera : public InputHandler, public Ticker {
 
     virtual glm::vec3& position() = 0;
     virtual glm::vec3& look_at() = 0;
+    virtual void reset_view() {};
 
     void toggle_interaction() { interaction_disabled_ = ! interaction_disabled_; }
 
