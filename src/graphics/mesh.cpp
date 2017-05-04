@@ -157,6 +157,10 @@ void Mesh::tick(float time_elapsed) {
 
 void Mesh::draw(glm::mat4 world, glm::mat4 model,
                 glm::vec3 camera_position, ShaderProgram* program) const {
+    if (!visible_) {
+        return;
+    }
+
     if (!program) {
         return;
     }
