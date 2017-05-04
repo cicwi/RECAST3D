@@ -5,8 +5,9 @@
 
 #include <glm/glm.hpp>
 
-#include "graphics/material.hpp"
 #include "graphics/interface/window.hpp"
+#include "graphics/material.hpp"
+#include "path.hpp"
 #include "ticker.hpp"
 
 namespace tomovis {
@@ -46,6 +47,30 @@ class PropertyAnimation : public Animation {
     T begin_;
     T end_;
     T& target_;
+};
+
+// TODO: very rudimentary, need something special to the camera class
+class MoveAlongPath : public Animation {
+  public:
+    MoveAlongPath(float at, float duration, Path3 const& path,
+                  glm::vec3& target)
+        : Animation(at, duration), path_(path), target_(target) {}
+
+    void update(float time) override {
+        if (time < at_ || time > at_ + duration_) {
+            return;
+        }
+
+        float alpha = (time - at_) / duration_ * path_.num_nodes();
+        auto point = path_(alpha);
+        target_[0] = point(0);
+        target_[1] = point(1);
+        target_[2] = point(2);
+    }
+
+  private:
+    Path3 path_;
+    glm::vec3& target_;
 };
 
 class TriggerAnimation : public Animation {
