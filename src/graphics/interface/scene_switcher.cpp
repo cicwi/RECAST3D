@@ -27,6 +27,8 @@ SceneSwitcher::~SceneSwitcher() {}
 void SceneSwitcher::reload_data_() {
     model_options_.clear();
     short_options_.clear();
+    if (!fs::exists("../data"))
+        return;
     for (auto entry : fs::directory_iterator("../data/")) {
         std::string name = entry.path().native();
         model_options_.push_back(name);
@@ -87,22 +89,32 @@ void SceneSwitcher::describe() {
                 reload_data_();
             }
 
-            ImGui::Separator();
-            ImGui::ListBox("Choose file", &current_item_,
-                           [](void* data, int idx, const char** out) -> bool {
-                               const std::vector<std::string>& model_options =
-                                   *(std::vector<std::string>*)data;
-                               *out = model_options[idx].c_str();
-                               return true;
-                           },
-                           (void*)&short_options_, (int)short_options_.size());
+            if (!short_options_.empty()) {
+                ImGui::Separator();
+                ImGui::ListBox(
+                    "Choose file", &current_item_,
+                    [](void* data, int idx, const char** out) -> bool {
+                        const std::vector<std::string>& model_options =
+                            *(std::vector<std::string>*)data;
+                        *out = model_options[idx].c_str();
+                        return true;
+                    },
+                    (void*)&short_options_, (int)short_options_.size());
 
-            ImGui::Text(model_options_[current_item_].c_str());
+                ImGui::Text(model_options_[current_item_].c_str());
+            }
 
-            if (ImGui::Button("OK", ImVec2(120, 0))) {
+            if (ImGui::Button("OK")) {
                 ImGui::CloseCurrentPopup();
                 add_movie_scene(model_options_[current_item_]);
                 adding_movie_ = false;
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                adding_movie_ = false;
+                ImGui::CloseCurrentPopup();
             }
 
             ImGui::EndPopup();
