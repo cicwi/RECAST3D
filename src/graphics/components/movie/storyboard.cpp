@@ -52,11 +52,7 @@ MoveAlongPath::MoveAlongPath(float at, float duration, Path3 const& path,
     time_points_.push_back(at + duration);
 }
 
-void MoveAlongPath::update(float time) {
-    if (time < at_ || time > at_ + duration_) {
-        return;
-    }
-
+float MoveAlongPath::time_to_param(float time) {
     float alpha = 0.0f;
     switch (motion_mode_) {
     case motion_mode::natural_speed: {
@@ -116,12 +112,56 @@ void MoveAlongPath::update(float time) {
         break;
     }
     default:
+        return -1.0f;
+    }
+    return alpha;
+}
+
+void MoveAlongPath::update(float time) {
+    if (time < at_ || time > at_ + duration_) {
         return;
     }
-    auto point = path_(alpha);
+    auto point = path_(time_to_param(time));
     target_[0] = point(0);
     target_[1] = point(1);
     target_[2] = point(2);
+}
+
+void MoveCameraAlongPath::update(float time) {
+    position_animation_.update(time);
+    if (keep_vertical_) {
+        return;
+    }
+
+    // Determine direction into which the camera is looking
+    Eigen::RowVector3f look_at_dir;
+    look_at_dir << camera_->look_at()[0] - camera_->position()[0],
+        camera_->look_at()[1] - camera_->position()[1],
+        camera_->look_at()[2] - camera_->position()[2];
+    auto look_at_dir_norm = look_at_dir.norm();
+    if (look_at_dir_norm < 1e-6) {
+        return;
+    }
+    look_at_dir /= look_at_dir_norm;
+
+    // Compute the new right vector as projection of the tangent onto the normal
+    // plane fo the look-at direction. Do it such that up remains up.
+    Eigen::RowVector3f tang = position_animation_.path().unit_tangent(
+        position_animation_.time_to_param(time));
+    std::cerr << "tangent " << tang << std::endl;
+    Eigen::RowVector3f right = tang - tang.dot(look_at_dir) * look_at_dir;
+    if (right.norm() < 1e-6) {
+        return;
+    }
+    // TODO: something broken here, scene goes all crazy
+    Eigen::RowVector3f up = right.cross(look_at_dir);
+    if (up(1) <= 0) {
+        up *= -1.0f;
+    }
+    std::cerr << "up " << up << std::endl;
+    std::cerr << "right " << right << std::endl;
+    camera_->set_up(glm::vec3(up(0), up(1), up(2)));
+    return;
 }
 
 Storyboard::Storyboard(MovieComponent* movie) : movie_(movie) { script_(); }
@@ -178,10 +218,26 @@ void Storyboard::script_() {
     path_points.row(4) << 0.0f, 0.0f, 10.0f;
     path_points.row(5) << 0.0f, 2.0f, 5.0f;
     path_points.row(6) << 2.0f, 2.0f, 5.0f;
-    Path3 path(path_points);
+    BdryConds3 bcs({bdry_cond::natural, bdry_cond::zero, bdry_cond::natural});
+    Path3 path(path_points, bcs);
     std::vector<float> time_pts = {0.0f, 0.5f, 1.5f, 2.5f, 3.0f, 5.0f, 7.0f};
+    animations_.push_back(std::make_unique<MoveCameraAlongPath>(
+        time_pts, path, (SceneCamera3d*)&movie_->object().camera(), true));
+
+    Eigen::Matrix<float, 7, 3> look_at_points;
+    look_at_points.row(0) << 0.0f, 0.0f, 0.0f;
+    look_at_points.row(1) << 0.0f, -2.0f, -2.0f;
+    look_at_points.row(2) << 0.0f, 0.0f, 0.0f;
+    look_at_points.row(3) << 0.0f, -2.0f, -2.0f;
+    look_at_points.row(4) << 0.0f, 0.0f, 0.0f;
+    look_at_points.row(5) << 0.0f, 0.0f, 0.0f;
+    look_at_points.row(6) << 0.0f, 0.0f, 0.0f;
+    Path3 look_at_path(look_at_points);
+
+    // TODO: add to MoveCameraAlongPath instead of making an additional property
+    // animation
     animations_.push_back(std::make_unique<MoveAlongPath>(
-        time_pts, path, movie_->object().camera().position()));
+        time_pts, look_at_path, movie_->object().camera().look_at()));
 
     /*    animations_.push_back(std::make_unique<MoveAlongPath>(
             0.0f, 6.0f, path, movie_->object().camera().position(),

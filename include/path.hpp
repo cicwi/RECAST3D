@@ -26,6 +26,11 @@ class BdryConds3 {
                 std::pair<bdry_cond, bdry_cond>(bc_left, bc_right));
         }
     }
+    BdryConds3(bdry_cond bc0, bdry_cond bc1, bdry_cond bc2) {
+        bdry_conds_.push_back(std::pair<bdry_cond, bdry_cond>(bc0, bc0));
+        bdry_conds_.push_back(std::pair<bdry_cond, bdry_cond>(bc1, bc1));
+        bdry_conds_.push_back(std::pair<bdry_cond, bdry_cond>(bc2, bc2));
+    }
     BdryConds3(std::vector<std::pair<bdry_cond, bdry_cond>> const& bcs)
         : bdry_conds_(bcs) {}
 

@@ -54,7 +54,8 @@ class SceneCamera3d : public SceneCamera {
 
     void set_look_at(glm::vec3 center) override;
     void set_position(glm::vec3 position);
-    void move_to_position(glm::vec3 position, float duration = 1.0f);
+    void set_right(glm::vec3 right);
+    void set_up(glm::vec3 up);
 
     glm::vec3& position() override { return position_; }
     glm::vec3& look_at() override { return center_; }

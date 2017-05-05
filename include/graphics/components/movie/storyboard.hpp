@@ -7,6 +7,8 @@
 
 #include "graphics/interface/window.hpp"
 #include "graphics/material.hpp"
+#include "graphics/scene_camera.hpp"
+#include "graphics/scene_camera_3d.hpp"
 #include "path.hpp"
 #include "ticker.hpp"
 
@@ -60,6 +62,9 @@ class MoveAlongPath : public Animation {
     MoveAlongPath(std::vector<float> time_points, Path3 const& path,
                   glm::vec3& target);
 
+    Path3 path() { return path_; }
+
+    float time_to_param(float time);
     void update(float time) override;
 
   private:
@@ -72,7 +77,34 @@ class MoveAlongPath : public Animation {
     int last_index_ = 0;
 };
 
-// TODO: add AnimateCamera with more functionality depending on the path
+class MoveCameraAlongPath : public Animation {
+  public:
+    MoveCameraAlongPath(float at, float duration, Path3 const& path,
+                        SceneCamera3d* camera,
+                        motion_mode mode = motion_mode::natural_speed,
+                        bool keep_vertical = true)
+        : Animation(at, duration), camera_(camera),
+          keep_vertical_(keep_vertical),
+          position_animation_(
+              MoveAlongPath(at, duration, path, camera->position(), mode)) {}
+
+    MoveCameraAlongPath(std::vector<float> time_points, Path3 const& path,
+                        SceneCamera3d* camera, bool keep_vertical = true)
+        : Animation(time_points.empty() ? 0.0f : time_points[0],
+                    time_points.empty()
+                        ? 1.0f
+                        : time_points[time_points.size() - 1] - time_points[0]),
+          camera_(camera), keep_vertical_(keep_vertical),
+          position_animation_(
+              MoveAlongPath(time_points, path, camera->position())) {}
+
+    void update(float time) override;
+
+  private:
+    SceneCamera3d* camera_;
+    bool keep_vertical_;
+    MoveAlongPath position_animation_;
+};
 
 class TriggerAnimation : public Animation {
   public:

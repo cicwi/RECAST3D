@@ -414,30 +414,4 @@ Eigen::RowVector3f Path3::unit_binormal(float param) const {
     return unit_tangent(param).cross(unit_normal(param));
 }
 
-int main() {
-    Eigen::Matrix<float, Eigen::Dynamic, 3> nodes;
-    nodes.resize(5, 3);
-    nodes << 0, 0, 0,
-             1, 1, 1,
-             -2, -1, 0,
-             -1, 0, 0,
-             0, 0, 0;
-    Path3 path(nodes);
-    std::cout << path << std::endl;
-    std::cout << path.tangents() << std::endl << std::endl;
-    std::cout << path.unit_tangent(0) << std::endl;
-    std::cout << path.unit_normal(0) << std::endl;
-    std::cout << path.unit_binormal(0) << std::endl << std::endl;
-    std::cout << path.unit_tangent(0.999) << std::endl;
-    std::cout << path.unit_normal(0.999) << std::endl;
-    std::cout << path.unit_binormal(0.999) << std::endl << std::endl;
-    std::cout << path.unit_tangent(1) << std::endl;
-    std::cout << path.unit_normal(1) << std::endl;
-    std::cout << path.unit_binormal(1) << std::endl << std::endl;
-    std::cout << path.unit_tangent(1.001) << std::endl;
-    std::cout << path.unit_normal(1.001) << std::endl;
-    std::cout << path.unit_binormal(1.001) << std::endl << std::endl;
-    return 0;
-}
-
 }  // namespace tomovis

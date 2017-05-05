@@ -36,12 +36,9 @@ void SceneCamera3d::set_look_at(glm::vec3 center) { center_ = center; }
 
 void SceneCamera3d::set_position(glm::vec3 position) { position_ = position; }
 
-void SceneCamera3d::move_to_position(glm::vec3 position, float duration) {
-        if (duration <= 0.0f || true /* Debug */) {
-            set_position(position);
-            return;
-        }
-    }
+void SceneCamera3d::set_right(glm::vec3 right) { right_ = right; }
+
+void SceneCamera3d::set_up(glm::vec3 up) { up_ = up; }
 
 void SceneCamera3d::rotate(float phi, float psi) {
     auto rotate_up = glm::rotate(-phi, up_);
