@@ -51,16 +51,37 @@ std::ostream& operator<<(std::ostream& out, BdryConds3 const& bcs);
 class Path3 {
   public:
     // Constructors
+    // There are effectively 4 variants, each of which works with an
+    // Eigen::Matrix or a std::vector of glm::vec3.
+
+    // Same boundary condition left & right and in all dimensions
     Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
           bdry_cond bc = bdry_cond::natural);
+    Path3(std::vector<glm::vec3> const& nodes,
+          bdry_cond bc = bdry_cond::natural);
+
+    // Custom boundary condition object, full flexibility
     Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
           BdryConds3 const& bcs);
+    Path3(std::vector<glm::vec3> const& nodes, BdryConds3 const& bcs);
+
+    // Set tangents at left and right endpoints explicitly, using the same
+    // boundary condition throughout (default is `clamp`, which means "use the
+    // explicit tangents")
     Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
           Eigen::RowVector3f tang_left, Eigen::RowVector3f tang_right,
           bdry_cond bc = bdry_cond::clamp);
+    Path3(std::vector<glm::vec3> const& nodes, Eigen::RowVector3f tang_left,
+          Eigen::RowVector3f tang_right, bdry_cond bc = bdry_cond::clamp);
+
+    // Set tangents at left and right endpoints explicitly, and use a custom
+    // boundary condition object for full flexibility (e.g. use the given
+    // tangents only in certain dimensions)
     Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
           Eigen::RowVector3f tang_left, Eigen::RowVector3f tang_right,
           BdryConds3 const& bcs);
+    Path3(std::vector<glm::vec3> const& nodes, Eigen::RowVector3f tang_left,
+          Eigen::RowVector3f tang_right, BdryConds3 const& bcs);
 
     ~Path3() {}
 

@@ -53,6 +53,10 @@ MoveAlongPath::MoveAlongPath(float at, float duration, Path3 const& path,
 }
 
 float MoveAlongPath::time_to_param(float time) {
+    if (time < at_ || time > at_ + duration_) {
+        return -1.0f;
+    }
+
     float alpha = 0.0f;
     switch (motion_mode_) {
     case motion_mode::natural_speed: {
@@ -210,32 +214,24 @@ void Storyboard::script_() {
     // Phase 0
     // Introduce scene
 
-    Eigen::Matrix<float, 7, 3> path_points;
-    path_points.row(0) << 0.0f, 0.0f, 10.0f;
-    path_points.row(1) << 5.0f, -5.0f, 0.0f;
-    path_points.row(2) << 0.0f, 0.0f, -10.0f;
-    path_points.row(3) << -5.0f, 5.0f, 0.0f;
-    path_points.row(4) << 0.0f, 0.0f, 10.0f;
-    path_points.row(5) << 0.0f, 2.0f, 5.0f;
-    path_points.row(6) << 2.0f, 2.0f, 5.0f;
+    std::vector<glm::vec3> path_points = {
+        {0.0f, 0.0f, 10.0f}, {5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, -10.0f},
+        {-5.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 10.0f}, {0.0f, 2.0f, 5.0f},
+        {2.0f, 2.0f, 5.0f}};
     BdryConds3 bcs({bdry_cond::natural, bdry_cond::zero, bdry_cond::natural});
     Path3 path(path_points, bcs);
     std::vector<float> time_pts = {0.0f, 0.5f, 1.5f, 2.5f, 3.0f, 5.0f, 7.0f};
     animations_.push_back(std::make_unique<MoveCameraAlongPath>(
         time_pts, path, (SceneCamera3d*)&movie_->object().camera(), true));
 
-    Eigen::Matrix<float, 7, 3> look_at_points;
-    look_at_points.row(0) << 0.0f, 0.0f, 0.0f;
-    look_at_points.row(1) << 0.0f, -2.0f, -2.0f;
-    look_at_points.row(2) << 0.0f, 0.0f, 0.0f;
-    look_at_points.row(3) << 0.0f, -2.0f, -2.0f;
-    look_at_points.row(4) << 0.0f, 0.0f, 0.0f;
-    look_at_points.row(5) << 0.0f, 0.0f, 0.0f;
-    look_at_points.row(6) << 0.0f, 0.0f, 0.0f;
+    std::vector<glm::vec3> look_at_points = {
+        {0.0f, 0.0f, 0.0f},   {0.0f, -2.0f, -2.0f}, {0.0f, 0.0f, 0.0f},
+        {0.0f, -2.0f, -2.0f}, {0.0f, 0.0f, 0.0f},   {0.0f, 0.0f, 0.0f},
+        {0.0f, 0.0f, 0.0f}};
     Path3 look_at_path(look_at_points);
 
     // TODO: add to MoveCameraAlongPath instead of making an additional property
-    // animation
+    // animation?
     animations_.push_back(std::make_unique<MoveAlongPath>(
         time_pts, look_at_path, movie_->object().camera().look_at()));
 

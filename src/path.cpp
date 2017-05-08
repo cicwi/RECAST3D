@@ -63,15 +63,22 @@ std::ostream& operator<<(std::ostream& out, BdryConds3 const& bcs) {
     return out;
 }
 
-Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes, bdry_cond bc)
-    : nodes_(nodes), bdry_conds_(bc) {
-    assert(nodes.rows() >= 2);
-    compute_matrices_();
-    init_tangents_();
-    init_rhs_();
-    compute_tangents_();
-    init_a_and_b_vecs_();
+Eigen::Matrix<float, Eigen::Dynamic, 3>
+vec_of_vecs_to_matrix(std::vector<glm::vec3> const& vec_of_vecs) {
+    Eigen::Matrix<float, Eigen::Dynamic, 3> matrix(vec_of_vecs.size(), 3);
+    for (size_t i = 0; i < vec_of_vecs.size(); ++i) {
+        matrix.row(i) << vec_of_vecs[i][0], vec_of_vecs[i][1],
+            vec_of_vecs[i][2];
+    }
+    return matrix;
 }
+
+Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes, bdry_cond bc)
+    : Path3(nodes, BdryConds3(bc)) {}
+
+Path3::Path3(std::vector<glm::vec3> const& nodes, bdry_cond bc)
+    : Path3(vec_of_vecs_to_matrix(nodes), bc) {}
+
 Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
              BdryConds3 const& bcs)
     : nodes_(nodes), bdry_conds_(bcs) {
@@ -82,17 +89,19 @@ Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
     compute_tangents_();
     init_a_and_b_vecs_();
 }
+
+Path3::Path3(std::vector<glm::vec3> const& nodes, BdryConds3 const& bcs)
+    : Path3(vec_of_vecs_to_matrix(nodes), bcs) {}
+
 Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
              Eigen::RowVector3f tang_left, Eigen::RowVector3f tang_right,
              bdry_cond bc)
-    : nodes_(nodes), bdry_conds_(bc) {
-    assert(nodes.rows() >= 2);
-    compute_matrices_();
-    init_tangents_(tang_left, tang_right);
-    init_rhs_();
-    compute_tangents_();
-    init_a_and_b_vecs_();
-}
+    : Path3(nodes, tang_left, tang_right, BdryConds3(bc)) {}
+
+Path3::Path3(std::vector<glm::vec3> const& nodes, Eigen::RowVector3f tang_left,
+             Eigen::RowVector3f tang_right, bdry_cond bc)
+    : Path3(vec_of_vecs_to_matrix(nodes), tang_left, tang_right, bc) {}
+
 Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
              Eigen::RowVector3f tang_left, Eigen::RowVector3f tang_right,
              BdryConds3 const& bcs)
@@ -104,6 +113,10 @@ Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
     compute_tangents_();
     init_a_and_b_vecs_();
 }
+
+Path3::Path3(std::vector<glm::vec3> const& nodes, Eigen::RowVector3f tang_left,
+             Eigen::RowVector3f tang_right, BdryConds3 const& bcs)
+    : Path3(vec_of_vecs_to_matrix(nodes), tang_left, tang_right, bcs) {}
 
 // Operator overloads
 
@@ -414,4 +427,4 @@ Eigen::RowVector3f Path3::unit_binormal(float param) const {
     return unit_tangent(param).cross(unit_normal(param));
 }
 
-}  // namespace tomovis
+} // namespace tomovis
