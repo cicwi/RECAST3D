@@ -41,7 +41,7 @@ void Storyboard::initial_scene_() {
     movie_->object().camera().reset_view();
     movie_->object().camera().position() = glm::vec3(0.0f, 0.0f, 10.0f);
     movie_->projection()->source() = glm::vec3(0.0f, 0.0f, 6.0f);
-    movie_->model()->rotations_per_second(0.125f);
+    movie_->model()->rotations_per_second(0.06125f);
     movie_->model()->phi() = 0.0f;
 }
 
@@ -58,71 +58,76 @@ void Storyboard::script_() {
     // Phase 0
     // Introduce scene
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        0.0f, 4.0f, glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 2.0f, 5.0f),
+        0.0f, 8.0f, glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 2.0f, 5.0f),
         movie_->object().camera().position()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        4.0f, 4.0f, glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(2.0f, 2.0f, 5.0f),
+        8.0f, 8.0f, glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(2.0f, 2.0f, 5.0f),
         movie_->object().camera().position()));
 
+    float phase_1 = 16.0f;
     // Phase 1
     animations_.push_back(std::make_unique<TriggerAnimation>(
-        8.0f, [&]() { movie_->model()->toggle_rotate(); }));
+        phase_1, [&]() { movie_->model()->toggle_rotate(); }));
 
     animations_.push_back(std::make_unique<TriggerAnimation>(
-        16.0f, [&]() { movie_->model()->toggle_rotate(); }));
+        phase_1 + 16.0f, [&]() { movie_->model()->toggle_rotate(); }));
 
+    float phase_2 = 60.0f;
+
+    // Phase 2
     size_t i = 0;
     for (auto& mesh : movie_->model()->meshes()) {
         animations_.push_back(std::make_unique<PropertyAnimation<Material>>(
-            19.0f, 2.0f, bland, mesh->mesh_material(), mesh->material()));
+            phase_2, 3.0f, bland, mesh->mesh_material(), mesh->material()));
         if (i != 10) {
             animations_.push_back(std::make_unique<PropertyAnimation<Material>>(
-                30.0f, 2.0f, mesh->mesh_material(), bland_transparent,
+                phase_2 + 20.0f, 3.0f, mesh->mesh_material(), bland_transparent,
                 mesh->material()));
         }
         ++i;
     }
 
-    // Phase 1
     animations_.push_back(std::make_unique<TriggerAnimation>(
-        22.0f, [&]() { movie_->model()->toggle_rotate(); }));
+        phase_2, [&]() { movie_->model()->toggle_rotate(); }));
 
     animations_.push_back(std::make_unique<TriggerAnimation>(
-        30.0f, [&]() { movie_->model()->toggle_rotate(); }));
+        phase_2 + 16.0f, [&]() { movie_->model()->toggle_rotate(); }));
 
+    // Phase 3
+    float phase_3 = 110.0f;
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        32.0f, 4.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 2.0f),
+        phase_3, 4.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 2.0f),
         movie_->object().camera().position()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        36.0f, 2.0f, glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, 1.5f),
-        movie_->projection()->source()));
+        phase_3 + 5.0f, 4.0f, glm::vec3(0.0f, 0.0f, 6.0f),
+        glm::vec3(0.0f, 0.0f, 1.5f), movie_->projection()->source()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        40.0f, 4.0f, glm::vec3(8.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 3.5f),
-        movie_->object().camera().position()));
+        phase_3 + 15.0f, 4.0f, glm::vec3(8.0f, 0.0f, 2.0f),
+        glm::vec3(0.0f, 0.0f, 3.5f), movie_->object().camera().position()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        40.0f, 4.0f, movie_->object().camera().look_at(),
+        phase_3 + 15.0f, 4.0f, movie_->object().camera().look_at(),
         glm::vec3(0.0f, -0.5f, 0.0f), movie_->object().camera().look_at()));
 
     size_t j = 0;
     for (auto& mesh : movie_->model()->meshes()) {
         if (j != 10) {
             animations_.push_back(std::make_unique<TriggerAnimation>(
-                40.0f, [&]() { mesh->set_visible(false); }));
+                phase_3 + 15.0f, [&]() { mesh->set_visible(false); }));
         }
         ++j;
     }
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        44.0f, 2.0f, glm::vec3(0.0f, -0.5f, 0.0f), glm::vec3(0.5f, 0.5f, -3.0f),
-        movie_->object().camera().look_at()));
+        phase_3 + 25.0f, 4.0f, glm::vec3(0.0f, -0.5f, 0.0f),
+        glm::vec3(0.3f, 0.3f, -2.5f), movie_->object().camera().look_at()));
 
     animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
-        44.0f, 2.0f, glm::vec3(0.0f, 0.0f, 3.5f), glm::vec3(0.5f, 0.5f, 2.0f),
-        movie_->object().camera().position()));
+        phase_3 + 25.0f, 4.0f, glm::vec3(0.0f, 0.0f, 3.5f),
+        glm::vec3(0.3f, 0.3f, 2.0f), movie_->object().camera().position()));
 }
 
 void Storyboard::describe() {
@@ -142,6 +147,9 @@ void Storyboard::describe() {
         t_ = 0.0f;
         initial_scene_();
     }
+
+    ImGui::SliderFloat("Animation speed", &animation_speed_, 1.0f, 10.0f);
+    movie_->model()->rotations_per_second(animation_speed_ * 0.06125f);
 }
 
 void Storyboard::tick(float time_elapsed) {
@@ -149,7 +157,7 @@ void Storyboard::tick(float time_elapsed) {
         return;
     }
 
-    t_ += time_elapsed;
+    t_ += animation_speed_ * time_elapsed;
 
     for (auto& anim : animations_) {
         anim->update(t_);

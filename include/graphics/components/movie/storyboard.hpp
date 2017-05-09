@@ -83,6 +83,7 @@ class Storyboard : public Window, public Ticker {
 
     bool running_ = false;
     float t_ = 0.0f;
+    float animation_speed_ = 1.0f;
 
     std::vector<std::unique_ptr<Animation>> animations_;
 
