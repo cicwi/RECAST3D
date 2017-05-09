@@ -134,10 +134,14 @@ class Storyboard : public Window, public Ticker {
     void describe() override;
     void tick(float time_elapsed) override;
 
+    template <typename TAnimation, typename... Ts>
+    void animate(Ts&&... args) {
+        animations_.push_back(std::make_unique<TAnimation>(std::forward<Ts>(args)...));
+    }
+
   private:
     void script_();
     void initial_scene_();
-
 
     bool running_ = false;
     float t_ = 0.0f;

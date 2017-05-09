@@ -210,9 +210,9 @@ void Storyboard::script_() {
 
     initial_scene_();
 
-    /* 
+    /*
     Example use of path animation:
-    
+
     std::vector<glm::vec3> path_points = {
         {0.0f, 0.0f, 10.0f}, {5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, -10.0f},
         {-5.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 10.0f}, {0.0f, 2.0f, 5.0f},
@@ -233,81 +233,81 @@ void Storyboard::script_() {
     // animation?
     animations_.push_back(std::make_unique<MoveAlongPath>(
         time_pts, look_at_path, movie_->object().camera().look_at())); */
-    
+
     // Phase 0
     // Introduce scene
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+    animate<PropertyAnimation<glm::vec3>>(
         0.0f, 8.0f, glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 2.0f, 5.0f),
-        movie_->object().camera().position()));
+        movie_->object().camera().position());
 
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+    animate<PropertyAnimation<glm::vec3>>(
         8.0f, 8.0f, glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(2.0f, 2.0f, 5.0f),
-        movie_->object().camera().position()));
+        movie_->object().camera().position());
 
     float phase_1 = 16.0f;
     // Phase 1
-    animations_.push_back(std::make_unique<TriggerAnimation>(
-        phase_1, [&]() { movie_->model()->toggle_rotate(); }));
+    animate<TriggerAnimation>(phase_1,
+                              [&]() { movie_->model()->toggle_rotate(); });
 
-    animations_.push_back(std::make_unique<TriggerAnimation>(
-        phase_1 + 16.0f, [&]() { movie_->model()->toggle_rotate(); }));
+    animate<TriggerAnimation>(phase_1 + 16.0f,
+                              [&]() { movie_->model()->toggle_rotate(); });
 
     float phase_2 = 60.0f;
 
     // Phase 2
     size_t i = 0;
     for (auto& mesh : movie_->model()->meshes()) {
-        animations_.push_back(std::make_unique<PropertyAnimation<Material>>(
-            phase_2, 3.0f, bland, mesh->mesh_material(), mesh->material()));
+        animate<PropertyAnimation<Material>>(
+            phase_2, 3.0f, bland, mesh->mesh_material(), mesh->material());
         if (i != 10) {
-            animations_.push_back(std::make_unique<PropertyAnimation<Material>>(
+            animate<PropertyAnimation<Material>>(
                 phase_2 + 20.0f, 3.0f, mesh->mesh_material(), bland_transparent,
-                mesh->material()));
+                mesh->material());
         }
         ++i;
     }
 
-    animations_.push_back(std::make_unique<TriggerAnimation>(
-        phase_2, [&]() { movie_->model()->toggle_rotate(); }));
+    animate<TriggerAnimation>(phase_2,
+                              [&]() { movie_->model()->toggle_rotate(); });
 
-    animations_.push_back(std::make_unique<TriggerAnimation>(
-        phase_2 + 16.0f, [&]() { movie_->model()->toggle_rotate(); }));
+    animate<TriggerAnimation>(phase_2 + 16.0f,
+                              [&]() { movie_->model()->toggle_rotate(); });
 
     // Phase 3
     float phase_3 = 110.0f;
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+    animate<PropertyAnimation<glm::vec3>>(
         phase_3, 4.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 2.0f),
-        movie_->object().camera().position()));
+        movie_->object().camera().position());
 
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+    animate<PropertyAnimation<glm::vec3>>(
         phase_3 + 5.0f, 4.0f, glm::vec3(0.0f, 0.0f, 6.0f),
-        glm::vec3(0.0f, 0.0f, 1.5f), movie_->projection()->source()));
+        glm::vec3(0.0f, 0.0f, 1.5f), movie_->projection()->source());
 
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+    animate<PropertyAnimation<glm::vec3>>(
         phase_3 + 15.0f, 4.0f, glm::vec3(8.0f, 0.0f, 2.0f),
-        glm::vec3(0.0f, 0.0f, 3.5f), movie_->object().camera().position()));
+        glm::vec3(0.0f, 0.0f, 3.5f), movie_->object().camera().position());
 
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+    animate<PropertyAnimation<glm::vec3>>(
 
-    phase_3 + 15.0f, 4.0f, movie_->object().camera().look_at(),
-        glm::vec3(0.0f, -0.5f, 0.0f), movie_->object().camera().look_at()));
+        phase_3 + 15.0f, 4.0f, movie_->object().camera().look_at(),
+        glm::vec3(0.0f, -0.5f, 0.0f), movie_->object().camera().look_at());
 
     size_t j = 0;
     for (auto& mesh : movie_->model()->meshes()) {
         if (j != 10) {
-            animations_.push_back(std::make_unique<TriggerAnimation>(
-                phase_3 + 15.0f, [&]() { mesh->set_visible(false); }));
+            animate<TriggerAnimation>(phase_3 + 15.0f,
+                                      [&]() { mesh->set_visible(false); });
         }
         ++j;
     }
 
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+    animate<PropertyAnimation<glm::vec3>>(
         phase_3 + 25.0f, 4.0f, glm::vec3(0.0f, -0.5f, 0.0f),
-        glm::vec3(0.3f, 0.3f, -2.5f), movie_->object().camera().look_at()));
+        glm::vec3(0.3f, 0.3f, -2.5f), movie_->object().camera().look_at());
 
-    animations_.push_back(std::make_unique<PropertyAnimation<glm::vec3>>(
+    animate<PropertyAnimation<glm::vec3>>(
         phase_3 + 25.0f, 4.0f, glm::vec3(0.0f, 0.0f, 3.5f),
-        glm::vec3(0.3f, 0.3f, 2.0f), movie_->object().camera().position()));
+        glm::vec3(0.3f, 0.3f, 2.0f), movie_->object().camera().position());
 }
 
 void Storyboard::describe() {
