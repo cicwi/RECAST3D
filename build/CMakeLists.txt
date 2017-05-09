@@ -8,7 +8,7 @@ include_directories(
     "../ext/imgui/"
     "../ext/cppzmq/"
     "../ext/libzmq/include/"
-    "../ext/eigen/include/"
+    "../ext/eigen/"
     "../ext/assimp/include"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
@@ -22,6 +22,8 @@ link_directories(
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -Werror -g -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ../ext/eigen/")
+
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(EXEC_NAME "slicevis")

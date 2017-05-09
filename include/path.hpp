@@ -1,11 +1,12 @@
 #pragma once
 
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Dense>
-#include <glm/glm.hpp>
 #include <iostream>
 #include <utility>
 #include <vector>
+
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <glm/glm.hpp>
 
 namespace tomovis {
 

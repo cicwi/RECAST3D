@@ -6,7 +6,6 @@
 
 #include "graphics/mesh.hpp"
 
-#include <eigen3/Eigen/Dense>
 #include <imgui.h>
 
 #include "path.hpp"
