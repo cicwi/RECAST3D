@@ -236,13 +236,13 @@ void Storyboard::script_() {
 
     // Phase 0
     // Introduce scene
-    animate<PropertyAnimation<glm::vec3>>(
-        0.0f, 8.0f, glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 2.0f, 5.0f),
-        movie_->object().camera().position());
+    std::vector<glm::vec3> path_points = {{0.0f, 0.0f, 10.0f},
+                                          {2.0f, 2.0f, 5.0f}};
+    Path3 path(path_points, {5.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {bdry_cond::clamp, bdry_cond::natural});
+    std::vector<float> time_pts = {0.0f, 16.0f};
 
-    animate<PropertyAnimation<glm::vec3>>(
-        8.0f, 8.0f, glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(2.0f, 2.0f, 5.0f),
-        movie_->object().camera().position());
+    animations_.push_back(std::make_unique<MoveCameraAlongPath>(
+        time_pts, path, (SceneCamera3d*)&movie_->object().camera()));
 
     float phase_1 = 16.0f;
     // Phase 1

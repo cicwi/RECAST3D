@@ -72,8 +72,8 @@ class Path3 {
     Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
           Eigen::RowVector3f tang_left, Eigen::RowVector3f tang_right,
           bdry_cond bc = bdry_cond::clamp);
-    Path3(std::vector<glm::vec3> const& nodes, Eigen::RowVector3f tang_left,
-          Eigen::RowVector3f tang_right, bdry_cond bc = bdry_cond::clamp);
+    Path3(std::vector<glm::vec3> const& nodes, glm::vec3 tang_left,
+          glm::vec3 tang_right, bdry_cond bc = bdry_cond::clamp);
 
     // Set tangents at left and right endpoints explicitly, and use a custom
     // boundary condition object for full flexibility (e.g. use the given

@@ -11,8 +11,8 @@ namespace tomovis {
 
 template <typename T>
 std::vector<Eigen::DenseIndex>
-sorted_merge_indices(Eigen::Matrix<T, Eigen::Dynamic, 1> const& v1,
-                     Eigen::Matrix<T, Eigen::Dynamic, 1> const& v2) {
+    sorted_merge_indices(Eigen::Matrix<T, Eigen::Dynamic, 1> const& v1,
+                         Eigen::Matrix<T, Eigen::Dynamic, 1> const& v2) {
     std::vector<Eigen::DenseIndex> idcs;
     Eigen::DenseIndex i1 = 0, i2 = 0, ins_idx = 0;
     while (true) {
@@ -99,9 +99,11 @@ Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
              bdry_cond bc)
     : Path3(nodes, tang_left, tang_right, BdryConds3(bc)) {}
 
-Path3::Path3(std::vector<glm::vec3> const& nodes, Eigen::RowVector3f tang_left,
-             Eigen::RowVector3f tang_right, bdry_cond bc)
-    : Path3(vec_of_vecs_to_matrix(nodes), tang_left, tang_right, bc) {}
+Path3::Path3(std::vector<glm::vec3> const& nodes, glm::vec3 tang_left,
+             glm::vec3 tang_right, bdry_cond bc)
+    : Path3(vec_of_vecs_to_matrix(nodes),
+            {tang_left[0], tang_left[1], tang_left[2]},
+            {tang_right[0], tang_right[1], tang_right[2]}, bc) {}
 
 Path3::Path3(Eigen::Matrix<float, Eigen::Dynamic, 3> const& nodes,
              Eigen::RowVector3f tang_left, Eigen::RowVector3f tang_right,
