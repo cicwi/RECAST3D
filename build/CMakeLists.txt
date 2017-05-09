@@ -8,6 +8,7 @@ include_directories(
     "../ext/imgui/"
     "../ext/cppzmq/"
     "../ext/libzmq/include/"
+    "../ext/eigen/include/"
     "../ext/assimp/include"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
@@ -15,6 +16,7 @@ include_directories(
 
 link_directories(
     "~/.local/lib/"
+    "~/local/lib/"
     "../ext/libzmq/build/lib/"
     "../ext/assimp/build/code/"
 )
@@ -47,6 +49,7 @@ set(
     "../src/math_common.cpp"
     "../src/input.cpp"
     "../src/scene.cpp"
+    "../src/path.cpp"
     "../src/scene_list.cpp"
     "../src/server/server.cpp"
     "../src/graphics/mesh.cpp"

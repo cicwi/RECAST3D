@@ -16,3 +16,6 @@
 [submodule "ext/assimp"]
 	path = ext/assimp
 	url = https://github.com/assimp/assimp
+[submodule "ext/eigen"]
+	path = ext/eigen
+	url = https://github.com/RLovelett/eigen.git
