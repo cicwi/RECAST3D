@@ -42,6 +42,7 @@ class PropertyAnimation : public Animation {
         }
 
         float alpha = (time - at_) / duration_;
+        alpha = 3.0f * alpha * alpha - 2.0f * alpha * alpha * alpha;
         target_ = mix(begin_, end_, alpha);
     }
 
@@ -137,8 +138,10 @@ class Storyboard : public Window, public Ticker {
     void script_();
     void initial_scene_();
 
+
     bool running_ = false;
     float t_ = 0.0f;
+    float animation_speed_ = 1.0f;
 
     std::vector<std::unique_ptr<Animation>> animations_;
 

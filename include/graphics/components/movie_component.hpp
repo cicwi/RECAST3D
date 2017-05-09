@@ -42,6 +42,7 @@ class MovieComponent : public ObjectComponent {
     ProjectionObject projection_;
     Recorder recorder_;
     float time_ = 0.0f;
+    float fps_ = 0.0f;
 
     std::unique_ptr<Storyboard> storyboard_;
 };

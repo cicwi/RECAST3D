@@ -36,6 +36,9 @@ class Mesh : public Ticker {
     Material& material() { return material_; }
     Material mesh_material() { return mesh_material_; }
 
+    void reset_internal_time() { internal_time_ = 0.0f; }
+    void set_visible(bool visible) { visible_ = visible; }
+
   private:
     friend Model;
 
@@ -50,6 +53,7 @@ class Mesh : public Ticker {
     std::vector<RotationKeyframe> rotations_;
     float speed_ = 1.0f;
     bool animated_ = false;
+    bool visible_ = true;
 
     float internal_time_ = 0.0f;
     float animation_duration_ = 1.0f;

@@ -35,8 +35,8 @@ void Recorder::start() {
     std::string cmd = "ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s " +
                       std::to_string(width_) + "x" + std::to_string(height_) +
                       " -i - "
-                      "-threads 0 -preset slow -y -c:v libx264 -pix_fmt yuv420p -crf 21 -vf "
-                      "vflip output.mkv";
+                      "-threads 3 -preset fast -y -c:v libx264 -pix_fmt yuv420p -crf 0 -bf 2 -vf "
+                      "vflip output.mp4";
 
     std::cout << "Recording video... \n";
 

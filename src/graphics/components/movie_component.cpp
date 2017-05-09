@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -32,6 +33,8 @@ void MovieComponent::describe() {
         }
     }
 
+    ImGui::Text(("FPS: " + std::to_string(fps_)).c_str());
+
     if (ImGui::Button("Toggle")) {
         model_.toggle_pause();
     }
@@ -56,6 +59,9 @@ void MovieComponent::describe() {
 }
 
 void MovieComponent::tick(float time_elapsed) {
+    if (time_elapsed > 0.0f) {
+        fps_ = 1.0 / time_elapsed;
+    }
     time_ += time_elapsed;
     storyboard_->tick(time_elapsed);
     model_.tick(time_elapsed);
