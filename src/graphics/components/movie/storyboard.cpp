@@ -167,7 +167,7 @@ void MoveCameraAlongPath::update(float time) {
     return;
 }
 
-Storyboard::Storyboard(MovieComponent* movie) : movie_(movie) { script_(); }
+Storyboard::Storyboard(MovieComponent* movie) : movie_(movie) {}
 
 Storyboard::~Storyboard() {}
 
@@ -185,129 +185,178 @@ Material mix(Material x, Material y, float a) {
     return z;
 }
 
-void Storyboard::initial_scene_() {
-    Material bland;
-    for (auto& mesh : movie_->model()->meshes()) {
-        mesh->material() = bland;
-        mesh->reset_internal_time();
-        mesh->set_visible(true);
-    }
+void Storyboard::add_scripts_() {
+    scripts_.clear();
 
-    movie_->object().camera().reset_view();
-    movie_->object().camera().position() = glm::vec3(0.0f, 0.0f, 10.0f);
-    movie_->projection()->source() = glm::vec3(0.0f, 0.0f, 6.0f);
-    movie_->model()->rotations_per_second(0.06125f);
-    movie_->model()->phi() = 0.0f;
-}
+    // long movie
+    auto long_script = std::make_unique<Script>();
 
-void Storyboard::script_() {
-    // Set initial scene
-    animations_.clear();
+    auto initial_scene_long = [&]() {
+        Material bland;
+        for (auto& mesh : movie_->model()->meshes()) {
+            mesh->material() = bland;
+            mesh->reset_internal_time();
+            mesh->set_visible(true);
+        }
+
+        movie_->object().camera().reset_view();
+        movie_->object().camera().position() = glm::vec3(0.0f, 0.0f, 10.0f);
+        movie_->projection()->source() = glm::vec3(0.0f, 0.0f, 6.0f);
+        movie_->model()->rotations_per_second(0.06125f);
+        movie_->model()->phi() = 0.0f;
+    };
 
     Material bland;
     Material bland_transparent;
     bland_transparent.opacity = 0.1f;
 
-    initial_scene_();
-
-    /*
-    Example use of path animation:
-
-    std::vector<glm::vec3> path_points = {
-        {0.0f, 0.0f, 10.0f}, {5.0f, -5.0f, 0.0f}, {0.0f, 0.0f, -10.0f},
-        {-5.0f, 5.0f, 0.0f}, {0.0f, 0.0f, 10.0f}, {0.0f, 2.0f, 5.0f},
-        {2.0f, 2.0f, 5.0f}};
-    BdryConds3 bcs({bdry_cond::natural, bdry_cond::zero, bdry_cond::natural});
-    Path3 path(path_points, bcs);
-    std::vector<float> time_pts = {0.0f, 0.5f, 1.5f, 2.5f, 3.0f, 5.0f, 7.0f};
-    animations_.push_back(std::make_unique<MoveCameraAlongPath>(
-        time_pts, path, (SceneCamera3d*)&movie_->object().camera(), true));
-
-    std::vector<glm::vec3> look_at_points = {
-        {0.0f, 0.0f, 0.0f},   {0.0f, -2.0f, -2.0f}, {0.0f, 0.0f, 0.0f},
-        {0.0f, -2.0f, -2.0f}, {0.0f, 0.0f, 0.0f},   {0.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f}};
-    Path3 look_at_path(look_at_points);
-
-    // TODO: add to MoveCameraAlongPath instead of making an additional property
-    // animation?
-    animations_.push_back(std::make_unique<MoveAlongPath>(
-        time_pts, look_at_path, movie_->object().camera().look_at())); */
-
-    // Phase 0
-    // Introduce scene
     std::vector<glm::vec3> path_points = {{0.0f, 0.0f, 10.0f},
                                           {2.0f, 2.0f, 5.0f}};
-    Path3 path(path_points, {5.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {bdry_cond::clamp, bdry_cond::natural});
-    std::vector<float> time_pts = {0.0f, 16.0f};
+    Path3 path(path_points, {5.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f},
+               {bdry_cond::clamp, bdry_cond::natural});
+    std::vector<float> time_pts = {0.0f, 15.0f};
 
-    animations_.push_back(std::make_unique<MoveCameraAlongPath>(
-        time_pts, path, (SceneCamera3d*)&movie_->object().camera()));
+    long_script->animate<MoveCameraAlongPath>(
+        time_pts, path, (SceneCamera3d*)&movie_->object().camera());
 
     float phase_1 = 16.0f;
-    // Phase 1
-    animate<TriggerAnimation>(phase_1,
-                              [&]() { movie_->model()->toggle_rotate(); });
-
-    animate<TriggerAnimation>(phase_1 + 16.0f,
-                              [&]() { movie_->model()->toggle_rotate(); });
-
     float phase_2 = 60.0f;
+    float phase_3 = 110.0f;
+
+    // Phase 1
+    long_script->animate<TriggerAnimation>(
+        phase_1, [&]() { movie_->model()->toggle_rotate(); });
+
+    long_script->animate<TriggerAnimation>(
+        phase_1 + 16.0f, [&]() { movie_->model()->toggle_rotate(); });
 
     // Phase 2
     size_t i = 0;
     for (auto& mesh : movie_->model()->meshes()) {
-        animate<PropertyAnimation<Material>>(
+        long_script->animate<PropertyAnimation<Material>>(
             phase_2, 3.0f, bland, mesh->mesh_material(), mesh->material());
         if (i != 10) {
-            animate<PropertyAnimation<Material>>(
-                phase_2 + 20.0f, 3.0f, mesh->mesh_material(), bland_transparent,
+            long_script->animate<PropertyAnimation<Material>>(
+                phase_3, 3.0f, mesh->mesh_material(), bland_transparent,
                 mesh->material());
         }
         ++i;
     }
 
-    animate<TriggerAnimation>(phase_2,
-                              [&]() { movie_->model()->toggle_rotate(); });
+    long_script->animate<TriggerAnimation>(
+        phase_2 + 4.0f, [&]() { movie_->model()->toggle_rotate(); });
 
-    animate<TriggerAnimation>(phase_2 + 16.0f,
-                              [&]() { movie_->model()->toggle_rotate(); });
+    long_script->animate<TriggerAnimation>(
+        phase_2 + 20.0f, [&]() { movie_->model()->toggle_rotate(); });
 
     // Phase 3
-    float phase_3 = 110.0f;
-    animate<PropertyAnimation<glm::vec3>>(
-        phase_3, 4.0f, glm::vec3(2.0f, 2.0f, 5.0f), glm::vec3(8.0f, 0.0f, 2.0f),
-        movie_->object().camera().position());
+    long_script->animate<PropertyAnimation<glm::vec3>>(
+        phase_3 + 4.0f, 4.0f, glm::vec3(2.0f, 2.0f, 5.0f),
+        glm::vec3(8.0f, 0.0f, 2.0f), movie_->object().camera().position());
 
-    animate<PropertyAnimation<glm::vec3>>(
-        phase_3 + 5.0f, 4.0f, glm::vec3(0.0f, 0.0f, 6.0f),
+    long_script->animate<PropertyAnimation<glm::vec3>>(
+        phase_3 + 9.0f, 4.0f, glm::vec3(0.0f, 0.0f, 6.0f),
         glm::vec3(0.0f, 0.0f, 1.5f), movie_->projection()->source());
 
-    animate<PropertyAnimation<glm::vec3>>(
-        phase_3 + 15.0f, 4.0f, glm::vec3(8.0f, 0.0f, 2.0f),
+    long_script->animate<PropertyAnimation<glm::vec3>>(
+        phase_3 + 19.0f, 4.0f, glm::vec3(8.0f, 0.0f, 2.0f),
         glm::vec3(0.0f, 0.0f, 3.5f), movie_->object().camera().position());
 
-    animate<PropertyAnimation<glm::vec3>>(
-
-        phase_3 + 15.0f, 4.0f, movie_->object().camera().look_at(),
+    long_script->animate<PropertyAnimation<glm::vec3>>(
+        phase_3 + 19.0f, 4.0f, movie_->object().camera().look_at(),
         glm::vec3(0.0f, -0.5f, 0.0f), movie_->object().camera().look_at());
 
     size_t j = 0;
     for (auto& mesh : movie_->model()->meshes()) {
         if (j != 10) {
-            animate<TriggerAnimation>(phase_3 + 15.0f,
-                                      [&]() { mesh->set_visible(false); });
+            long_script->animate<TriggerAnimation>(
+                phase_3 + 19.0f, [&]() { mesh->set_visible(false); });
         }
         ++j;
     }
 
-    animate<PropertyAnimation<glm::vec3>>(
+    long_script->animate<PropertyAnimation<glm::vec3>>(
         phase_3 + 25.0f, 4.0f, glm::vec3(0.0f, -0.5f, 0.0f),
         glm::vec3(0.3f, 0.3f, -2.5f), movie_->object().camera().look_at());
 
-    animate<PropertyAnimation<glm::vec3>>(
+    long_script->animate<PropertyAnimation<glm::vec3>>(
         phase_3 + 25.0f, 4.0f, glm::vec3(0.0f, 0.0f, 3.5f),
         glm::vec3(0.3f, 0.3f, 2.0f), movie_->object().camera().position());
+
+    long_script->initial_scene = initial_scene_long;
+    long_script->name = "Long";
+    scripts_.push_back(std::move(long_script));
+
+    auto short_script = std::make_unique<Script>();
+    auto initial_scene_short = [&]() {
+        Material bland;
+        for (auto& mesh : movie_->model()->meshes()) {
+            mesh->material() = bland;
+            mesh->reset_internal_time();
+            mesh->set_visible(true);
+        }
+
+        movie_->object().camera().reset_view();
+        movie_->object().camera().position() = glm::vec3(0.0f, 0.0f, 10.0f);
+        movie_->projection()->source() = glm::vec3(0.0f, 0.0f, 6.0f);
+        movie_->model()->rotations_per_second(0.06125f);
+        movie_->model()->phi() = 0.0f;
+    };
+
+    short_script->initial_scene = initial_scene_short;
+    short_script->name = "Short";
+
+    std::vector<glm::vec3> short_path_points = {
+        {0.0f, 0.0f, 10.0f}, {4.0f, 2.0f, 5.0f},  {0.0f, 3.0f, 5.0f},
+        {-4.0f, 2.0f, 5.0f}, {-5.0f, 2.0f, 6.0f}, {0.0f, 0.0f, 3.0f},
+        {0.0f, 1.0f, 1.5f},  {2.0f, 4.0f, 3.5f},  {4.0f, 4.0f, 9.0f},
+        {6.0f, 4.0f, 15.0f},
+    };
+    Path3 short_path(short_path_points);
+    std::vector<float> short_time_pts = {0.0f,  2.0f,  4.0f,  6.0f,  8.0f,
+                                         10.0f, 12.0f, 14.0f, 16.0f, 18.0f};
+
+    short_script->animate<TriggerAnimation>(
+        2.0f, [&]() { movie_->model()->toggle_rotate(); });
+
+    short_script->animate<TriggerAnimation>(
+        10.0f, [&]() { movie_->model()->toggle_rotate(); });
+
+    size_t k = 0;
+    for (auto& mesh : movie_->model()->meshes()) {
+        short_script->animate<PropertyAnimation<Material>>(
+            5.0f, 2.0f, bland, mesh->mesh_material(), mesh->material());
+        if (k != 10) {
+            short_script->animate<PropertyAnimation<Material>>(
+                7.0f, 1.0f, mesh->mesh_material(), bland_transparent,
+                mesh->material());
+            short_script->animate<TriggerAnimation>(
+                9.0f, [&]() { mesh->set_visible(false); });
+            short_script->animate<TriggerAnimation>(
+                15.0f, [&]() { mesh->set_visible(true); });
+            short_script->animate<PropertyAnimation<Material>>(
+                15.0f, 1.0f, bland_transparent, mesh->mesh_material(),
+                mesh->material());
+        }
+        ++k;
+    }
+
+    short_script->animate<PropertyAnimation<glm::vec3>>(
+        8.0f, 1.0f, glm::vec3(0.0f, 0.0f, 6.0f), glm::vec3(0.0f, 0.0f, 1.5f),
+        movie_->projection()->source());
+
+    short_script->animate<PropertyAnimation<glm::vec3>>(
+        14.0f, 4.0f, glm::vec3(0.0f, 0.0f, 1.5f), glm::vec3(0.0f, 0.0f, 6.0f),
+        movie_->projection()->source());
+
+    short_script->animate<MoveCameraAlongPath>(
+        short_time_pts, short_path, (SceneCamera3d*)&movie_->object().camera());
+
+    scripts_.push_back(std::move(short_script));
+}
+
+void Storyboard::perform_script_() {
+    scripts_[current_script_]->initial_scene();
 }
 
 void Storyboard::describe() {
@@ -316,20 +365,31 @@ void Storyboard::describe() {
     if (ImGui::Button("run") && !running_) {
         movie_->object().camera().toggle_interaction();
         running_ = true;
-        script_();
+        perform_script_();
     }
 
     ImGui::SameLine();
 
     if (ImGui::Button("reset")) {
+        add_scripts_();
         movie_->object().camera().toggle_interaction();
         running_ = false;
         t_ = 0.0f;
-        initial_scene_();
+        perform_script_();
     }
 
     ImGui::SliderFloat("Animation speed", &animation_speed_, 1.0f, 10.0f);
     movie_->model()->rotations_per_second(animation_speed_ * 0.06125f);
+
+    ImGui::ListBox(
+        "Choose script", &current_script_,
+        [](void* data, int idx, const char** out) -> bool {
+            const std::vector<std::unique_ptr<Script>>& script_options =
+                *(std::vector<std::unique_ptr<Script>>*)data;
+            *out = script_options[idx]->name.c_str();
+            return true;
+        },
+        (void*)&scripts_, (int)scripts_.size());
 }
 
 void Storyboard::tick(float time_elapsed) {
@@ -339,7 +399,7 @@ void Storyboard::tick(float time_elapsed) {
 
     t_ += animation_speed_ * time_elapsed;
 
-    for (auto& anim : animations_) {
+    for (auto& anim : scripts_[current_script_]->animations) {
         anim->update(t_);
     }
 }

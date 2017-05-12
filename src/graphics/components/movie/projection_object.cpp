@@ -164,16 +164,17 @@ void ProjectionObject::draw(glm::mat4 world_to_screen, const Model& model,
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
     glEnable(GL_BLEND);
-    //glEnable(GL_CULL_FACE);
-    
+    // glEnable(GL_CULL_FACE);
+
     glDepthMask(GL_FALSE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     auto beam_to_world =
         glm::translate(source_) *
-        glm::scale(glm::vec3(0.5f * glm::length(detector_axis1_),
-                             0.5f * glm::length(detector_axis2_),
-                             -0.99f * glm::distance(source_, detector_center_()))) *
+        glm::scale(
+            glm::vec3(0.5f * glm::length(detector_axis1_),
+                      0.5f * glm::length(detector_axis2_),
+                      -0.99f * glm::distance(source_, detector_center_()))) *
         glm::translate(glm::vec3(-1.0f, -1.0f, 0.0f)) *
         glm::scale(glm::vec3(2.0f, 2.0f, 1.0f));
 
@@ -185,7 +186,7 @@ void ProjectionObject::draw(glm::mat4 world_to_screen, const Model& model,
     glDrawArrays(GL_TRIANGLES, 0, 12 * 9);
 
     glDepthMask(GL_TRUE);
-    //glDisable(GL_CULL_FACE);
+    // glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
 
     glDisable(GL_DEPTH_TEST);

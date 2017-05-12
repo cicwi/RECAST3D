@@ -126,6 +126,18 @@ class TriggerAnimation : public Animation {
     bool fired_ = false;
 };
 
+class Script {
+  public:
+    template <typename TAnimation, typename... Ts>
+    void animate(Ts&&... args) {
+        animations.push_back(std::make_unique<TAnimation>(std::forward<Ts>(args)...));
+    }
+
+    std::function<void()> initial_scene;
+    std::vector<std::unique_ptr<Animation>> animations;
+    std::string name;
+};
+
 class Storyboard : public Window, public Ticker {
   public:
     Storyboard(MovieComponent* movie);
@@ -134,20 +146,16 @@ class Storyboard : public Window, public Ticker {
     void describe() override;
     void tick(float time_elapsed) override;
 
-    template <typename TAnimation, typename... Ts>
-    void animate(Ts&&... args) {
-        animations_.push_back(std::make_unique<TAnimation>(std::forward<Ts>(args)...));
-    }
-
   private:
-    void script_();
-    void initial_scene_();
+    void add_scripts_();
+    void perform_script_();
 
     bool running_ = false;
     float t_ = 0.0f;
     float animation_speed_ = 1.0f;
 
-    std::vector<std::unique_ptr<Animation>> animations_;
+    std::vector<std::unique_ptr<Script>> scripts_;
+    int current_script_ = 0;
 
     MovieComponent* movie_;
 };
