@@ -22,7 +22,7 @@ glm::mat4 SceneCamera2d::matrix() {
     camera_matrix =
         glm::rotate(angle_, glm::vec3(0.0f, 0.0f, 1.0f)) * camera_matrix;
 
-    camera_matrix = glm::translate(glm::vec3(position_, 0.0f)) * camera_matrix;
+    camera_matrix = glm::translate(position_) * camera_matrix;
 
     return camera_matrix;
 }

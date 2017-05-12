@@ -44,6 +44,7 @@ class SceneObject : public InputHandler, public PacketPublisher, public Ticker, 
     bool handle_key(int key, bool down, int mods) override;
     void tick(float time_elapsed) override;
     void describe() override;
+    auto scene_id() const { return scene_id_; }
 
    protected:
     int scene_id_ = -1;

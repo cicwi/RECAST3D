@@ -1,3 +1,6 @@
+#include <fstream>
+#include <string>
+
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
@@ -16,8 +19,18 @@ Interface::Interface(GLFWwindow* window) {
     // Load Fonts
     // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
     ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("../iosevka-medium.ttf", 20.0f);
+
+    std::string other_font = "../data/iosevka-medium.ttf";
+    std::ifstream infile(other_font);
+    if(infile.good()) {
+        io.Fonts->AddFontFromFileTTF(other_font.c_str(), 20.0f);
+    } else {
+        io.Fonts->AddFontDefault();
+    }
     io.MouseDrawCursor = false;
+
+    ImGuiStyle& style = ImGui::GetStyle();  
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
 
     // prevent ini file
     io.IniFilename = "";

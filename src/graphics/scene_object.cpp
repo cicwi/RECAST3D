@@ -18,6 +18,7 @@ SceneObject::~SceneObject() {
 }
 
 void SceneObject::tick(float time_elapsed) {
+    camera_->tick(time_elapsed);
     for (auto& id_and_comp : components_) {
         id_and_comp.second->tick(time_elapsed);
     }

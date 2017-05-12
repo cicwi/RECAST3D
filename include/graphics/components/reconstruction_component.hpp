@@ -39,7 +39,7 @@ class ReconstructionComponent : public ObjectComponent {
     ReconstructionComponent(SceneObject& object, int scene_id);
     ~ReconstructionComponent();
 
-    void draw(glm::mat4 world_to_screen) const override;
+    void draw(glm::mat4 world_to_screen) override;
     std::string identifier() const override { return "reconstruction"; }
 
     void set_size(std::vector<int>& size, int slice = 0) {

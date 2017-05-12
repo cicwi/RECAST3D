@@ -52,7 +52,7 @@ class GeometryComponent : public ObjectComponent {
     GeometryComponent(SceneObject& object, int scene_id);
     ~GeometryComponent();
 
-    void draw(glm::mat4 world_to_screen) const override;
+    void draw(glm::mat4 world_to_screen) override;
     std::string identifier() const override { return "geometry"; }
 
     void tick(float time_elapsed) override;

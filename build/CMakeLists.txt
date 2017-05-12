@@ -8,16 +8,22 @@ include_directories(
     "../ext/imgui/"
     "../ext/cppzmq/"
     "../ext/libzmq/include/"
+    "../ext/eigen/"
+    "../ext/assimp/include"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
 )
 
 link_directories(
     "~/.local/lib/"
+    "~/local/lib/"
     "../ext/libzmq/build/lib/"
+    "../ext/assimp/build/code/"
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -Werror -g -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ../ext/eigen/")
+
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(EXEC_NAME "slicevis")
@@ -42,10 +48,15 @@ set(
     SOURCE_NAMES
     ${IMGUI_SOURCE_NAMES}
     "../src/main.cpp"
+    "../src/math_common.cpp"
     "../src/input.cpp"
     "../src/scene.cpp"
+    "../src/path.cpp"
     "../src/scene_list.cpp"
     "../src/server/server.cpp"
+    "../src/graphics/mesh.cpp"
+    "../src/graphics/model.cpp"
+    "../src/graphics/primitives.cpp"
     "../src/graphics/scene_object.cpp"
     "../src/graphics/scene_object_2d.cpp"
     "../src/graphics/scene_object_3d.cpp"
@@ -53,10 +64,15 @@ set(
     "../src/graphics/scene_camera_2d.cpp"
     "../src/graphics/scene_camera_3d.cpp"
     "../src/graphics/shader_program.cpp"
-    "../src/graphics/renderer.cpp"
     "../src/graphics/slice.cpp"
+    "../src/graphics/renderer.cpp"
     "../src/graphics/components/reconstruction_component.cpp"
     "../src/graphics/components/geometry_component.cpp"
+    "../src/graphics/components/mesh_component.cpp"
+    "../src/graphics/components/movie_component.cpp"
+    "../src/graphics/components/movie/projection_object.cpp"
+    "../src/graphics/components/movie/storyboard.cpp"
+    "../src/graphics/components/movie/recorder.cpp"
     "../src/graphics/components/partitioning_component.cpp"
     "../src/graphics/interface/scene_control.cpp"
     "../src/graphics/interface/scene_switcher.cpp"
@@ -80,6 +96,8 @@ set(
     "GL"
     "zmq"
     "pthread"
+    "assimp"
+    "stdc++fs"
 )
 
 ## multiple binaries:

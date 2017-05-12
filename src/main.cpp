@@ -2,21 +2,35 @@
 #include <memory>
 #include <thread>
 
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+
 #include "graphics/interface/interface.hpp"
 #include "graphics/interface/scene_control.hpp"
 #include "graphics/interface/scene_switcher.hpp"
 #include "graphics/renderer.hpp"
 #include "graphics/scene_camera.hpp"
 #include "input.hpp"
-#include "modules/reconstruction.hpp"
-#include "modules/partitioning.hpp"
-#include "modules/scene_management.hpp"
 #include "modules/geometry.hpp"
+#include "modules/partitioning.hpp"
+#include "modules/reconstruction.hpp"
+#include "modules/scene_management.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "server/server.hpp"
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc == 1 || std::string(argv[1]) != std::string("--unsafe")) {
+        if (argc > 1 || fs::path(argv[0]).parent_path() != ".") {
+            std::cout
+                << "Please run slicevis from the `bin/` directory, and without "
+                   "any arguments.\n"
+                << "Run from: " << fs::path(argv[0]).parent_path() << " with "
+                << argc << " arguments\n";
+            return 1;
+        }
+    }
+
     tomovis::Renderer renderer;
 
     auto& input = tomovis::Input::instance(renderer.window());

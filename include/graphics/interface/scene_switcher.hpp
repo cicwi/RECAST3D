@@ -1,8 +1,10 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "graphics/interface/window.hpp"
 #include "input_handler.hpp"
-
 
 namespace tomovis {
 
@@ -21,10 +23,19 @@ class SceneSwitcher : public Window, public InputHandler {
     void next_scene();
     void add_scene();
     void add_scene_3d();
+    void show_movie_modal();
+    void add_movie_scene(std::string model_file);
     void delete_scene();
 
   private:
     SceneList& scenes_;
+    bool adding_movie_ = false;
+
+    void reload_data_();
+
+    int current_item_ = 0;
+    std::vector<std::string> short_options_;
+    std::vector<std::string> model_options_;
 };
 
 } // namespace tomovis

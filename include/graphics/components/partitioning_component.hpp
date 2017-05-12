@@ -29,7 +29,7 @@ class PartitioningComponent : public ObjectComponent {
     PartitioningComponent(SceneObject& object, int scene_id);
     ~PartitioningComponent();
 
-    void draw(glm::mat4 world_to_screen) const override;
+    void draw(glm::mat4 world_to_screen) override;
     std::string identifier() const override { return "partitioning"; }
 
     void add_part(part&& p) { parts_.push_back(std::move(p)); }
