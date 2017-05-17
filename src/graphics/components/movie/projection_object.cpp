@@ -148,6 +148,7 @@ glm::mat4 ProjectionObject::beam_transform_() const {
 
 void ProjectionObject::draw(glm::mat4 world_to_screen, const Model& model,
                             glm::vec3 camera_position) const {
+    (void)camera_position;
     draw_tomo_(model);
 
     glEnable(GL_DEPTH_TEST);
@@ -181,7 +182,6 @@ void ProjectionObject::draw(glm::mat4 world_to_screen, const Model& model,
     beam_program_->use();
     beam_program_->uniform("transform_matrix", world_to_screen);
     beam_program_->uniform("beam_matrix", beam_to_world);
-    beam_program_->uniform("camera_position", camera_position);
     glBindVertexArray(cube_vao_handle_);
     glDrawArrays(GL_TRIANGLES, 0, 12 * 9);
 

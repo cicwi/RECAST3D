@@ -9,5 +9,6 @@ const GLfloat* cube();
 const GLfloat* cube_wireframe();
 const GLuint* cube_wireframe_idxs();
 const GLfloat* pyramid();
+const GLfloat* alt_pyramid();
 
 } // namespace tomovis

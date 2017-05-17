@@ -18,9 +18,18 @@ SceneObject3d::~SceneObject3d() {}
 
 void SceneObject3d::draw(glm::mat4 window_matrix) {
     auto world_to_screen = window_matrix * camera_->matrix();
+    std::vector<ObjectComponent*> drawables;
     for (auto& component : components_) {
-        component.second->draw(world_to_screen);
+        drawables.push_back(component.second.get());
+    }
+
+    std::sort(drawables.begin(), drawables.end(), [](auto lptr, auto rptr) {
+        return lptr->priority() > rptr->priority();
+    });
+
+    for (auto drawable : drawables) {
+        drawable->draw(world_to_screen);
     }
 }
 
-}  // namespace tomovis
+} // namespace tomovis

@@ -1,11 +1,12 @@
 #include <iostream>
 
+#include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
 #include <imgui.h>
 
 #include "graphics/components/geometry_component.hpp"
-#include "graphics/scene_camera_3d.hpp"
 #include "graphics/primitives.hpp"
+#include "graphics/scene_camera_3d.hpp"
 //#include "modules/packets/geometry_packets.hpp"
 
 namespace tomovis {
@@ -18,7 +19,8 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
     glBindVertexArray(vao_handle_);
     glGenBuffers(1, &vbo_handle_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_handle_);
-    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square(),
+                 GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
@@ -29,23 +31,19 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
         std::make_unique<ShaderProgram>("../src/shaders/wireframe_cube.vert",
                                         "../src/shaders/wireframe_cube.frag");
 
-    static const GLfloat lines[8][3] = {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f},
-                                        {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 1.0f},
-                                        {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f},
-                                        {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 1.0f}};
+    beam_program_ = std::make_unique<ShaderProgram>("../src/shaders/beam.vert",
+                                                    "../src/shaders/beam.frag");
 
-    glGenVertexArrays(1, &lines_vao_handle_);
-    glBindVertexArray(lines_vao_handle_);
-    glGenBuffers(1, &lines_vbo_handle_);
-    glBindBuffer(GL_ARRAY_BUFFER, lines_vbo_handle_);
-    glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat), lines, GL_STATIC_DRAW);
+    glGenVertexArrays(1, &beam_vao_handle_);
+    glBindVertexArray(beam_vao_handle_);
+    glGenBuffers(1, &beam_vbo_handle_);
+    glBindBuffer(GL_ARRAY_BUFFER, beam_vbo_handle_);
+    glBufferData(GL_ARRAY_BUFFER, 9 * 12 * sizeof(GLfloat), alt_pyramid(),
+                 GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
     speed_ = 0.0f;
-
-    lines_program_ = std::make_unique<ShaderProgram>(
-        "../src/shaders/lines.vert", "../src/shaders/lines.frag");
 
     colormap_texture_ = object.camera().colormap();
 }
@@ -115,20 +113,22 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) {
         glBindVertexArray(vao_handle_);
         glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-        // DRAW LINES
-        lines_program_->use();
-        glm::mat4 source_to_det_matrix = proj.detector_orientation;
-        source_to_det_matrix[2] += glm::vec4(-proj.source_position, 0.0f);
-        auto line_transform_matrix = world_to_screen *
-                                     glm::translate(proj.source_position) *
-                                     source_to_det_matrix;
+        // DRAW BEAM
+        beam_program_->use();
 
-        lines_program_->uniform("transform_matrix", line_transform_matrix);
+        auto orientation = proj.detector_orientation;
+        orientation[2][0] -= proj.source_position[0];
+        orientation[2][1] -= proj.source_position[1];
+        orientation[2][2] -= proj.source_position[2];
+        auto beam_to_world =
+            glm::translate(proj.source_position) * orientation;
 
-        glLineWidth(2.0f);
-        glBindVertexArray(lines_vao_handle_);
-        glDrawArrays(GL_LINES, 0, 8 * 3);
-        glLineWidth(1.0f);
+        beam_program_->use();
+        beam_program_->uniform("transform_matrix", world_to_screen);
+        beam_program_->uniform("beam_matrix", beam_to_world);
+        glBindVertexArray(beam_vao_handle_);
+        glDisable(GL_CULL_FACE);
+        glDrawArrays(GL_TRIANGLES, 0, 12 * 9);
     };
 
     draw_projection(projections_[current_projection_]);

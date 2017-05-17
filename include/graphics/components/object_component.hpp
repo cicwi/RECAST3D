@@ -12,6 +12,9 @@ class ObjectComponent : public InputHandler, public Ticker, public Window {
     virtual std::string identifier() const = 0;
     void tick(float /* time_elapsed */) override {}
     void describe() override {}
+
+    // low priority gets drawn last
+    virtual int priority() const { return 1; }
 };
 
 }  // namespace tomovis

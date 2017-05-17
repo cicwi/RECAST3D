@@ -59,6 +59,8 @@ class GeometryComponent : public ObjectComponent {
     void describe() override;
     void add_projection(projection&& proj) { projections_.push_back(std::move(proj)); }
 
+    int priority() const override { return 0; }
+
    private:
     SceneObject& object_;
     int scene_id_;
@@ -71,9 +73,9 @@ class GeometryComponent : public ObjectComponent {
     GLuint cube_vbo_handle_;
     std::unique_ptr<ShaderProgram> cube_program_;
 
-    GLuint lines_vao_handle_;
-    GLuint lines_vbo_handle_;
-    std::unique_ptr<ShaderProgram> lines_program_;
+    GLuint beam_vao_handle_;
+    GLuint beam_vbo_handle_;
+    std::unique_ptr<ShaderProgram> beam_program_;
 
     GLuint colormap_texture_;
 
