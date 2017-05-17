@@ -65,7 +65,9 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
-Mesh::~Mesh() {}
+Mesh::~Mesh() {
+    // FIXME clean up buffers
+}
 
 void Mesh::animate(std::vector<PositionKeyframe> positions,
                    std::vector<RotationKeyframe> rotations, float speed,

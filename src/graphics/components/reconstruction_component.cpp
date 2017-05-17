@@ -7,6 +7,7 @@
 
 #include "graphics/colormap.hpp"
 #include "graphics/components/reconstruction_component.hpp"
+#include "graphics/primitives.hpp"
 #include "graphics/scene_camera_3d.hpp"
 
 #include "modules/packets/reconstruction_packets.hpp"
@@ -16,41 +17,30 @@ namespace tomovis {
 ReconstructionComponent::ReconstructionComponent(SceneObject& object,
                                                  int scene_id)
     : object_(object), volume_texture_(16, 16, 16), scene_id_(scene_id) {
-    // FIXME move all this primitives stuff to a separate file
-    static const GLfloat square[4][3] = {{0.0f, 0.0f, 1.0f},
-                                         {0.0f, 1.0f, 1.0f},
-                                         {1.0f, 1.0f, 1.0f},
-                                         {1.0f, 0.0f, 1.0f}};
-
     glGenVertexArrays(1, &vao_handle_);
     glBindVertexArray(vao_handle_);
     glGenBuffers(1, &vbo_handle_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_handle_);
-    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-
-    static const GLfloat cube[] = {
-        -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,
-        1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
-        1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
-        1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  -1.0f,
-        1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
-        1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  -1.0f, 1.0f};
-
-    glGenVertexArrays(1, &cube_vao_handle_);
-    glBindVertexArray(cube_vao_handle_);
-    glGenBuffers(1, &cube_vbo_handle_);
-    glBindBuffer(GL_ARRAY_BUFFER, cube_vbo_handle_);
-    glBufferData(GL_ARRAY_BUFFER, 9 * 12 * sizeof(GLfloat), cube,
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square(),
                  GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
+
+    glGenVertexArrays(1, &cube_vao_handle_);
+    glBindVertexArray(cube_vao_handle_);
+
+    cube_index_count_ = 24;
+    glGenBuffers(1, &cube_index_handle_);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_index_handle_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_index_count_ * sizeof(GLuint),
+                 cube_wireframe_idxs(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glGenBuffers(1, &cube_vbo_handle_);
+    glBindBuffer(GL_ARRAY_BUFFER, cube_vbo_handle_);
+    glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), cube_wireframe(),
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     program_ = std::make_unique<ShaderProgram>("../src/shaders/simple_3d.vert",
                                                "../src/shaders/simple_3d.frag");
@@ -136,7 +126,7 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) {
         the_slice.get_texture().bind();
 
         program_->uniform("world_to_screen_matrix", full_transform);
-        program_->uniform("orientation_matrix", the_slice.orientation);
+        program_->uniform("orientation_matrix", the_slice.orientation * glm::translate(glm::vec3(0.0, 0.0, 1.0)));
         program_->uniform("hovered", (int)(the_slice.hovered));
         program_->uniform("has_data", (int)(the_slice.has_data()));
 
@@ -169,10 +159,9 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) {
     cube_program_->use();
     cube_program_->uniform("transform_matrix", full_transform);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glBindVertexArray(cube_vao_handle_);
-    glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glLineWidth(3.0f);
+    glDrawElements(GL_LINES, cube_index_count_, GL_UNSIGNED_INT, nullptr);
 
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);

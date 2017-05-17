@@ -98,6 +98,8 @@ class ReconstructionComponent : public ObjectComponent {
 
     GLuint cube_vao_handle_;
     GLuint cube_vbo_handle_;
+    GLuint cube_index_handle_;
+    int cube_index_count_;
     std::unique_ptr<ShaderProgram> cube_program_;
 
     SceneObject& object_;
