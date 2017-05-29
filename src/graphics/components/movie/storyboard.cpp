@@ -220,8 +220,8 @@ void Storyboard::add_scripts_() {
         time_pts, path, (SceneCamera3d*)&movie_->object().camera());
 
     float phase_1 = 16.0f;
-    float phase_2 = 60.0f;
-    float phase_3 = 110.0f;
+    float phase_2 = 30.0f;
+    float phase_3 = 50.0f;
 
     // Phase 1
     long_script->animate<TriggerAnimation>(

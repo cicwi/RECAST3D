@@ -9,8 +9,8 @@ Dependencies
 * `glfw3`
 * `glm`
 
-Install
-=======
+Installation
+============
 
 ```bash
 git submodule update --init --remote
@@ -25,3 +25,10 @@ cd build
 cmake ..
 make -j8
 ```
+
+Authors
+=======
+
+Slicevis is developed by the Computational Imaging group at CWI.
+
+- Jan-Willem Buurlage
