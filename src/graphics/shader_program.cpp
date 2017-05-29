@@ -12,13 +12,9 @@ ShaderProgram::ShaderProgram(std::string vert_file, std::string frag_file) {
         auto shader = glCreateShader(type);
 
         auto string_from_file = [](std::string filename) {
-            std::string result;
             std::ifstream file_stream(filename);
-            std::string line;
-            while (std::getline(file_stream, line)) {
-                result += line + "\n";
-            }
-
+            std::string result((std::istreambuf_iterator<char>(file_stream)),
+                               std::istreambuf_iterator<char>());
             return result;
         };
 
