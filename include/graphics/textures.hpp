@@ -52,7 +52,6 @@ class texture {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-        // FIXME GL_UNSIGNED_BYTE depends on T
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, x_, y_, 0, GL_RED,
                      data_type<T>(), data.data());
 
@@ -111,9 +110,8 @@ class texture3d {
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        // FIXME GL_UNSIGNED_BYTE depends on T
         glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, x_, y_, z_, 0, GL_RED,
-                     GL_UNSIGNED_INT, data.data());
+                     data_type<T>(), data.data());
 
         glGenerateMipmap(GL_TEXTURE_3D);
 
