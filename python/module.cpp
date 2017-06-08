@@ -11,7 +11,17 @@ PYBIND11_PLUGIN(py_tomop) {
     py::class_<tomop::Packet>(m, "packet");
 
     py::class_<tomop::VolumeDataPacket, tomop::Packet>(m, "volume_data_packet")
-        .def(py::init<int32_t, std::vector<int32_t>, std::vector<uint8_t>>());
+        .def(py::init<int32_t, std::vector<int32_t>, std::vector<uint32_t>>());
+
+    py::class_<tomop::GeometrySpecificationPacket, tomop::Packet>(
+        m, "geometry_specification_packet")
+        .def(py::init<int32_t, bool, int32_t>());
+
+    py::class_<tomop::ProjectionDataPacket, tomop::Packet>(
+        m, "projection_data_packet")
+        .def(py::init<int32_t, int32_t, std::array<float, 3>,
+                      std::array<float, 9>, std::array<int32_t, 2>,
+                      std::vector<uint32_t>>());
 
     py::class_<tomop::server>(m, "server")
         .def(py::init<std::string>())

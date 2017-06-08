@@ -5,7 +5,8 @@ import numpy as np
 def callback(orientation):
     print("callback called")
     return np.array([4, 4], dtype='int32'), np.array([0, 255, 128, 255, 255, 128, 255, 0, 255,
-                                                      0, 128, 255, 255, 128, 0, 255], dtype='uint8')
+                                                      0, 128, 255, 255, 128, 0,
+                                                      255], dtype='uint32')
 
 serv = tomop.server("hi")
 

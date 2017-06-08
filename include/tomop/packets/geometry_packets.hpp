@@ -8,20 +8,21 @@ namespace tomop {
 
 class GeometrySpecificationPacket
     : public PacketBase<GeometrySpecificationPacket> {
-   public:
+  public:
     GeometrySpecificationPacket()
         : PacketBase<GeometrySpecificationPacket>(
               packet_desc::geometry_specification),
-          scene_id(-1),
-          parallel(false),
-          projections(0) {}
+          scene_id(-1), parallel(false), projections(0),
+          volume_min_point{0.0f, 0.0f, 0.0f},
+          volume_max_point{1.0f, 1.0f, 1.0f} {}
 
-    GeometrySpecificationPacket(int32_t scene_id_, bool parallel_, int32_t projections_)
+    GeometrySpecificationPacket(int32_t scene_id_, bool parallel_,
+                                int32_t projections_)
         : PacketBase<GeometrySpecificationPacket>(
               packet_desc::geometry_specification),
-          scene_id(scene_id_),
-          parallel(parallel_),
-          projections(projections_) {}
+          scene_id(scene_id_), parallel(parallel_), projections(projections_),
+          volume_min_point{0.0f, 0.0f, 0.0f},
+          volume_max_point{1.0f, 1.0f, 1.0f} {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
@@ -40,24 +41,21 @@ class GeometrySpecificationPacket
 };
 
 class ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
-   public:
+  public:
     ProjectionDataPacket()
         : PacketBase<ProjectionDataPacket>(packet_desc::projection_data),
-          scene_id(-1),
-          projection_id(-1) {}
+          scene_id(-1), projection_id(-1) {}
 
     ProjectionDataPacket(int32_t scene_id_, int32_t projection_id_,
                          std::array<float, 3> source_position_,
                          std::array<float, 9> detector_orientation_,
                          std::array<int32_t, 2> detector_pixels_,
-                         std::vector<uint8_t> data_)
+                         std::vector<uint32_t> data_)
         : PacketBase<ProjectionDataPacket>(packet_desc::projection_data),
-          scene_id(scene_id_),
-          projection_id(projection_id_),
+          scene_id(scene_id_), projection_id(projection_id_),
           source_position(source_position_),
           detector_orientation(detector_orientation_),
-          detector_pixels(detector_pixels_),
-          data(data_) {}
+          detector_pixels(detector_pixels_), data(data_) {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
@@ -74,7 +72,7 @@ class ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
     std::array<float, 3> source_position;
     std::array<float, 9> detector_orientation;
     std::array<int32_t, 2> detector_pixels;
-    std::vector<uint8_t> data;
+    std::vector<uint32_t> data;
 };
 
-}  // namespace tomop
+} // namespace tomop
