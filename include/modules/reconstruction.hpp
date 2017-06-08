@@ -1,16 +1,17 @@
 #pragma once
 
 #include "zmq.hpp"
+#include "tomop/tomop.hpp"
 
-#include "../serialize.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "scene_module.hpp"
 
 #include "graphics/components/reconstruction_component.hpp"
-#include "modules/packets/reconstruction_packets.hpp"
 
 namespace tomovis {
+
+using namespace tomop;
 
 // for the 'one-way-communication' we have two parts
 // a handler that knows how to read in a packet
@@ -18,7 +19,7 @@ namespace tomovis {
 
 class ReconstructionProtocol : public SceneModuleProtocol {
    public:
-    std::unique_ptr<Packet> read_packet(packet_desc desc, memory_buffer& buffer,
+    std::unique_ptr<tomop::Packet> read_packet(tomop::packet_desc desc, memory_buffer& buffer,
                                         zmq::socket_t& socket,
                                         SceneList& /* scenes_ */) override {
         switch (desc) {

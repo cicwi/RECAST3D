@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <cstddef>
 
 #include <glm/glm.hpp>
 
@@ -50,7 +51,7 @@ class ReconstructionComponent : public ObjectComponent {
         slices_[slice]->size = size;
     }
 
-    void set_data(std::vector<unsigned char>& data, int slice = 0) {
+    void set_data(std::vector<uint32_t>& data, int slice = 0) {
         if (slices_.find(slice) == slices_.end()) {
             std::cout << "Updating inactive slice: " << slice << "\n";
             return;
@@ -60,7 +61,7 @@ class ReconstructionComponent : public ObjectComponent {
     }
 
     void set_volume_data(std::vector<int>& volume_size,
-                         std::vector<unsigned char>& data) {
+                         std::vector<uint32_t>& data) {
         assert(volume_size.size() == 3);
         volume_texture_.set_data(volume_size[0], volume_size[1], volume_size[2],
                                  data);
@@ -105,7 +106,7 @@ class ReconstructionComponent : public ObjectComponent {
     SceneObject& object_;
 
     GLuint colormap_texture_;
-    texture3d<unsigned char> volume_texture_;
+    texture3d<uint32_t> volume_texture_;
 
     std::unique_ptr<ReconDragMachine> drag_machine_;
     slice* dragged_slice_ = nullptr;

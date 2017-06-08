@@ -3,17 +3,18 @@
 #include <iostream>
 
 #include "zmq.hpp"
+#include "tomop/tomop.hpp"
 
-#include "../serialize.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "scene_module.hpp"
 
 #include "graphics/components/geometry_component.hpp"
 #include "graphics/components/reconstruction_component.hpp"
-#include "modules/packets/geometry_packets.hpp"
 
 namespace tomovis {
+
+using namespace tomop;
 
 class GeometryProtocol : public SceneModuleProtocol {
   public:

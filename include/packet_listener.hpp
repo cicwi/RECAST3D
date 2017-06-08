@@ -2,9 +2,11 @@
 
 #include <vector>
 
-#include "packets.hpp"
+#include "tomop/tomop.hpp"
 
 namespace tomovis {
+
+using namespace tomop;
 
 class PacketListener {
    public:

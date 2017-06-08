@@ -1,6 +1,8 @@
 Slicevis
 ========
 
+![](docs/logo.png)
+
 Dependencies
 ============
 

@@ -15,12 +15,14 @@
 #include <thread>
 
 #include "zmq.hpp"
+#include "tomop/tomop.hpp"
 
 #include "packet_listener.hpp"
-#include "packets.hpp"
 #include "ticker.hpp"
 
 namespace tomovis {
+
+using namespace tomop;
 
 class SceneList;
 class SceneModuleProtocol;

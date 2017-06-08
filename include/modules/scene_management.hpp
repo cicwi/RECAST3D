@@ -1,11 +1,11 @@
 #pragma once
 
 #include "zmq.hpp"
+#include "tomop/tomop.hpp"
 
 #include <memory>
 #include <vector>
 
-#include "modules/packets/scene_management_packets.hpp"
 #include "scene.hpp"
 #include "scene_module.hpp"
 

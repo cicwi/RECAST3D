@@ -1,4 +1,5 @@
 #include <iostream>
+#include <tomop/tomop.hpp>
 
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -10,9 +11,9 @@
 #include "graphics/primitives.hpp"
 #include "graphics/scene_camera_3d.hpp"
 
-#include "modules/packets/reconstruction_packets.hpp"
-
 namespace tomovis {
+
+using namespace tomop;
 
 ReconstructionComponent::ReconstructionComponent(SceneObject& object,
                                                  int scene_id)

@@ -3,10 +3,13 @@
 #include <memory>
 #include <vector>
 
-#include "../packets.hpp"
+#include "tomop/tomop.hpp"
+
 #include "../scene_list.hpp"
 
 namespace tomovis {
+
+using namespace tomop;
 
 // for the 'one-way-communication' we have two parts
 // a handler that knows how to read in a packet
@@ -14,7 +17,7 @@ namespace tomovis {
 
 class SceneModuleProtocol {
    public:
-    virtual std::unique_ptr<Packet> read_packet(packet_desc desc,
+    virtual std::unique_ptr<tomop::Packet> read_packet(tomop::packet_desc desc,
                                                 memory_buffer& buffer,
                                                 zmq::socket_t& socket,
                                                 SceneList& scenes_) = 0;

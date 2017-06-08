@@ -2,15 +2,17 @@
 #include <thread>
 #include <type_traits>
 
+#include "tomop/tomop.hpp"
+#include "zmq.hpp"
+
 #include "modules/scene_module.hpp"
-#include "packets.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "server/server.hpp"
 
-#include "zmq.hpp"
-
 namespace tomovis {
+
+using namespace tomop;
 
 Server::Server(SceneList& scenes) : scenes_(scenes),
                       context_(),

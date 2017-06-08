@@ -5,13 +5,7 @@
 
 namespace tomovis {
 
-SceneCamera2d::SceneCamera2d() {
-    parameters_.push_back({"angle", 0.0f, 2.0f * M_PI, &angle_});
-    parameters_.push_back({"x", -1.0f, 1.0f, &position_.x});
-    parameters_.push_back({"y", -1.0f, 1.0f, &position_.y});
-    parameters_.push_back({"scale", 0.0f, 1.0f, &scale_});
-
-}
+SceneCamera2d::SceneCamera2d() {}
 
 glm::mat4 SceneCamera2d::matrix() {
     glm::mat4 camera_matrix;
@@ -41,26 +35,26 @@ bool SceneCamera2d::handle_key(int key, bool down, int /* mods */) {
     float offset = 0.05f;
     if (down) {
         switch (key) {
-            case GLFW_KEY_H:
-                position_.x += offset;
-                return true;
-            case GLFW_KEY_L:
-                position_.x -= offset;
-                return true;
-            case GLFW_KEY_K:
-                position_.y -= offset;
-                return true;
-            case GLFW_KEY_J:
-                position_.y += offset;
-                return true;
-            case GLFW_KEY_EQUAL:
-                scale_ *= 1.1f;
-                return true;
-            case GLFW_KEY_MINUS:
-                scale_ /= 1.1f;
-                return true;
-            default:
-                break;
+        case GLFW_KEY_H:
+            position_.x += offset;
+            return true;
+        case GLFW_KEY_L:
+            position_.x -= offset;
+            return true;
+        case GLFW_KEY_K:
+            position_.y -= offset;
+            return true;
+        case GLFW_KEY_J:
+            position_.y += offset;
+            return true;
+        case GLFW_KEY_EQUAL:
+            scale_ *= 1.1f;
+            return true;
+        case GLFW_KEY_MINUS:
+            scale_ /= 1.1f;
+            return true;
+        default:
+            break;
         }
     }
     return false;
@@ -92,4 +86,4 @@ bool SceneCamera2d::handle_mouse_moved(float x, float y) {
     return false;
 }
 
-}  // namespace tomovis
+} // namespace tomovis

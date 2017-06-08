@@ -3,16 +3,17 @@
 #include <iostream>
 
 #include "zmq.hpp"
+#include "tomop/tomop.hpp"
 
-#include "../serialize.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "scene_module.hpp"
 
 #include "graphics/components/partitioning_component.hpp"
-#include "modules/packets/partitioning_packets.hpp"
 
 namespace tomovis {
+
+using namespace tomop;
 
 class PartitioningProtocol : public SceneModuleProtocol {
    public:

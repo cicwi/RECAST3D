@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -43,7 +44,7 @@ struct projection {
     bool parallel = false;
 
     int id;
-    texture<unsigned char> data_texture;
+    texture<uint32_t> data_texture;
     glm::mat4 detector_orientation;
 };
 

@@ -1,7 +1,9 @@
 #pragma once
 
-#include <GL/gl3w.h>
 #include <array>
+#include <cstddef>
+
+#include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
 #include "textures.hpp"
@@ -14,7 +16,7 @@ struct slice {
     void update_texture();
     void set_orientation(glm::vec3 base, glm::vec3 x, glm::vec3 y);
 
-    std::vector<unsigned char> data;
+    std::vector<uint32_t> data;
 
     int id = -1;
     int replaces_id = -1;
@@ -27,7 +29,7 @@ struct slice {
 
     auto& get_texture() { return tex_; }
 
-    texture<unsigned char> tex_;
+    texture<uint32_t> tex_;
     glm::mat4 orientation;
 
     std::array<float, 9> packed_orientation() {

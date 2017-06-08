@@ -6,6 +6,7 @@ project(slicevis)
 include_directories(
     "../include"
     "../ext/imgui/"
+    "../ext/tomopackets/include/"
     "../ext/cppzmq/"
     "../ext/libzmq/include/"
     "../ext/eigen/"

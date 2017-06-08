@@ -25,6 +25,10 @@ void SceneObject::tick(float time_elapsed) {
 }
 
 void SceneObject::describe() {
+    if (ImGui::CollapsingHeader("Camera", nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
+        camera_->describe();
+    }
+
     for (auto& id_and_comp : components_) {
         if (ImGui::CollapsingHeader(id_and_comp.first.c_str(), nullptr, ImGuiTreeNodeFlags_DefaultOpen)) {
             id_and_comp.second->describe();

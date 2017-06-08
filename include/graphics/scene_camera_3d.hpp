@@ -36,8 +36,6 @@ class SceneCamera3d : public SceneCamera {
 
     glm::mat4 matrix() override;
 
-    std::vector<parameter<float>>& parameters() override { return parameters_; }
-
     void reset_view() override;
 
     auto& up() { return up_; }
@@ -64,7 +62,6 @@ class SceneCamera3d : public SceneCamera {
 
    private:
     glm::vec3 position_;
-    std::vector<parameter<float>> parameters_;
 
     float angle_ = 0.0f;
     float scale_ = 0.5f;

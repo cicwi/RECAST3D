@@ -13,12 +13,6 @@
 namespace tomovis {
 
 SceneCamera3d::SceneCamera3d() {
-    parameters_.push_back({"angle", 0.0f, 2.0f * M_PI, &angle_});
-    parameters_.push_back({"x", -10.0f, 10.0f, &position_.x});
-    parameters_.push_back({"y", -10.0f, 10.0f, &position_.y});
-    parameters_.push_back({"z", -10.0f, 10.0f, &position_.z});
-    parameters_.push_back({"scale", 0.0f, 1.0f, &scale_});
-
     reset_view();
     switch_if_necessary(drag_machine_kind::rotator);
 }

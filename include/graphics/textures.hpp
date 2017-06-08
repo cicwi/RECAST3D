@@ -2,11 +2,18 @@
 
 #include <iostream>
 #include <vector>
+#include <cstddef>
 
 #include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
 namespace tomovis {
+
+template <typename T>
+inline GLenum data_type() { return GL_UNSIGNED_BYTE; }
+
+template <>
+inline GLenum data_type<uint32_t>() { return GL_UNSIGNED_INT; }
 
 template <typename T = unsigned char>
 class texture {
@@ -47,7 +54,7 @@ class texture {
 
         // FIXME GL_UNSIGNED_BYTE depends on T
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, x_, y_, 0, GL_RED,
-                     GL_UNSIGNED_BYTE, data.data());
+                     data_type<T>(), data.data());
 
         glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -106,7 +113,7 @@ class texture3d {
 
         // FIXME GL_UNSIGNED_BYTE depends on T
         glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, x_, y_, z_, 0, GL_RED,
-                     GL_UNSIGNED_BYTE, data.data());
+                     GL_UNSIGNED_INT, data.data());
 
         glGenerateMipmap(GL_TEXTURE_3D);
 

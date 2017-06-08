@@ -31,13 +31,6 @@ void SceneControl::describe() {
         scene.set_name(std::string(text_buffer));
     }
 
-    if (ImGui::CollapsingHeader("camera")) {
-        for (auto& p : scene.object().camera().parameters()) {
-            ImGui::SliderFloat(p.name.c_str(), p.value, p.min_value,
-                               p.max_value);
-        }
-    }
-
     scene.object().describe();
 
     ImGui::End();

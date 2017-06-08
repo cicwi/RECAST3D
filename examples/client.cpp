@@ -1,5 +1,6 @@
 // an example client
 
+#include <cstddef>
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -31,7 +32,7 @@ int main() {
     int scene_id = *(int*)reply.data();
     std::cout << scene_id << "\n";
 
-    std::vector<unsigned char> grayscale_image(20 * 20);
+    std::vector<uint32_t> grayscale_image(20 * 20);
     for (auto& pixel : grayscale_image) {
         pixel = rand() % 256;
     }
