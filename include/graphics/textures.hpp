@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <iostream>
 #include <vector>
 #include <cstddef>
@@ -10,7 +11,10 @@
 namespace tomovis {
 
 template <typename T>
-inline GLenum data_type() { return GL_UNSIGNED_BYTE; }
+inline GLenum data_type();
+
+template <>
+inline GLenum data_type<uint8_t>() { return GL_UNSIGNED_BYTE; }
 
 template <>
 inline GLenum data_type<uint32_t>() { return GL_UNSIGNED_INT; }
@@ -21,8 +25,9 @@ class texture {
     texture(int x, int y) : x_(x), y_(y) {
         glGenTextures(1, &texture_id_);
         std::vector<T> data(x * y);
+        auto lim = std::numeric_limits<T>::max() - 2;
         for (int i = 0; i < x * y; ++i) {
-            data[i] = 255 * ((i + i / x) % 2);
+            data[i] = lim * ((i + i / x) % 2);
         }
         fill_texture(data);
     }

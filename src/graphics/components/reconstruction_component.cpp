@@ -86,8 +86,29 @@ ReconstructionComponent::~ReconstructionComponent() {
     glDeleteBuffers(1, &vbo_handle_);
 }
 
+void ReconstructionComponent::update_histogram(
+    const std::vector<uint32_t>& data) {
+    auto bins = 30;
+    auto max = (float)std::numeric_limits<uint32_t>::max();
+    auto min = (float)std::numeric_limits<uint32_t>::min();
+    auto step = (max - min) / bins;
+
+    histogram_.clear();
+    histogram_.resize(bins);
+
+    for (auto x : data) {
+        auto bin = (int)(x / step);
+        histogram_[bin] += 1.0f;
+    }
+}
+
 void ReconstructionComponent::describe() {
     ImGui::Checkbox("Show reconstruction", &show_);
+
+    auto window_size = ImGui::GetWindowSize();
+    ImGui::PlotHistogram("Reconstruction histogram", histogram_.data(),
+                         histogram_.size(), 0, NULL, FLT_MAX, FLT_MAX,
+                         ImVec2(window_size.x, 128));
 }
 
 void ReconstructionComponent::update_image_(int slice) {
@@ -127,7 +148,9 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) {
         the_slice.get_texture().bind();
 
         program_->uniform("world_to_screen_matrix", full_transform);
-        program_->uniform("orientation_matrix", the_slice.orientation * glm::translate(glm::vec3(0.0, 0.0, 1.0)));
+        program_->uniform("orientation_matrix",
+                          the_slice.orientation *
+                              glm::translate(glm::vec3(0.0, 0.0, 1.0)));
         program_->uniform("hovered", (int)(the_slice.hovered));
         program_->uniform("has_data", (int)(the_slice.has_data()));
 

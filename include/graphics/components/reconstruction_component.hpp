@@ -60,11 +60,14 @@ class ReconstructionComponent : public ObjectComponent {
         update_image_(slice);
     }
 
+    void update_histogram(const std::vector<uint32_t>& data);
+
     void set_volume_data(std::vector<int>& volume_size,
                          std::vector<uint32_t>& data) {
         assert(volume_size.size() == 3);
         volume_texture_.set_data(volume_size[0], volume_size[1], volume_size[2],
                                  data);
+        update_histogram(data);
     }
 
     bool handle_mouse_button(int button, bool down) override;
@@ -110,6 +113,8 @@ class ReconstructionComponent : public ObjectComponent {
 
     std::unique_ptr<ReconDragMachine> drag_machine_;
     slice* dragged_slice_ = nullptr;
+
+    std::vector<float> histogram_;
 
     float prev_x_ = -1.1f;
     float prev_y_ = -1.1f;

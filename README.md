@@ -31,6 +31,10 @@ make -j8
 Authors
 =======
 
-Slicevis is developed by the Computational Imaging group at CWI.
+Slicevis is developed by the Computational Imaging group at CWI. Main authors:
 
 - Jan-Willem Buurlage
+
+Also thanks to:
+
+- Holger Kohr
