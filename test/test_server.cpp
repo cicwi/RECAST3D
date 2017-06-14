@@ -15,7 +15,7 @@ int main() {
     // 4. add some callback
     auto callback = [](auto orientation) {
         return std::make_pair(std::vector<int32_t>{4, 4},
-                              std::vector<uint8_t>{0, 255, 128, 255, 255, 128,
+                              std::vector<uint32_t>{0, 255, 128, 255, 255, 128,
                                                    255, 0, 255, 0, 128, 255,
                                                    255, 128, 0, 255});
     };
