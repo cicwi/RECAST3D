@@ -83,12 +83,6 @@ class server {
     }
 
     void serve() {
-        // these are the premade slices
-        // we may want to make a 'get current slices' packet to avoid this
-        make_slice(0, {0.0f, -1.0f, -1.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 2.0f});
-        make_slice(1, {-1.0f, 0.0f, -1.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f});
-        make_slice(2, {-1.0f, -1.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f});
-
         while (true) {
             zmq::message_t update;
             subscribe_socket_.recv(&update);
