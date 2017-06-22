@@ -14,6 +14,8 @@ include_directories(
     "../ext/assimp/build/include"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
+    "../ext/glm/"
+    "../ext/glfw/include"
 )
 
 link_directories(
