@@ -91,10 +91,6 @@ set(
     "examples/client.cpp"
 )
 
-
-
-link_directories("ext/zmq/lib")
-
 set(
     LIB_NAMES
     "dl"
