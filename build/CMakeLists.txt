@@ -11,8 +11,11 @@ include_directories(
     "../ext/libzmq/include/"
     "../ext/eigen/"
     "../ext/assimp/include"
+    "../ext/assimp/build/include"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
+    "../ext/glm/"
+    "../ext/glfw/include"
 )
 
 link_directories(
@@ -20,11 +23,13 @@ link_directories(
     "~/local/lib/"
     "../ext/libzmq/build/lib/"
     "../ext/assimp/build/code/"
+    "../ext/glfw/build/src"
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -Werror -g -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ../ext/eigen/")
 
+add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(EXEC_NAME "slicevis")
