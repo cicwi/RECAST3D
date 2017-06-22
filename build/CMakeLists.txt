@@ -11,6 +11,7 @@ include_directories(
     "../ext/libzmq/include/"
     "../ext/eigen/"
     "../ext/assimp/include"
+    "../ext/assimp/build/include"
     "../ext/imgui/examples/libs/gl3w/"
     "../ext/imgui/examples/opengl3_example/"
 )
