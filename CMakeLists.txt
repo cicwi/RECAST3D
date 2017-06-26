@@ -9,7 +9,6 @@ include_directories(
     "ext/tomopackets/include/"
     "ext/cppzmq/"
     "ext/libzmq/include/"
-    "ext/eigen/"
     "ext/assimp/include"
     "ext/assimp/build/include"
     "ext/imgui/examples/libs/gl3w/"
@@ -27,7 +26,7 @@ link_directories(
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -Werror -g -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ext/eigen/")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ../ext/eigen/")
 
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
@@ -56,6 +55,7 @@ set(
     "src/main.cpp"
     "src/math_common.cpp"
     "src/input.cpp"
+    "src/util.cpp"
     "src/scene.cpp"
     "src/path.cpp"
     "src/scene_list.cpp"

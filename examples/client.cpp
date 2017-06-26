@@ -32,9 +32,9 @@ int main() {
     int scene_id = *(int*)reply.data();
     std::cout << scene_id << "\n";
 
-    std::vector<uint32_t> grayscale_image(20 * 20);
+    std::vector<float> grayscale_image(20 * 20);
     for (auto& pixel : grayscale_image) {
-        pixel = rand() % 256;
+        pixel = (float)(rand() % 256);
     }
 
     auto upd_packet =

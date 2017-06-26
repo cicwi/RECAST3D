@@ -2,12 +2,13 @@
 
 #include <iostream>
 
-#include "zmq.hpp"
 #include "tomop/tomop.hpp"
+#include "zmq.hpp"
 
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "scene_module.hpp"
+#include "util.hpp"
 
 #include "graphics/components/geometry_component.hpp"
 #include "graphics/components/reconstruction_component.hpp"
@@ -84,7 +85,8 @@ class GeometryProtocol : public SceneModuleProtocol {
             proj.set_orientation({xs[6], xs[7], xs[8]}, {xs[0], xs[1], xs[2]},
                                  {xs[3], xs[4], xs[5]});
             proj.parallel = false;
-            proj.data_texture.set_data(packet.data, packet.detector_pixels[0],
+            auto packed_data = pack(packet.data);
+            proj.data_texture.set_data(packed_data, packet.detector_pixels[0],
                                        packet.detector_pixels[1]);
 
             geometry_component.add_projection(std::move(proj));

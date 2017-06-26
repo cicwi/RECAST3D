@@ -8,6 +8,7 @@
 #include "scene_module.hpp"
 
 #include "graphics/components/reconstruction_component.hpp"
+#include "util.hpp"
 
 namespace tomovis {
 
@@ -53,7 +54,8 @@ class ReconstructionProtocol : public SceneModuleProtocol {
                         "reconstruction");
                 reconstruction_component.set_size(packet.slice_size,
                                                   packet.slice_id);
-                reconstruction_component.set_data(packet.data, packet.slice_id);
+                auto packed_data = pack(packet.data);
+                reconstruction_component.set_data(packed_data, packet.slice_id);
                 break;
             }
 
@@ -65,8 +67,9 @@ class ReconstructionProtocol : public SceneModuleProtocol {
                 auto& reconstruction_component =
                     (ReconstructionComponent&)scene->object().get_component(
                         "reconstruction");
+                auto packed_data = pack(packet.data);
                 reconstruction_component.set_volume_data(packet.volume_size,
-                                                         packet.data);
+                                                         packed_data);
                 break;
             }
 
