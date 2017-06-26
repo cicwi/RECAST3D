@@ -136,16 +136,19 @@ class server {
             throw server_error("No callback set");
         }
 
-        auto result = slice_data_callback_(orientation);
+        auto result = slice_data_callback_(orientation, slice_id);
 
-        auto data_packet = SliceDataPacket(scene_id_, slice_id, result.first,
-                                           true, std::move(result.second));
-        send(data_packet);
+        if (!result.first.empty()) {
+            auto data_packet =
+                SliceDataPacket(scene_id_, slice_id, result.first, true,
+                                std::move(result.second));
+            send(data_packet);
+        }
     }
 
     void set_slice_callback(
         std::function<std::pair<std::vector<int32_t>, std::vector<float>>(
-            std::array<float, 9>)>
+            std::array<float, 9>, int32_t)>
             callback) {
         slice_data_callback_ = callback;
     }
@@ -165,7 +168,7 @@ class server {
     zmq::socket_t subscribe_socket_;
 
     std::function<std::pair<std::vector<int32_t>, std::vector<float>>(
-        std::array<float, 9>)>
+        std::array<float, 9>, int32_t)>
         slice_data_callback_;
     std::vector<std::pair<int32_t, std::array<float, 9>>> slices_;
 };

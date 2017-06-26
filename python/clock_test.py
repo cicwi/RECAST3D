@@ -52,7 +52,7 @@ def main():
 
     print("Loaded reconstruction..")
 
-    def callback(orientation):
+    def callback(orientation, slice_id):
         slice_shape = np.array([1000, 1000], dtype='int32')
         slice_payload = slice_data(space, orientation, slice_shape)
         return slice_shape, slice_payload.ravel()

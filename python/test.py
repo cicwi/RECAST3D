@@ -2,7 +2,7 @@ import tomop
 import numpy as np
 
 
-def callback(orientation):
+def callback(orientation, slice_id):
     print("callback called")
     print(orientation)
     return np.array([4, 4], dtype='int32'), np.array([0, 255, 128, 255, 255, 128, 255, 0, 255,
