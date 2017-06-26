@@ -139,7 +139,7 @@ class server {
         auto result = slice_data_callback_(orientation);
 
         auto data_packet = SliceDataPacket(scene_id_, slice_id, result.first,
-                                           std::move(result.second));
+                                           true, std::move(result.second));
         send(data_packet);
     }
 
