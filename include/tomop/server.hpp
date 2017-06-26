@@ -144,7 +144,7 @@ class server {
     }
 
     void set_slice_callback(
-        std::function<std::pair<std::vector<int32_t>, std::vector<uint32_t>>(
+        std::function<std::pair<std::vector<int32_t>, std::vector<float>>(
             std::array<float, 9>)>
             callback) {
         slice_data_callback_ = callback;
@@ -164,7 +164,7 @@ class server {
     std::thread serve_thread_;
     zmq::socket_t subscribe_socket_;
 
-    std::function<std::pair<std::vector<int32_t>, std::vector<uint32_t>>(
+    std::function<std::pair<std::vector<int32_t>, std::vector<float>>(
         std::array<float, 9>)>
         slice_data_callback_;
     std::vector<std::pair<int32_t, std::array<float, 9>>> slices_;

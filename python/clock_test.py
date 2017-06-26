@@ -19,8 +19,7 @@ def rotation_matrix(axis, theta):
                      [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
 
 def pack(data, norm):
-    max_uint32 = (2 ** 32) - 1
-    return np.array((max_uint32 / norm) * data, dtype='uint32')
+    return np.array(data, dtype='float32')
 
 def slice_data(data, orientation, slice_shape):
     norm = np.max(data)

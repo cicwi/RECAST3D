@@ -14,7 +14,7 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
           slice_id(0) {}
 
     SliceDataPacket(int32_t scene_id_, int32_t slice_id_, std::vector<int32_t> slice_size_,
-                    std::vector<uint32_t>&& data_)
+                    std::vector<float>&& data_)
         : PacketBase<SliceDataPacket>(packet_desc::slice_data),
           scene_id(scene_id_),
           slice_id(slice_id_),
@@ -32,7 +32,7 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
     int32_t scene_id;
     int32_t slice_id;
     std::vector<int32_t> slice_size;
-    std::vector<uint32_t> data;
+    std::vector<float> data;
 };
 
 class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
@@ -41,7 +41,7 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data) {}
 
     VolumeDataPacket(int32_t scene_id_, std::vector<int32_t> volume_size_,
-                     std::vector<uint32_t> data_)
+                     std::vector<float> data_)
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data),
           scene_id(scene_id_),
           volume_size(volume_size_),
@@ -56,7 +56,7 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
 
     int32_t scene_id;
     std::vector<int32_t> volume_size;
-    std::vector<uint32_t> data;
+    std::vector<float> data;
 };
 
 class SetSlicePacket : public PacketBase<SetSlicePacket> {

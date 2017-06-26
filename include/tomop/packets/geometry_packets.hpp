@@ -50,7 +50,7 @@ class ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
                          std::array<float, 3> source_position_,
                          std::array<float, 9> detector_orientation_,
                          std::array<int32_t, 2> detector_pixels_,
-                         std::vector<uint32_t> data_)
+                         std::vector<float> data_)
         : PacketBase<ProjectionDataPacket>(packet_desc::projection_data),
           scene_id(scene_id_), projection_id(projection_id_),
           source_position(source_position_),
@@ -72,7 +72,7 @@ class ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
     std::array<float, 3> source_position;
     std::array<float, 9> detector_orientation;
     std::array<int32_t, 2> detector_pixels;
-    std::vector<uint32_t> data;
+    std::vector<float> data;
 };
 
 } // namespace tomop
