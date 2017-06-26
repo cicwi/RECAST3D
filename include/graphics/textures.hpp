@@ -48,6 +48,7 @@ class texture {
     void set_data(std::vector<T>& data, int x, int y) {
         x_ = x;
         y_ = y;
+        assert((int)data.size() == x * y);
         fill_texture(data);
     }
 
@@ -102,6 +103,7 @@ class texture3d {
         x_ = x;
         y_ = y;
         z_ = z;
+        assert((int)data.size() == x * y * z);
         fill_texture(data);
     }
 

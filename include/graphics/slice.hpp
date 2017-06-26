@@ -16,7 +16,13 @@ struct slice {
     void update_texture();
     void set_orientation(glm::vec3 base, glm::vec3 x, glm::vec3 y);
 
-    std::vector<uint32_t> data;
+    std::vector<float> data;
+
+    void add_data(std::vector<float> other) {
+        for (auto i = 0u; i < data.size(); ++i) {
+            data[i] += other[i];
+        }
+    }
 
     int id = -1;
     int replaces_id = -1;
@@ -33,10 +39,11 @@ struct slice {
     glm::mat4 orientation;
 
     std::array<float, 9> packed_orientation() {
-        return std::array<float, 9>{orientation[0][0], orientation[0][1], orientation[0][2],
-                orientation[1][0], orientation[1][1], orientation[1][2],
-                orientation[2][0], orientation[2][1], orientation[2][2]};
+        return std::array<float, 9>{
+            orientation[0][0], orientation[0][1], orientation[0][2],
+            orientation[1][0], orientation[1][1], orientation[1][2],
+            orientation[2][0], orientation[2][1], orientation[2][2]};
     }
 };
 
-}  // namespace tomovis
+} // namespace tomovis

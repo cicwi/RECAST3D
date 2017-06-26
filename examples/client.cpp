@@ -8,8 +8,8 @@
 
 #include "server/server.hpp"
 
-#include "modules/scene_management.hpp"
 #include "modules/reconstruction.hpp"
+#include "modules/scene_management.hpp"
 
 using namespace tomovis;
 
@@ -37,8 +37,8 @@ int main() {
         pixel = (float)(rand() % 256);
     }
 
-    auto upd_packet =
-        SliceDataPacket(scene_id, 0, {20, 20}, std::move(grayscale_image));
+    auto upd_packet = SliceDataPacket(scene_id, 0, {20, 20}, true,
+                                      std::move(grayscale_image));
     upd_packet.send(socket);
 
     socket.recv(&reply);
@@ -53,8 +53,8 @@ int main() {
     std::cout << "3D: " << scene_id << "\n";
 
     for (int i = 0; i < 3; ++i) {
-        auto upd_packet =
-            SliceDataPacket(scene_id, i, {20, 20}, std::move(grayscale_image));
+        auto upd_packet = SliceDataPacket(scene_id, i, {20, 20}, true,
+                                          std::move(grayscale_image));
         upd_packet.send(socket);
         socket.recv(&reply);
     }

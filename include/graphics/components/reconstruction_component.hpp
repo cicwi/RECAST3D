@@ -1,18 +1,19 @@
 #pragma once
 
+#include <cstddef>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
-#include <cstddef>
 
 #include <glm/glm.hpp>
 
+#include "graphics/scene_object.hpp"
 #include "graphics/shader_program.hpp"
 #include "graphics/slice.hpp"
 #include "graphics/textures.hpp"
-#include "graphics/scene_object.hpp"
 #include "object_component.hpp"
+#include "util.hpp"
 
 namespace tomovis {
 
@@ -25,49 +26,50 @@ enum class recon_drag_machine_kind : int {
 };
 
 class ReconDragMachine {
-   public:
+  public:
     ReconDragMachine(ReconstructionComponent& comp) : comp_(comp) {}
 
     virtual void on_drag(glm::vec2 delta) = 0;
     virtual recon_drag_machine_kind kind() = 0;
 
-   protected:
+  protected:
     ReconstructionComponent& comp_;
 };
 
 class ReconstructionComponent : public ObjectComponent {
-   public:
+  public:
     ReconstructionComponent(SceneObject& object, int scene_id);
     ~ReconstructionComponent();
 
     void draw(glm::mat4 world_to_screen) override;
     std::string identifier() const override { return "reconstruction"; }
 
-    void set_size(std::vector<int>& size, int slice = 0) {
+    void set_data(std::vector<float>& data, std::vector<int>& size, int slice,
+                  bool additive = true) {
         if (slices_.find(slice) == slices_.end()) {
             std::cout << "Updating inactive slice: " << slice << "\n";
             return;
         }
-        slices_[slice]->size = size;
-    }
-
-    void set_data(std::vector<uint32_t>& data, int slice = 0) {
-        if (slices_.find(slice) == slices_.end()) {
-            std::cout << "Updating inactive slice: " << slice << "\n";
-            return;
+        if (!additive || !slices_[slice]->has_data()) {
+            slices_[slice]->size = size;
+            slices_[slice]->data = data;
+            update_image_(slice);
+        } else {
+            assert(slices_[slice]->size == size);
+            slices_[slice]->add_data(data);
+            update_image_(slice);
         }
-        slices_[slice]->data = data;
-        update_image_(slice);
     }
 
     void update_histogram(const std::vector<uint32_t>& data);
 
-    void set_volume_data(std::vector<int>& volume_size,
-                         std::vector<uint32_t>& data) {
+    void set_volume_data(std::vector<float>& data,
+                         std::vector<int>& volume_size) {
         assert(volume_size.size() == 3);
+        auto packed_data = pack(data);
         volume_texture_.set_data(volume_size[0], volume_size[1], volume_size[2],
-                                 data);
-        update_histogram(data);
+                                 packed_data);
+        update_histogram(packed_data);
     }
 
     bool handle_mouse_button(int button, bool down) override;
@@ -89,7 +91,7 @@ class ReconstructionComponent : public ObjectComponent {
     void set_volume_position(glm::vec3 min_pt, glm::vec3 max_pt);
     glm::mat4 volume_transform() { return volume_transform_; }
 
-   private:
+  private:
     void update_image_(int slice);
 
     std::map<int, std::unique_ptr<slice>> slices_;
@@ -127,19 +129,23 @@ class ReconstructionComponent : public ObjectComponent {
 };
 
 class SliceTranslator : public ReconDragMachine {
-   public:
+  public:
     using ReconDragMachine::ReconDragMachine;
 
     void on_drag(glm::vec2 delta) override;
-    recon_drag_machine_kind kind() override { return recon_drag_machine_kind::translator; }
+    recon_drag_machine_kind kind() override {
+        return recon_drag_machine_kind::translator;
+    }
 };
 
 class SliceRotator : public ReconDragMachine {
-   public:
+  public:
     using ReconDragMachine::ReconDragMachine;
 
     void on_drag(glm::vec2 delta) override;
-    recon_drag_machine_kind kind() override { return recon_drag_machine_kind::rotator; }
+    recon_drag_machine_kind kind() override {
+        return recon_drag_machine_kind::rotator;
+    }
 };
 
-}  // namespace tomovis
+} // namespace tomovis

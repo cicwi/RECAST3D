@@ -1,7 +1,7 @@
 #pragma once
 
-#include "zmq.hpp"
 #include "tomop/tomop.hpp"
+#include "zmq.hpp"
 
 #include "scene.hpp"
 #include "scene_list.hpp"
@@ -19,61 +19,59 @@ using namespace tomop;
 // and an executor that knows how to execute a packet
 
 class ReconstructionProtocol : public SceneModuleProtocol {
-   public:
-    std::unique_ptr<tomop::Packet> read_packet(tomop::packet_desc desc, memory_buffer& buffer,
-                                        zmq::socket_t& socket,
-                                        SceneList& /* scenes_ */) override {
+  public:
+    std::unique_ptr<tomop::Packet>
+    read_packet(tomop::packet_desc desc, memory_buffer& buffer,
+                zmq::socket_t& socket, SceneList& /* scenes_ */) override {
         switch (desc) {
-            case packet_desc::slice_data: {
-                auto packet = std::make_unique<SliceDataPacket>();
-                packet->deserialize(std::move(buffer));
-                message_succes(socket);
-                return std::move(packet);
-            }
+        case packet_desc::slice_data: {
+            auto packet = std::make_unique<SliceDataPacket>();
+            packet->deserialize(std::move(buffer));
+            message_succes(socket);
+            return std::move(packet);
+        }
 
-            case packet_desc::volume_data: {
-                auto packet = std::make_unique<VolumeDataPacket>();
-                packet->deserialize(std::move(buffer));
-                message_succes(socket);
-                return std::move(packet);
-            }
+        case packet_desc::volume_data: {
+            auto packet = std::make_unique<VolumeDataPacket>();
+            packet->deserialize(std::move(buffer));
+            message_succes(socket);
+            return std::move(packet);
+        }
 
-            default: { return nullptr; }
+        default: { return nullptr; }
         }
     }
 
     void process(SceneList& scenes,
                  std::unique_ptr<Packet> event_packet) override {
         switch (event_packet->desc) {
-            case packet_desc::slice_data: {
-                SliceDataPacket& packet = *(SliceDataPacket*)event_packet.get();
-                auto scene = scenes.get_scene(packet.scene_id);
-                if (!scene) std::cout << "Updating non-existing scene\n";
-                auto& reconstruction_component =
-                    (ReconstructionComponent&)scene->object().get_component(
-                        "reconstruction");
-                reconstruction_component.set_size(packet.slice_size,
-                                                  packet.slice_id);
-                auto packed_data = pack(packet.data);
-                reconstruction_component.set_data(packed_data, packet.slice_id);
-                break;
-            }
+        case packet_desc::slice_data: {
+            SliceDataPacket& packet = *(SliceDataPacket*)event_packet.get();
+            auto scene = scenes.get_scene(packet.scene_id);
+            if (!scene)
+                std::cout << "Updating non-existing scene\n";
+            auto& reconstruction_component =
+                (ReconstructionComponent&)scene->object().get_component(
+                    "reconstruction");
+            reconstruction_component.set_data(packet.data, packet.slice_size,
+                                              packet.slice_id, packet.additive);
+            break;
+        }
 
-            case packet_desc::volume_data: {
-                VolumeDataPacket& packet =
-                    *(VolumeDataPacket*)event_packet.get();
-                auto scene = scenes.get_scene(packet.scene_id);
-                if (!scene) std::cout << "Updating non-existing scene\n";
-                auto& reconstruction_component =
-                    (ReconstructionComponent&)scene->object().get_component(
-                        "reconstruction");
-                auto packed_data = pack(packet.data);
-                reconstruction_component.set_volume_data(packet.volume_size,
-                                                         packed_data);
-                break;
-            }
+        case packet_desc::volume_data: {
+            VolumeDataPacket& packet = *(VolumeDataPacket*)event_packet.get();
+            auto scene = scenes.get_scene(packet.scene_id);
+            if (!scene)
+                std::cout << "Updating non-existing scene\n";
+            auto& reconstruction_component =
+                (ReconstructionComponent&)scene->object().get_component(
+                    "reconstruction");
+            reconstruction_component.set_volume_data(packet.data,
+                                                     packet.volume_size);
+            break;
+        }
 
-            default: { break; }
+        default: { break; }
         }
     }
 
@@ -82,4 +80,4 @@ class ReconstructionProtocol : public SceneModuleProtocol {
     }
 };
 
-}  // namespace tomovis
+} // namespace tomovis
