@@ -14,7 +14,7 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
 
     SliceDataPacket(int32_t scene_id_, int32_t slice_id_,
                     std::vector<int32_t> slice_size_, bool additive_,
-                    std::vector<float>&& data_)
+                    std::vector<float> data_)
         : PacketBase<SliceDataPacket>(packet_desc::slice_data),
           scene_id(scene_id_), slice_id(slice_id_), slice_size(slice_size_),
           additive(additive_), data(data_) {}
