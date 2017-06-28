@@ -79,6 +79,8 @@ class server {
     }
 
     ~server() {
+        socket_.close();
+        subscribe_socket_.close();
         context_.close();
 
         if (serve_thread_.joinable()) {
