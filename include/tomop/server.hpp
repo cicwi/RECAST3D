@@ -79,6 +79,8 @@ class server {
     }
 
     ~server() {
+        context_.close();
+
         if (serve_thread_.joinable()) {
             serve_thread_.join();
         }
@@ -115,7 +117,10 @@ class server {
     void serve() {
         while (true) {
             zmq::message_t update;
-            subscribe_socket_.recv(&update);
+            if (!subscribe_socket_.recv(&update)) {
+                std::cout << "Closing server...\n";
+                break;
+            }
 
             auto desc = ((packet_desc*)update.data())[0];
             auto buffer = memory_buffer(update.size(), (char*)update.data());
