@@ -38,6 +38,13 @@ class ReconstructionProtocol : public SceneModuleProtocol {
             return std::move(packet);
         }
 
+        case packet_desc::group_request_slices: {
+            auto packet = std::make_unique<GroupRequestSlicesPacket>();
+            packet->deserialize(std::move(buffer));
+            message_succes(socket);
+            return std::move(packet);
+        }
+
         default: { return nullptr; }
         }
     }
