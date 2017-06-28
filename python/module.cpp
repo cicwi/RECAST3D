@@ -35,5 +35,6 @@ PYBIND11_MODULE(py_tomop, m) {
         .def("scene_id", &tomop::server::scene_id)
         .def("set_callback", &tomop::server::set_slice_callback)
         .def("serve", &tomop::server::serve)
+        .def("listen", &tomop::server::listen)
         .def("send", &tomop::server::send);
 }
