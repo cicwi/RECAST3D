@@ -48,8 +48,9 @@ class ReconstructionProtocol : public SceneModuleProtocol {
         case packet_desc::slice_data: {
             SliceDataPacket& packet = *(SliceDataPacket*)event_packet.get();
             auto scene = scenes.get_scene(packet.scene_id);
-            if (!scene)
+            if (!scene) {
                 std::cout << "Updating non-existing scene\n";
+            }
             auto& reconstruction_component =
                 (ReconstructionComponent&)scene->object().get_component(
                     "reconstruction");
@@ -61,8 +62,9 @@ class ReconstructionProtocol : public SceneModuleProtocol {
         case packet_desc::volume_data: {
             VolumeDataPacket& packet = *(VolumeDataPacket*)event_packet.get();
             auto scene = scenes.get_scene(packet.scene_id);
-            if (!scene)
+            if (!scene) {
                 std::cout << "Updating non-existing scene\n";
+            }
             auto& reconstruction_component =
                 (ReconstructionComponent&)scene->object().get_component(
                     "reconstruction");
@@ -71,13 +73,50 @@ class ReconstructionProtocol : public SceneModuleProtocol {
             break;
         }
 
+        case packet_desc::group_request_slices: {
+            GroupRequestSlicesPacket& packet =
+                *(GroupRequestSlicesPacket*)event_packet.get();
+            auto scene = scenes.get_scene(packet.scene_id);
+            if (!scene) {
+                std::cout << "Updating non-existing scene\n";
+            }
+
+            if (group_size_requested_ < 0) {
+                group_size_requested_ = packet.group_size;
+                group_size_count_ = 1;
+            } else {
+                if (group_size_requested_ != packet.group_size) {
+                    std::cout << "Group request for different group sizes "
+                              << group_size_requested_
+                              << " != " << packet.group_size << "\n";
+                }
+                group_size_count_ += 1;
+
+                if (group_size_count_ == group_size_requested_) {
+                    group_size_count_ = -1;
+                    group_size_requested_ = -1;
+
+                    auto& reconstruction_component =
+                        (ReconstructionComponent&)scene->object().get_component(
+                            "reconstruction");
+                    reconstruction_component.send_slices();
+                }
+            }
+            break;
+        }
+
         default: { break; }
         }
     }
 
     std::vector<packet_desc> descriptors() override {
-        return {packet_desc::slice_data, packet_desc::volume_data};
+        return {packet_desc::slice_data, packet_desc::volume_data,
+                packet_desc::group_request_slices};
     }
+
+  private:
+    int group_size_count_ = -1;
+    int group_size_requested_ = -1;
 };
 
 } // namespace tomovis

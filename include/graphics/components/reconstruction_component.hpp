@@ -62,6 +62,7 @@ class ReconstructionComponent : public ObjectComponent {
     }
 
     void update_histogram(const std::vector<uint32_t>& data);
+    void send_slices();
 
     void set_volume_data(std::vector<float>& data,
                          std::vector<int>& volume_size) {

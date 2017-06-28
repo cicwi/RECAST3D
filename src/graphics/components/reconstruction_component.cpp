@@ -69,11 +69,7 @@ ReconstructionComponent::ReconstructionComponent(SceneObject& object,
                                 glm::vec3(2.0f, 0.0f, 0.0f),
                                 glm::vec3(0.0f, 2.0f, 0.0f));
 
-    for (auto& slice : slices_) {
-        auto packet = SetSlicePacket(scene_id_, slice.first,
-                                     slice.second->packed_orientation());
-        object_.send(packet);
-    }
+    send_slices();
 
     set_volume_position(glm::vec3(-1.0f), glm::vec3(1.0f));
     colormap_texture_ = object.camera().colormap();
@@ -84,6 +80,14 @@ ReconstructionComponent::~ReconstructionComponent() {
     glDeleteBuffers(1, &cube_vbo_handle_);
     glDeleteVertexArrays(1, &vao_handle_);
     glDeleteBuffers(1, &vbo_handle_);
+}
+
+void ReconstructionComponent::send_slices() {
+    for (auto& slice : slices_) {
+        auto packet = SetSlicePacket(scene_id_, slice.first,
+                                     slice.second->packed_orientation());
+        object_.send(packet);
+    }
 }
 
 void ReconstructionComponent::update_histogram(
