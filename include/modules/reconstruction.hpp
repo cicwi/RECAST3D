@@ -98,17 +98,18 @@ class ReconstructionProtocol : public SceneModuleProtocol {
                               << " != " << packet.group_size << "\n";
                 }
                 group_size_count_ += 1;
-
-                if (group_size_count_ == group_size_requested_) {
-                    group_size_count_ = -1;
-                    group_size_requested_ = -1;
-
-                    auto& reconstruction_component =
-                        (ReconstructionComponent&)scene->object().get_component(
-                            "reconstruction");
-                    reconstruction_component.send_slices();
-                }
             }
+
+            if (group_size_count_ == group_size_requested_) {
+                group_size_count_ = -1;
+                group_size_requested_ = -1;
+
+                auto& reconstruction_component =
+                    (ReconstructionComponent&)scene->object().get_component(
+                        "reconstruction");
+                reconstruction_component.send_slices();
+            }
+
             break;
         }
 
