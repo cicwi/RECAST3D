@@ -15,7 +15,7 @@ std::vector<uint32_t> pack(const std::vector<float>& data) {
     auto min = *std::min_element(data.begin(), data.end());
     auto max = *std::max_element(data.begin(), data.end());
 
-    auto max_uint = std::numeric_limits<uint32_t>::max() - 2;
+    auto max_uint = std::numeric_limits<uint32_t>::max() - 128;
 
     for (auto i = 0u; i < data.size(); ++i) {
         data_buffer[i] = (uint32_t)(max_uint * ((data[i] - min) / (max - min)));
