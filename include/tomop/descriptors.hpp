@@ -11,6 +11,7 @@ enum class packet_desc : int {
     volume_data,
     set_slice,
     remove_slice,
+    group_request_slices,
 
     // GEOMETRY
     geometry_specification,

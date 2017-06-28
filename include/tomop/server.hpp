@@ -48,6 +48,36 @@ class server {
         subscribe(subscribe_hostname);
     }
 
+    server(int32_t scene_id, int group_size = 1,
+           std::string hostname = "tcp://localhost:5555",
+           std::string subscribe_hostname = "tcp://localhost:5556")
+        : context_(1), socket_(context_, ZMQ_REQ),
+          subscribe_socket_(context_, ZMQ_SUB), scene_id_(scene_id) {
+        using namespace std::chrono_literals;
+
+        // set socket timeout to 200 ms
+        socket_.setsockopt(ZMQ_LINGER, 200);
+        socket_.connect(hostname);
+
+        subscribe(subscribe_hostname);
+
+        // request current slices
+        auto packet = GroupRequestSlicesPacket(scene_id_, group_size);
+        packet.send(socket_);
+
+        // check if we get a reply within a second
+        zmq::pollitem_t items[] = {{socket_, 0, ZMQ_POLLIN, 0}};
+        auto poll_result = zmq::poll(items, 1, 1000ms);
+
+        if (poll_result <= 0) {
+            throw server_error("Could not connect to server");
+        } else {
+            //  get the reply.
+            zmq::message_t reply;
+            socket_.recv(&reply);
+        }
+    }
+
     ~server() {
         if (serve_thread_.joinable()) {
             serve_thread_.join();
@@ -161,11 +191,12 @@ class server {
     // server connection
     zmq::context_t context_;
     zmq::socket_t socket_;
-    int32_t scene_id_ = -1;
 
     // subscribe connection
     std::thread serve_thread_;
     zmq::socket_t subscribe_socket_;
+
+    int32_t scene_id_ = -1;
 
     std::function<std::pair<std::vector<int32_t>, std::vector<float>>(
         std::array<float, 9>, int32_t)>

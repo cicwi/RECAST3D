@@ -30,6 +30,8 @@ PYBIND11_MODULE(py_tomop, m) {
     py::class_<tomop::server>(m, "server")
         .def(py::init<std::string>())
         .def(py::init<std::string, std::string, std::string>())
+        .def(py::init<int32_t>())
+        .def(py::init<int32_t, int32_t, std::string, std::string>())
         .def("scene_id", &tomop::server::scene_id)
         .def("set_callback", &tomop::server::set_slice_callback)
         .def("serve", &tomop::server::serve)

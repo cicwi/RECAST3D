@@ -100,4 +100,24 @@ class RemoveSlicePacket : public PacketBase<RemoveSlicePacket> {
     int32_t slice_id;
 };
 
+class GroupRequestSlicesPacket : public PacketBase<GroupRequestSlicesPacket> {
+  public:
+    GroupRequestSlicesPacket()
+        : PacketBase<GroupRequestSlicesPacket>(packet_desc::group_request_slices),
+          scene_id(-1), group_size(1) {}
+
+    GroupRequestSlicesPacket(int32_t scene_id_, int32_t group_size_)
+        : PacketBase<GroupRequestSlicesPacket>(packet_desc::group_request_slices),
+          scene_id(scene_id_), group_size(group_size_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+        buffer | group_size;
+    }
+
+    int32_t scene_id;
+    int32_t group_size;
+};
+
 } // namespace tomop
