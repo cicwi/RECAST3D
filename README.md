@@ -1,4 +1,4 @@
-Slicevis
+RECAST3D
 ========
 
 ![](docs/logo.png)
