@@ -1,5 +1,6 @@
 import tomop
 import numpy as np
+import time
 
 serv = tomop.server("hi")
 SCENE_ID = serv.scene_id()
@@ -11,6 +12,8 @@ def callback(orientation, slice_id):
     return np.array([4, 4], dtype='int32'), np.array([0, 255, 128, 255, 255, 128, 255, 0, 255,
                                                       0, 128, 255, 255, 128, 0,
                                                       255], dtype='float32')
+
+time.sleep(2)
 
 serv = tomop.server(SCENE_ID)
 serv2 = tomop.server(SCENE_ID)

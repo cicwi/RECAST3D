@@ -11,10 +11,10 @@ PYBIND11_MODULE(py_tomop, m) {
     py::class_<tomop::Packet>(m, "packet");
 
     py::class_<tomop::VolumeDataPacket, tomop::Packet>(m, "volume_data_packet")
-        .def(py::init<int32_t, std::vector<int32_t>, std::vector<float>>());
+        .def(py::init<int32_t, std::array<int32_t, 3>, std::vector<float>>());
 
     py::class_<tomop::SliceDataPacket, tomop::Packet>(m, "slice_data_packet")
-        .def(py::init<int32_t, int32_t, std::vector<int32_t>, bool,
+        .def(py::init<int32_t, int32_t, std::array<int32_t, 2>, bool,
                       std::vector<float>>());
 
     py::class_<tomop::GeometrySpecificationPacket, tomop::Packet>(

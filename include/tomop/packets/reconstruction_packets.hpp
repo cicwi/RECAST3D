@@ -13,7 +13,7 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
           slice_id(0) {}
 
     SliceDataPacket(int32_t scene_id_, int32_t slice_id_,
-                    std::vector<int32_t> slice_size_, bool additive_,
+                    std::array<int32_t, 2> slice_size_, bool additive_,
                     std::vector<float> data_)
         : PacketBase<SliceDataPacket>(packet_desc::slice_data),
           scene_id(scene_id_), slice_id(slice_id_), slice_size(slice_size_),
@@ -30,7 +30,38 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
 
     int32_t scene_id;
     int32_t slice_id;
-    std::vector<int32_t> slice_size;
+    std::array<int32_t, 2> slice_size;
+    bool additive;
+    std::vector<float> data;
+};
+
+class PartialSliceDataPacket : public PacketBase<PartialSliceDataPacket> {
+  public:
+    PartialSliceDataPacket()
+        : PacketBase<PartialSliceDataPacket>(packet_desc::partial_slice_data),
+          scene_id(-1), slice_id(0) {}
+
+    PartialSliceDataPacket(int32_t scene_id_, int32_t slice_id_,
+                           std::array<int32_t, 2> slice_offset_,
+                           std::array<int32_t, 2> slice_size_, bool additive_,
+                           std::vector<float> data_)
+        : PacketBase<PartialSliceDataPacket>(packet_desc::partial_slice_data),
+          scene_id(scene_id_), slice_id(slice_id_), slice_offset(slice_offset_),
+          slice_size(slice_size_), additive(additive_), data(data_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+        buffer | slice_id;
+        buffer | slice_size;
+        buffer | additive;
+        buffer | data;
+    }
+
+    int32_t scene_id;
+    int32_t slice_id;
+    std::array<int32_t, 2> slice_offset;
+    std::array<int32_t, 2> slice_size;
     bool additive;
     std::vector<float> data;
 };
@@ -40,7 +71,7 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
     VolumeDataPacket()
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data) {}
 
-    VolumeDataPacket(int32_t scene_id_, std::vector<int32_t> volume_size_,
+    VolumeDataPacket(int32_t scene_id_, std::array<int32_t, 3> volume_size_,
                      std::vector<float> data_)
         : PacketBase<VolumeDataPacket>(packet_desc::volume_data),
           scene_id(scene_id_), volume_size(volume_size_), data(data_) {}
@@ -53,7 +84,34 @@ class VolumeDataPacket : public PacketBase<VolumeDataPacket> {
     }
 
     int32_t scene_id;
-    std::vector<int32_t> volume_size;
+    std::array<int32_t, 3> volume_size;
+    std::vector<float> data;
+};
+
+class PartialVolumeDataPacket : public PacketBase<PartialVolumeDataPacket> {
+  public:
+    PartialVolumeDataPacket()
+        : PacketBase<PartialVolumeDataPacket>(
+              packet_desc::partial_volume_data) {}
+
+    PartialVolumeDataPacket(int32_t scene_id_,
+                            std::array<int32_t, 3> volume_offset_,
+                            std::array<int32_t, 3> volume_size_,
+                            std::vector<float> data_)
+        : PacketBase<PartialVolumeDataPacket>(packet_desc::partial_volume_data),
+          scene_id(scene_id_), volume_offset(volume_offset_),
+          volume_size(volume_size_), data(data_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+        buffer | volume_size;
+        buffer | data;
+    }
+
+    int32_t scene_id;
+    std::array<int32_t, 3> volume_offset;
+    std::array<int32_t, 3> volume_size;
     std::vector<float> data;
 };
 
@@ -103,11 +161,13 @@ class RemoveSlicePacket : public PacketBase<RemoveSlicePacket> {
 class GroupRequestSlicesPacket : public PacketBase<GroupRequestSlicesPacket> {
   public:
     GroupRequestSlicesPacket()
-        : PacketBase<GroupRequestSlicesPacket>(packet_desc::group_request_slices),
+        : PacketBase<GroupRequestSlicesPacket>(
+              packet_desc::group_request_slices),
           scene_id(-1), group_size(1) {}
 
     GroupRequestSlicesPacket(int32_t scene_id_, int32_t group_size_)
-        : PacketBase<GroupRequestSlicesPacket>(packet_desc::group_request_slices),
+        : PacketBase<GroupRequestSlicesPacket>(
+              packet_desc::group_request_slices),
           scene_id(scene_id_), group_size(group_size_) {}
 
     template <typename Buffer>

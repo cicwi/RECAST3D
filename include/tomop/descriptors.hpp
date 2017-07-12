@@ -8,7 +8,9 @@ enum class packet_desc : int {
 
     // RECONSTRUCTION
     slice_data,
+    partial_slice_data,
     volume_data,
+    partial_volume_data,
     set_slice,
     remove_slice,
     group_request_slices,

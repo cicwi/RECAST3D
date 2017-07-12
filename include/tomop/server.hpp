@@ -18,6 +18,10 @@ namespace tomop {
 
 class server {
   public:
+    using callback_type =
+        std::function<std::pair<std::array<int32_t, 2>, std::vector<float>>(
+            std::array<float, 9>, int32_t)>;
+
     server(std::string name, std::string hostname = "tcp://localhost:5555",
            std::string subscribe_hostname = "tcp://localhost:5556")
         : context_(1), socket_(context_, ZMQ_REQ),
@@ -183,10 +187,7 @@ class server {
         }
     }
 
-    void set_slice_callback(
-        std::function<std::pair<std::vector<int32_t>, std::vector<float>>(
-            std::array<float, 9>, int32_t)>
-            callback) {
+    void set_slice_callback(callback_type callback) {
         slice_data_callback_ = callback;
     }
 
@@ -205,9 +206,7 @@ class server {
 
     int32_t scene_id_ = -1;
 
-    std::function<std::pair<std::vector<int32_t>, std::vector<float>>(
-        std::array<float, 9>, int32_t)>
-        slice_data_callback_;
+    callback_type slice_data_callback_;
     std::vector<std::pair<int32_t, std::array<float, 9>>> slices_;
 };
 
