@@ -75,4 +75,49 @@ class ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
     std::vector<float> data;
 };
 
+class PartialProjectionDataPacket
+    : public PacketBase<PartialProjectionDataPacket> {
+  public:
+    PartialProjectionDataPacket()
+        : PacketBase<PartialProjectionDataPacket>(
+              packet_desc::partial_projection_data),
+          scene_id(-1), projection_id(-1) {}
+
+    PartialProjectionDataPacket(int32_t scene_id_, int32_t projection_id_,
+                                std::array<float, 3> source_position_,
+                                std::array<float, 9> detector_orientation_,
+                                std::array<int32_t, 2> detector_pixels_,
+                                std::array<int32_t, 2> partial_offset_,
+                                std::array<int32_t, 2> partial_size_,
+                                std::vector<float> data_)
+        : PacketBase<PartialProjectionDataPacket>(
+              packet_desc::partial_projection_data),
+          scene_id(scene_id_), projection_id(projection_id_),
+          source_position(source_position_),
+          detector_orientation(detector_orientation_),
+          detector_pixels(detector_pixels_), partial_offset(partial_offset_),
+          partial_size(partial_size_), data(data_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+        buffer | projection_id;
+        buffer | source_position;
+        buffer | detector_orientation;
+        buffer | detector_pixels;
+        buffer | partial_offset;
+        buffer | partial_size;
+        buffer | data;
+    }
+
+    int32_t scene_id;
+    int32_t projection_id;
+    std::array<float, 3> source_position;
+    std::array<float, 9> detector_orientation;
+    std::array<int32_t, 2> detector_pixels;
+    std::array<int32_t, 2> partial_offset;
+    std::array<int32_t, 2> partial_size;
+    std::vector<float> data;
+};
+
 } // namespace tomop

@@ -18,6 +18,7 @@ enum class packet_desc : int {
     // GEOMETRY
     geometry_specification,
     projection_data,
+    partial_projection_data,
 
     // PARTITIONING
     set_part,
