@@ -24,6 +24,17 @@ struct slice {
         }
     }
 
+    void add_partial_data(std::vector<float> other,
+                          std::array<int32_t, 2> offset,
+                          std::array<int32_t, 2> partial_size) {
+        int idx = 0;
+        for (auto j = offset[1]; j < partial_size[1] + offset[1]; ++j) {
+            for (auto i = offset[0]; i < partial_size[0] + offset[0]; ++i) {
+                data[j * size[0] + i] += other[idx];
+            }
+        }
+    }
+
     int id = -1;
     int replaces_id = -1;
     bool hovered = false;
@@ -31,7 +42,7 @@ struct slice {
     bool has_data() { return !data.empty(); }
     bool transparent() { return hovered || !has_data(); }
 
-    std::vector<int> size;
+    std::array<int32_t, 2> size;
 
     auto& get_texture() { return tex_; }
 

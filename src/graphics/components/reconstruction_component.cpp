@@ -90,6 +90,80 @@ void ReconstructionComponent::send_slices() {
     }
 }
 
+void ReconstructionComponent::set_data(std::vector<float>& data,
+                                       std::array<int32_t, 2> size, int slice,
+                                       bool additive) {
+    if (slices_.find(slice) == slices_.end()) {
+        std::cout << "Updating inactive slice: " << slice << "\n";
+        return;
+    }
+    if (!additive || !slices_[slice]->has_data()) {
+        slices_[slice]->size = size;
+        slices_[slice]->data = data;
+        update_image_(slice);
+    } else {
+        assert(slices_[slice]->size == size);
+        slices_[slice]->add_data(data);
+        update_image_(slice);
+    }
+}
+
+void ReconstructionComponent::update_partial_slice(
+    std::vector<float>& data, std::array<int32_t, 2> offset,
+    std::array<int32_t, 2> size, std::array<int32_t, 2> global_size, int slice,
+    bool additive) {
+    if (slices_.find(slice) == slices_.end()) {
+        std::cout << "Updating inactive slice: " << slice << "\n";
+        return;
+    }
+    auto& the_slice = slices_[slice];
+    if (!additive || !slices_[slice]->has_data()) {
+        the_slice->size = global_size;
+        the_slice->data.resize(size[0] * size[1]);
+        std::fill(the_slice->data.begin(), the_slice->data.end(), 0);
+        the_slice->add_partial_data(data, offset, size);
+        update_image_(slice);
+    } else {
+        assert(global_size == the_slice->size);
+        slices_[slice]->add_partial_data(data, offset, size);
+        update_image_(slice);
+    }
+}
+
+void ReconstructionComponent::set_volume_data(
+    std::vector<float>& data, std::array<int32_t, 3>& volume_size) {
+    volume_data_ = data;
+    auto packed_data = pack(volume_data_);
+    volume_texture_.set_data(volume_size[0], volume_size[1], volume_size[2],
+                             packed_data);
+    update_histogram(packed_data);
+}
+
+void ReconstructionComponent::update_partial_volume(
+    std::vector<float>& data, std::array<int32_t, 3>& offset,
+    std::array<int32_t, 3>& size, std::array<int32_t, 3>& global_size) {
+    if ((int)volume_data_.size() !=
+        global_size[0] * global_size[1] * global_size[2]) {
+        volume_data_ = std::vector<float>(
+            global_size[0] * global_size[1] * global_size[2], 0.0f);
+    }
+
+    int idx = 0;
+    for (auto k = offset[2]; k < size[2] + offset[2]; ++k) {
+        for (auto j = offset[1]; j < size[1] + offset[1]; ++j) {
+            for (auto i = offset[0]; i < size[0] + offset[0]; ++i) {
+                volume_data_[k * global_size[0] * global_size[1] +
+                             j * global_size[0] + i] = data[idx++];
+            }
+        }
+    }
+
+    auto packed_data = pack(volume_data_);
+    volume_texture_.set_data(global_size[0], global_size[1], global_size[2],
+                             packed_data);
+    update_histogram(packed_data);
+}
+
 void ReconstructionComponent::update_histogram(
     const std::vector<uint32_t>& data) {
     auto bins = 30;
@@ -238,7 +312,7 @@ bool ReconstructionComponent::handle_mouse_moved(float x, float y) {
         return false;
     }
 
-    // update slices that is being hovered over
+    // update slice that is being hovered over
     y = -y;
 
     if (prev_y_ < -1.0) {
