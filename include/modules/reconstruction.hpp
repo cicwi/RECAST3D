@@ -31,8 +31,22 @@ class ReconstructionProtocol : public SceneModuleProtocol {
             return std::move(packet);
         }
 
+        case packet_desc::partial_slice_data: {
+            auto packet = std::make_unique<PartialSliceDataPacket>();
+            packet->deserialize(std::move(buffer));
+            message_succes(socket);
+            return std::move(packet);
+        }
+
         case packet_desc::volume_data: {
             auto packet = std::make_unique<VolumeDataPacket>();
+            packet->deserialize(std::move(buffer));
+            message_succes(socket);
+            return std::move(packet);
+        }
+
+        case packet_desc::partial_volume_data: {
+            auto packet = std::make_unique<PartialVolumeDataPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
             return std::move(packet);
@@ -66,6 +80,22 @@ class ReconstructionProtocol : public SceneModuleProtocol {
             break;
         }
 
+        case packet_desc::partial_slice_data: {
+            PartialSliceDataPacket& packet =
+                *(PartialSliceDataPacket*)event_packet.get();
+            auto scene = scenes.get_scene(packet.scene_id);
+            if (!scene) {
+                std::cout << "Updating non-existing scene\n";
+            }
+            auto& reconstruction_component =
+                (ReconstructionComponent&)scene->object().get_component(
+                    "reconstruction");
+            reconstruction_component.update_partial_slice(
+                packet.data, packet.slice_offset, packet.slice_size,
+                packet.global_slice_size, packet.slice_id, packet.additive);
+            break;
+        }
+
         case packet_desc::volume_data: {
             VolumeDataPacket& packet = *(VolumeDataPacket*)event_packet.get();
             auto scene = scenes.get_scene(packet.scene_id);
@@ -77,6 +107,22 @@ class ReconstructionProtocol : public SceneModuleProtocol {
                     "reconstruction");
             reconstruction_component.set_volume_data(packet.data,
                                                      packet.volume_size);
+            break;
+        }
+
+        case packet_desc::partial_volume_data: {
+            PartialVolumeDataPacket& packet =
+                *(PartialVolumeDataPacket*)event_packet.get();
+            auto scene = scenes.get_scene(packet.scene_id);
+            if (!scene) {
+                std::cout << "Updating non-existing scene\n";
+            }
+            auto& reconstruction_component =
+                (ReconstructionComponent&)scene->object().get_component(
+                    "reconstruction");
+            reconstruction_component.update_partial_volume(
+                packet.data, packet.volume_offset, packet.volume_size,
+                packet.global_volume_size);
             break;
         }
 
@@ -113,12 +159,16 @@ class ReconstructionProtocol : public SceneModuleProtocol {
             break;
         }
 
-        default: { break; }
+        default: {
+            std::cout << "Reconstruction module ignoring an unknown packet..\n";
+            break;
+        }
         }
     }
 
     std::vector<packet_desc> descriptors() override {
-        return {packet_desc::slice_data, packet_desc::volume_data,
+        return {packet_desc::slice_data, packet_desc::partial_slice_data,
+                packet_desc::volume_data, packet_desc::partial_volume_data,
                 packet_desc::group_request_slices};
     }
 

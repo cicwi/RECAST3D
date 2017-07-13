@@ -42,55 +42,39 @@ class ReconstructionComponent : public ObjectComponent {
     ~ReconstructionComponent();
 
     void draw(glm::mat4 world_to_screen) override;
-    std::string identifier() const override { return "reconstruction"; }
+    void describe() override;
 
-    void set_data(std::vector<float>& data, std::vector<int>& size, int slice,
-                  bool additive = true) {
-        if (slices_.find(slice) == slices_.end()) {
-            std::cout << "Updating inactive slice: " << slice << "\n";
-            return;
-        }
-        if (!additive || !slices_[slice]->has_data()) {
-            slices_[slice]->size = size;
-            slices_[slice]->data = data;
-            update_image_(slice);
-        } else {
-            assert(slices_[slice]->size == size);
-            slices_[slice]->add_data(data);
-            update_image_(slice);
-        }
-    }
-
+    void set_data(std::vector<float>& data, std::array<int32_t, 2> size,
+                  int slice, bool additive = true);
+    void update_partial_slice(std::vector<float>& data,
+                              std::array<int32_t, 2> offset,
+                              std::array<int32_t, 2> size,
+                              std::array<int32_t, 2> global_size, int slice,
+                              bool additive = true);
+    void set_volume_data(std::vector<float>& data,
+                         std::array<int32_t, 3>& volume_size);
+    void update_partial_volume(std::vector<float>& data,
+                               std::array<int32_t, 3>& offset,
+                               std::array<int32_t, 3>& size,
+                               std::array<int32_t, 3>& global_size);
+    void set_volume_position(glm::vec3 min_pt, glm::vec3 max_pt);
     void update_histogram(const std::vector<uint32_t>& data);
+
     void send_slices();
 
-    void set_volume_data(std::vector<float>& data,
-                         std::vector<int>& volume_size) {
-        assert(volume_size.size() == 3);
-        auto packed_data = pack(data);
-        volume_texture_.set_data(volume_size[0], volume_size[1], volume_size[2],
-                                 packed_data);
-        update_histogram(packed_data);
-    }
-
+    void switch_if_necessary(recon_drag_machine_kind kind);
     bool handle_mouse_button(int button, bool down) override;
     bool handle_mouse_moved(float x, float y) override;
-
     int index_hovering_over(float x, float y);
     void check_hovered(float x, float y);
-    void switch_if_necessary(recon_drag_machine_kind kind);
 
     std::map<int, std::unique_ptr<slice>>& slices() { return slices_; }
-
+    glm::mat4 volume_transform() { return volume_transform_; }
     auto scene_id() { return scene_id_; }
     auto& object() { return object_; }
     auto& dragged_slice() { return dragged_slice_; }
     auto& get_slices() { return slices_; }
-
-    void describe() override;
-
-    void set_volume_position(glm::vec3 min_pt, glm::vec3 max_pt);
-    glm::mat4 volume_transform() { return volume_transform_; }
+    std::string identifier() const override { return "reconstruction"; }
 
   private:
     void update_image_(int slice);
@@ -113,6 +97,7 @@ class ReconstructionComponent : public ObjectComponent {
 
     GLuint colormap_texture_;
     texture3d<uint32_t> volume_texture_;
+    std::vector<float> volume_data_;
 
     std::unique_ptr<ReconDragMachine> drag_machine_;
     slice* dragged_slice_ = nullptr;
