@@ -43,11 +43,13 @@ class PartialSliceDataPacket : public PacketBase<PartialSliceDataPacket> {
 
     PartialSliceDataPacket(int32_t scene_id_, int32_t slice_id_,
                            std::array<int32_t, 2> slice_offset_,
-                           std::array<int32_t, 2> slice_size_, bool additive_,
-                           std::vector<float> data_)
+                           std::array<int32_t, 2> slice_size_,
+                           std::array<int32_t, 2> global_slice_size_,
+                           bool additive_, std::vector<float> data_)
         : PacketBase<PartialSliceDataPacket>(packet_desc::partial_slice_data),
           scene_id(scene_id_), slice_id(slice_id_), slice_offset(slice_offset_),
-          slice_size(slice_size_), additive(additive_), data(data_) {}
+          slice_size(slice_size_), global_slice_size(global_slice_size_),
+          additive(additive_), data(data_) {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
@@ -62,6 +64,7 @@ class PartialSliceDataPacket : public PacketBase<PartialSliceDataPacket> {
     int32_t slice_id;
     std::array<int32_t, 2> slice_offset;
     std::array<int32_t, 2> slice_size;
+    std::array<int32_t, 2> global_slice_size;
     bool additive;
     std::vector<float> data;
 };
@@ -97,10 +100,12 @@ class PartialVolumeDataPacket : public PacketBase<PartialVolumeDataPacket> {
     PartialVolumeDataPacket(int32_t scene_id_,
                             std::array<int32_t, 3> volume_offset_,
                             std::array<int32_t, 3> volume_size_,
+                            std::array<int32_t, 3> global_volume_size_,
                             std::vector<float> data_)
         : PacketBase<PartialVolumeDataPacket>(packet_desc::partial_volume_data),
           scene_id(scene_id_), volume_offset(volume_offset_),
-          volume_size(volume_size_), data(data_) {}
+          volume_size(volume_size_), global_volume_size(global_volume_size_),
+          data(data_) {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
@@ -112,6 +117,7 @@ class PartialVolumeDataPacket : public PacketBase<PartialVolumeDataPacket> {
     int32_t scene_id;
     std::array<int32_t, 3> volume_offset;
     std::array<int32_t, 3> volume_size;
+    std::array<int32_t, 3> global_volume_size;
     std::vector<float> data;
 };
 
