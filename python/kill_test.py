@@ -6,12 +6,13 @@ serv = tomop.server("hi")
 SCENE_ID = serv.scene_id()
 del serv
 
+
 def callback(orientation, slice_id):
     print("callback called")
     print(orientation)
-    return np.array([4, 4], dtype='int32'), np.array([0, 255, 128, 255, 255, 128, 255, 0, 255,
-                                                      0, 128, 255, 255, 128, 0,
-                                                      255], dtype='float32')
+    return [4, 4], np.array([0, 255, 128, 255, 255, 128, 255, 0, 255,
+                             0, 128, 255, 255, 128, 0,
+                             255], dtype='float32')
 
 time.sleep(2)
 

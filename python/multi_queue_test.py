@@ -8,7 +8,7 @@ serv = tomop.server("Multi-GPU scene")
 
 vdp = tomop.volume_data_packet(
     serv.scene_id(),
-    np.array([2, 2, 2], dtype='int32'),
+    [2, 2, 2],
     np.array([0, 255, 128, 255, 255, 128, 255, 0], dtype='float32'))
 
 serv.send(vdp)
@@ -23,7 +23,7 @@ def gpu_with_queue(s, q, server):
     def callback_fbp(t, orientation):
         data = np.zeros(16, dtype='float')
         data[t + 1] = t + 2
-        return np.array([4, 4], dtype='int32'), data
+        return [4, 4], data
 
     # initialize astra
     #.....

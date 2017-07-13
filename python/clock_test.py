@@ -53,9 +53,8 @@ def main():
     print("Loaded reconstruction..")
 
     def callback(orientation, slice_id):
-        slice_shape = np.array([1000, 1000], dtype='int32')
         slice_payload = slice_data(space, orientation, slice_shape)
-        return slice_shape, slice_payload.ravel()
+        return [1000, 1000], slice_payload.ravel()
 
     serv = tomop.server("3D data test")
 
@@ -66,7 +65,7 @@ def main():
 
     vdp = tomop.volume_data_packet(
         serv.scene_id(),
-        np.array([small_size, small_size, small_size], dtype='int32'),
+        [small_size, small_size, small_size],
         pack(np.transpose(space[::stride, ::stride, ::stride], axes=[2, 1, 0]).ravel(), np.max(space)))
 
     serv.send(vdp)
