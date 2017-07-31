@@ -21,7 +21,6 @@ namespace tomovis {
 
 struct projection {
     projection(int id_) : id(id_), data_texture(32, 32) {
-        std::cout << "making projection " << id_ << "\n";
         set_orientation(glm::vec3(-4.0f, -1.0f, -1.0f),
                         glm::vec3(0.0f, 0.0f, 2.0f),
                         glm::vec3(0.0f, 2.0f, 0.0f));
@@ -82,7 +81,6 @@ class GeometryComponent : public ObjectComponent {
             std::find_if(projections_.begin(), projections_.end(),
                          [=](const auto& x) { return x.id == projection_id; });
         if (proj == projections_.end()) {
-            std::cout << projection_id << " not found " << projections_.size() << "\n";
             projections_.emplace_back(projection_id);
             return projections_[projections_.size() - 1];
         }
