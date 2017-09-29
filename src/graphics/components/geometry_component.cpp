@@ -127,8 +127,10 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) {
         beam_program_->uniform("transform_matrix", world_to_screen);
         beam_program_->uniform("beam_matrix", beam_to_world);
         glBindVertexArray(beam_vao_handle_);
-        glDisable(GL_CULL_FACE);
+
+        glEnable(GL_CULL_FACE);
         glDrawArrays(GL_TRIANGLES, 0, 12 * 9);
+        glDisable(GL_CULL_FACE);
     };
 
     draw_projection(projections_[current_projection_]);
