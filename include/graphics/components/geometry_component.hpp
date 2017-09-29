@@ -14,6 +14,7 @@
 #include "graphics/slice.hpp"
 #include "graphics/textures.hpp"
 #include "object_component.hpp"
+#include "movie/recorder.hpp"
 
 #include "util.hpp"
 
@@ -111,6 +112,8 @@ class GeometryComponent : public ObjectComponent {
     float total_time_elapsed_ = -1.0f;
     int current_projection_ = -1;
     std::vector<projection> projections_;
+
+    Recorder recorder_;
 
     bool show_ = false;
 };

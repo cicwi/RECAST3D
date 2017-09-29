@@ -23,11 +23,13 @@ Renderer::Renderer() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     window_ = glfwCreateWindow(1920, 1024, "SliceVisualizer", NULL, NULL);
     glfwMakeContextCurrent(window_);
 
     gl3wInit();
+    glEnable(GL_MULTISAMPLE);  
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

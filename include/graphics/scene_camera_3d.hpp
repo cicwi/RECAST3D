@@ -59,6 +59,7 @@ class SceneCamera3d : public SceneCamera {
     glm::vec3& look_at() override { return center_; }
 
     void rotate(float phi, float psi);
+    void describe() override;
 
    private:
     glm::vec3 position_;
@@ -75,6 +76,9 @@ class SceneCamera3d : public SceneCamera {
     glm::vec3 up_;
     glm::vec3 right_;
     glm::vec3 center_;
+
+    float total_time_ = 0.0f;
+    bool toggled_ = false;
 
     std::unique_ptr<CameraDragMachine> drag_machine_;
 };
