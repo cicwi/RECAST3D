@@ -8,15 +8,14 @@
 
 namespace tomovis {
 
+class AxesComponent;
+
 class SceneObject3d : public SceneObject {
    public:
     SceneObject3d(int scene_id);
     ~SceneObject3d();
 
     void draw(glm::mat4 window_matrix) override;
-
-   private:
-    std::map<int, std::unique_ptr<slice>> slices_;
 };
 
 }  // namespace tomovis

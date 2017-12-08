@@ -112,6 +112,8 @@ class ReconstructionComponent : public ObjectComponent {
     bool show_ = true;
 
     int scene_id_;
+
+    float max_value_ = -1.0f;
 };
 
 class SliceTranslator : public ReconDragMachine {
