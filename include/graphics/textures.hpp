@@ -88,8 +88,9 @@ class texture3d {
     texture3d(int x, int y, int z) : x_(x), y_(y), z_(z) {
         glGenTextures(1, &texture_id_);
         std::vector<T> data(x * y * z);
+        auto lim = std::numeric_limits<T>::max() - 2;
         for (int i = 0; i < x * y * z; ++i) {
-            data[i] = 255 * ((i + i / x + i / (x * y)) % 2);
+            data[i] = lim * ((i + i / x + i / (x * y)) % 2);
         }
         fill_texture(data);
     }

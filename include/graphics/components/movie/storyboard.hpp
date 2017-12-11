@@ -149,6 +149,7 @@ class Storyboard : public Window, public Ticker {
   private:
     void add_scripts_();
     void perform_script_();
+    void reset_();
 
     bool running_ = false;
     float t_ = 0.0f;

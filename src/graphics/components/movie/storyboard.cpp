@@ -167,7 +167,7 @@ void MoveCameraAlongPath::update(float time) {
     return;
 }
 
-Storyboard::Storyboard(MovieComponent* movie) : movie_(movie) {}
+Storyboard::Storyboard(MovieComponent* movie) : movie_(movie) { reset_(); }
 
 Storyboard::~Storyboard() {}
 
@@ -359,6 +359,14 @@ void Storyboard::perform_script_() {
     scripts_[current_script_]->initial_scene();
 }
 
+void Storyboard::reset_() {
+    add_scripts_();
+    movie_->object().camera().toggle_interaction();
+    running_ = false;
+    t_ = 0.0f;
+    perform_script_();
+}
+
 void Storyboard::describe() {
     ImGui::Text("Storyboard");
 
@@ -371,11 +379,7 @@ void Storyboard::describe() {
     ImGui::SameLine();
 
     if (ImGui::Button("reset")) {
-        add_scripts_();
-        movie_->object().camera().toggle_interaction();
-        running_ = false;
-        t_ = 0.0f;
-        perform_script_();
+        reset_();
     }
 
     ImGui::SliderFloat("Animation speed", &animation_speed_, 1.0f, 10.0f);
