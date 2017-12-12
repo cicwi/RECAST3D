@@ -88,6 +88,10 @@ void ShaderProgram::uniform(std::string name, glm::vec3 v) {
     glUniform3fv(glGetUniformLocation(handle(), name.c_str()), 1, &v[0]);
 }
 
+void ShaderProgram::uniform(std::string name, glm::vec4 v) {
+    glUniform4fv(glGetUniformLocation(handle(), name.c_str()), 1, &v[0]);
+}
+
 void ShaderProgram::uniform(std::string name, float x) {
     glUniform1f(glGetUniformLocation(handle(), name.c_str()), x);
 }

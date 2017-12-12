@@ -75,10 +75,11 @@ class ReconstructionComponent : public ObjectComponent {
     auto scene_id() { return scene_id_; }
     auto& object() { return object_; }
     auto& dragged_slice() { return dragged_slice_; }
+    auto hovered_slice() { return hovered_slice_; }
     auto& get_slices() { return slices_; }
     std::string identifier() const override { return "reconstruction"; }
 
-    std::pair<bool, float> intersection_point(glm::mat4 inv_matrix,
+    std::tuple<bool, float, glm::vec3> intersection_point(glm::mat4 inv_matrix,
                                               glm::mat4 orientation,
                                               glm::vec2 point);
 
@@ -92,6 +93,9 @@ class ReconstructionComponent : public ObjectComponent {
     GLuint vao_handle_;
     GLuint vbo_handle_;
     std::unique_ptr<ShaderProgram> program_;
+
+    GLuint line_vao_handle_;
+    GLuint line_vbo_handle_;
 
     GLuint cube_vao_handle_;
     GLuint cube_vbo_handle_;
@@ -107,6 +111,7 @@ class ReconstructionComponent : public ObjectComponent {
 
     std::unique_ptr<ReconDragMachine> drag_machine_;
     slice* dragged_slice_ = nullptr;
+    slice* hovered_slice_ = nullptr;
 
     std::vector<float> histogram_;
 
@@ -141,6 +146,10 @@ class SliceRotator : public ReconDragMachine {
     recon_drag_machine_kind kind() override {
         return recon_drag_machine_kind::rotator;
     }
+
+    glm::vec3 rot_base;
+    glm::vec3 rot_end;
+    glm::vec2 screen_direction;
 };
 
 } // namespace tomovis

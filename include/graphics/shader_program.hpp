@@ -16,6 +16,7 @@ class ShaderProgram {
 
     void uniform(std::string name, glm::mat4 m);
     void uniform(std::string name, glm::vec3 v);
+    void uniform(std::string name, glm::vec4 v);
     void uniform(std::string name, float x);
     void uniform(std::string name, int x);
 

@@ -4,6 +4,7 @@
 
 namespace tomovis {
 
+const GLfloat* line();
 const GLfloat* square();
 const GLfloat* cube();
 const GLfloat* cube_wireframe();

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <tomop/tomop.hpp>
 
+#include <glm/gtc/constants.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/transform.hpp>
@@ -24,6 +25,14 @@ ReconstructionComponent::ReconstructionComponent(SceneObject& object,
     glBindBuffer(GL_ARRAY_BUFFER, vbo_handle_);
     glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat), square(),
                  GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
+    glGenVertexArrays(1, &line_vao_handle_);
+    glBindVertexArray(line_vao_handle_);
+    glGenBuffers(1, &line_vbo_handle_);
+    glBindBuffer(GL_ARRAY_BUFFER, line_vbo_handle_);
+    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(GLfloat), line(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
@@ -80,6 +89,12 @@ ReconstructionComponent::~ReconstructionComponent() {
     glDeleteBuffers(1, &cube_vbo_handle_);
     glDeleteVertexArrays(1, &vao_handle_);
     glDeleteBuffers(1, &vbo_handle_);
+    // FIXME FULLY DELETE CUBE AND LINE
+    glDeleteVertexArrays(1, &cube_vao_handle_);
+    glDeleteBuffers(1, &cube_vbo_handle_);
+    glDeleteBuffers(1, &cube_index_handle_);
+    glDeleteVertexArrays(1, &line_vao_handle_);
+    glDeleteBuffers(1, &line_vbo_handle_);
 }
 
 void ReconstructionComponent::send_slices() {
@@ -263,13 +278,28 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) {
 
     cube_program_->use();
     cube_program_->uniform("transform_matrix", full_transform);
+    cube_program_->uniform("line_color", glm::vec4(0.5f, 0.5f, 0.5f, 0.3f));
 
     glBindVertexArray(cube_vao_handle_);
     glLineWidth(3.0f);
     glDrawElements(GL_LINES, cube_index_count_, GL_UNSIGNED_INT, nullptr);
 
-    glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
+
+    if (drag_machine_ &&
+        drag_machine_->kind() == recon_drag_machine_kind::rotator) {
+        auto& rotator = *(SliceRotator*)drag_machine_.get();
+        cube_program_->uniform(
+            "transform_matrix",
+            full_transform * glm::translate(rotator.rot_base) *
+                glm::scale(rotator.rot_end - rotator.rot_base));
+        cube_program_->uniform("line_color", glm::vec4(1.0f, 1.0f, 0.5f, 0.5f));
+        glBindVertexArray(line_vao_handle_);
+        glLineWidth(5.0f);
+        glDrawArrays(GL_LINES, 0, 2);
+    }
+
+    glDisable(GL_BLEND);
 }
 
 bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
@@ -302,9 +332,11 @@ bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
 
             dragged_slice_ = nullptr;
             dragging_ = false;
+            drag_machine_ = nullptr;
             return true;
         }
         dragging_ = false;
+        drag_machine_ = nullptr;
     }
 
     return false;
@@ -338,7 +370,7 @@ bool ReconstructionComponent::handle_mouse_moved(float x, float y) {
     return false;
 }
 
-std::pair<bool, float> ReconstructionComponent::intersection_point(
+std::tuple<bool, float, glm::vec3> ReconstructionComponent::intersection_point(
     glm::mat4 inv_matrix, glm::mat4 orientation, glm::vec2 point) {
     auto intersect_ray_plane = [](glm::vec3 origin, glm::vec3 direction,
                                   glm::vec3 base, glm::vec3 normal,
@@ -381,10 +413,11 @@ std::pair<bool, float> ReconstructionComponent::intersection_point(
     auto along_1 = glm::dot(intersection_point, glm::normalize(axis1));
     auto along_2 = glm::dot(intersection_point, glm::normalize(axis2));
     if (glm::abs(along_1) > 0.5f * glm::length(axis1) ||
-        glm::abs(along_2) > 0.5f * glm::length(axis2))
+        glm::abs(along_2) > 0.5f * glm::length(axis2)) {
         does_intersect = false;
+    }
 
-    return std::make_pair(does_intersect, distance);
+    return std::make_tuple(does_intersect, distance, intersection_point);
 }
 
 int ReconstructionComponent::index_hovering_over(float x, float y) {
@@ -400,8 +433,8 @@ int ReconstructionComponent::index_hovering_over(float x, float y) {
         slice->hovered = false;
         auto maybe_point =
             intersection_point(inv_matrix, slice->orientation, glm::vec2(x, y));
-        if (maybe_point.first) {
-            auto z = maybe_point.second;
+        if (std::get<0>(maybe_point)) {
+            auto z = std::get<1>(maybe_point);
             if (z < best_z) {
                 best_z = z;
                 best_slice_index = id_slice.first;
@@ -418,8 +451,10 @@ void ReconstructionComponent::check_hovered(float x, float y) {
     if (best_slice_index >= 0) {
         slices_[best_slice_index]->hovered = true;
         hovering_ = true;
+        hovered_slice_ = slices_[best_slice_index].get();
     } else {
         hovering_ = false;
+        hovered_slice_ = nullptr;
     }
 }
 
@@ -512,16 +547,64 @@ void SliceTranslator::on_drag(glm::vec2 delta) {
 
 SliceRotator::SliceRotator(ReconstructionComponent& comp, glm::vec2 initial)
     : ReconDragMachine(comp, initial) {
-    auto inv_matrix =
-        glm::inverse(comp.object().camera().matrix() * comp.volume_transform());
-    // figure out the position within the slice
-    auto maybe_point =
-        comp.intersection_point(inv_matrix, comp.dragged_slice()->orientation, initial_);
-    assert(maybe_point.first);
-
     // 1. need to identify the opposite axis
+    // a) get the position within the slice
+    auto tf = comp.object().camera().matrix() * comp.volume_transform();
+    auto inv_matrix = glm::inverse(tf);
+
+    auto slice = comp.hovered_slice();
+    assert(slice);
+    auto o = slice->orientation;
+
+    auto maybe_point = comp.intersection_point(inv_matrix, o, initial_);
+    assert(std::get<0>(maybe_point));
+
+    auto axis1 = glm::vec3(o[0][0], o[0][1], o[0][2]);
+    auto axis2 = glm::vec3(o[1][0], o[1][1], o[1][2]);
+    auto base = glm::vec3(o[2][0], o[2][1], o[2][2]);
+
+    auto in_world = std::get<2>(maybe_point);
+    auto rel = in_world - base;
+
+    auto x = 0.5f * glm::dot(rel, axis1) - 1.0f;
+    auto y = 0.5f * glm::dot(rel, axis2) - 1.0f;
+
     // 2. need to rotate around that at on drag
-    // 3. highlight the edge
+    auto other = glm::vec3();
+    if (glm::abs(x) > glm::abs(y)) {
+        if (x > 0.0f) {
+            rot_base = base;
+            rot_end = rot_base + axis2;
+            other = axis1;
+        } else {
+            rot_base = base + axis1;
+            rot_end = rot_base + axis2;
+            other = -axis1;
+        }
+    } else {
+        if (y > 0.0f) {
+            rot_base = base;
+            rot_end = rot_base + axis1;
+            other = axis2;
+        } else {
+            rot_base = base + axis2;
+            rot_end = rot_base + axis1;
+            other = -axis2;
+        }
+    }
+
+    auto center = 0.5f * (rot_end + rot_base);
+    auto opposite_center = 0.5f * (rot_end + rot_base) + other;
+    auto from = tf * glm::vec4(glm::rotate(rot_base - center,
+                                           glm::half_pi<float>(), other) +
+                                   opposite_center,
+                               1.0f);
+    auto to = tf * glm::vec4(glm::rotate(rot_end - center,
+                                         glm::half_pi<float>(), other) +
+                                 opposite_center,
+                             1.0f);
+
+    screen_direction = glm::normalize(from - to);
 }
 
 void SliceRotator::on_drag(glm::vec2 delta) {
@@ -567,9 +650,16 @@ void SliceRotator::on_drag(glm::vec2 delta) {
     auto axis2 = glm::vec3(o[1][0], o[1][1], o[1][2]);
     auto base = glm::vec3(o[2][0], o[2][1], o[2][2]);
 
-    axis2 = glm::rotate(axis2, delta.x, axis1);
+    auto a = base - rot_base;
+    auto b = base + axis1 - rot_base;
+    auto c = base + axis2 - rot_base;
 
-    slice->set_orientation(base, axis1, axis2);
+    auto weight = glm::dot(delta, screen_direction);
+    a = glm::rotate(a, weight, rot_end - rot_base) + rot_base;
+    b = glm::rotate(b, weight, rot_end - rot_base) + rot_base;
+    c = glm::rotate(c, weight, rot_end - rot_base) + rot_base;
+
+    slice->set_orientation(a, b - a, c - a);
 }
 
 } // namespace tomovis

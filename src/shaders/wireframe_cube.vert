@@ -1,7 +1,6 @@
 #version 150
 
 in vec3 in_position;
-
 uniform mat4 transform_matrix;
 
 void main() {
