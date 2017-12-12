@@ -12,6 +12,7 @@ namespace tomovis {
 class Scene : public RenderTarget {
    public:
     Scene(std::string name, int dimension, int scene_id);
+    ~Scene();
 
     void render(glm::mat4 window_matrix) override;
 

@@ -28,7 +28,7 @@ void Server::register_module(std::shared_ptr<SceneModuleProtocol> module) {
 
 void Server::start() {
     //  Prepare our context and socket
-    std::cout << "Listening on for incoming connections..\n";
+    std::cout << "Listening for incoming connections..\n";
 
     // todo graceful shutdown, probably by sending a 'kill' packet to self
     server_thread = std::thread([&]() {

@@ -27,13 +27,15 @@ enum class recon_drag_machine_kind : int {
 
 class ReconDragMachine {
   public:
-    ReconDragMachine(ReconstructionComponent& comp) : comp_(comp) {}
+    ReconDragMachine(ReconstructionComponent& comp, glm::vec2 initial)
+        : comp_(comp), initial_(initial) {}
 
     virtual void on_drag(glm::vec2 delta) = 0;
     virtual recon_drag_machine_kind kind() = 0;
 
   protected:
     ReconstructionComponent& comp_;
+    glm::vec2 initial_;
 };
 
 class ReconstructionComponent : public ObjectComponent {
@@ -75,6 +77,10 @@ class ReconstructionComponent : public ObjectComponent {
     auto& dragged_slice() { return dragged_slice_; }
     auto& get_slices() { return slices_; }
     std::string identifier() const override { return "reconstruction"; }
+
+    std::pair<bool, float> intersection_point(glm::mat4 inv_matrix,
+                                              glm::mat4 orientation,
+                                              glm::vec2 point);
 
   private:
     void update_image_(int slice);
@@ -128,9 +134,10 @@ class SliceTranslator : public ReconDragMachine {
 
 class SliceRotator : public ReconDragMachine {
   public:
-    using ReconDragMachine::ReconDragMachine;
+    SliceRotator(ReconstructionComponent& comp, glm::vec2 initial);
 
     void on_drag(glm::vec2 delta) override;
+
     recon_drag_machine_kind kind() override {
         return recon_drag_machine_kind::rotator;
     }

@@ -116,4 +116,4 @@ target_link_libraries(${EXEC_NAME} ${LIB_NAMES})
 add_executable(client ${EXAMPLE_NAME})
 target_link_libraries(client "zmq" "pthread")
 
-add_subdirectory(test/build test/build)
+#add_subdirectory(test/build test/build)

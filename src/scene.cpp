@@ -1,4 +1,7 @@
 #include <memory>
+#include <iostream>
+
+#include <tomop/tomop.hpp>
 
 #include "graphics/scene_object_2d.hpp"
 #include "graphics/scene_object_3d.hpp"
@@ -17,6 +20,11 @@ Scene::Scene(std::string name, int dimension, int scene_id)
     }
 }
 
+Scene::~Scene() {
+    auto packet = KillScenePacket(scene_id_);
+    object_->send(packet);
+}
+
 void Scene::render(glm::mat4 window_matrix) { object_->draw(window_matrix); }
 
-}  // namespace tomovis
+} // namespace tomovis

@@ -338,56 +338,56 @@ bool ReconstructionComponent::handle_mouse_moved(float x, float y) {
     return false;
 }
 
-int ReconstructionComponent::index_hovering_over(float x, float y) {
-    auto intersection_point = [](glm::mat4 inv_matrix, glm::mat4 orientation,
-                                 glm::vec2 point) -> std::pair<bool, float> {
-        auto intersect_ray_plane = [](glm::vec3 origin, glm::vec3 direction,
-                                      glm::vec3 base, glm::vec3 normal,
-                                      float& distance) -> bool {
-            auto alpha = glm::dot(normal, direction);
-            if (glm::abs(alpha) > 0.001f) {
-                distance = glm::dot((base - origin), normal) / alpha;
-                if (distance >= 0.001f)
-                    return true;
-            }
-            return false;
-        };
-
-        // how do we want to do this
-        // end points of plane/line?
-        // first see where the end
-        // points of the square end up
-        // within the box.
-        // in world space:
-        auto o = orientation;
-        auto axis1 = glm::vec3(o[0][0], o[0][1], o[0][2]);
-        auto axis2 = glm::vec3(o[1][0], o[1][1], o[1][2]);
-        auto base = glm::vec3(o[2][0], o[2][1], o[2][2]);
-        base += 0.5f * (axis1 + axis2);
-        auto normal = glm::normalize(glm::cross(axis1, axis2));
-        float distance = -1.0f;
-
-        auto from = inv_matrix * glm::vec4(point.x, point.y, -1.0f, 1.0f);
-        from /= from[3];
-        auto to = inv_matrix * glm::vec4(point.x, point.y, 1.0f, 1.0f);
-        to /= to[3];
-        auto direction = glm::normalize(glm::vec3(to) - glm::vec3(from));
-
-        bool does_intersect = intersect_ray_plane(glm::vec3(from), direction,
-                                                  base, normal, distance);
-
-        // now check if the actual point is inside the plane
-        auto intersection_point = glm::vec3(from) + direction * distance;
-        intersection_point -= base;
-        auto along_1 = glm::dot(intersection_point, glm::normalize(axis1));
-        auto along_2 = glm::dot(intersection_point, glm::normalize(axis2));
-        if (glm::abs(along_1) > 0.5f * glm::length(axis1) ||
-            glm::abs(along_2) > 0.5f * glm::length(axis2))
-            does_intersect = false;
-
-        return std::make_pair(does_intersect, distance);
+std::pair<bool, float> ReconstructionComponent::intersection_point(
+    glm::mat4 inv_matrix, glm::mat4 orientation, glm::vec2 point) {
+    auto intersect_ray_plane = [](glm::vec3 origin, glm::vec3 direction,
+                                  glm::vec3 base, glm::vec3 normal,
+                                  float& distance) -> bool {
+        auto alpha = glm::dot(normal, direction);
+        if (glm::abs(alpha) > 0.001f) {
+            distance = glm::dot((base - origin), normal) / alpha;
+            if (distance >= 0.001f)
+                return true;
+        }
+        return false;
     };
 
+    // how do we want to do this
+    // end points of plane/line?
+    // first see where the end
+    // points of the square end up
+    // within the box.
+    // in world space:
+    auto o = orientation;
+    auto axis1 = glm::vec3(o[0][0], o[0][1], o[0][2]);
+    auto axis2 = glm::vec3(o[1][0], o[1][1], o[1][2]);
+    auto base = glm::vec3(o[2][0], o[2][1], o[2][2]);
+    base += 0.5f * (axis1 + axis2);
+    auto normal = glm::normalize(glm::cross(axis1, axis2));
+    float distance = -1.0f;
+
+    auto from = inv_matrix * glm::vec4(point.x, point.y, -1.0f, 1.0f);
+    from /= from[3];
+    auto to = inv_matrix * glm::vec4(point.x, point.y, 1.0f, 1.0f);
+    to /= to[3];
+    auto direction = glm::normalize(glm::vec3(to) - glm::vec3(from));
+
+    bool does_intersect =
+        intersect_ray_plane(glm::vec3(from), direction, base, normal, distance);
+
+    // now check if the actual point is inside the plane
+    auto intersection_point = glm::vec3(from) + direction * distance;
+    intersection_point -= base;
+    auto along_1 = glm::dot(intersection_point, glm::normalize(axis1));
+    auto along_2 = glm::dot(intersection_point, glm::normalize(axis2));
+    if (glm::abs(along_1) > 0.5f * glm::length(axis1) ||
+        glm::abs(along_2) > 0.5f * glm::length(axis2))
+        does_intersect = false;
+
+    return std::make_pair(does_intersect, distance);
+}
+
+int ReconstructionComponent::index_hovering_over(float x, float y) {
     auto inv_matrix =
         glm::inverse(object_.camera().matrix() * volume_transform_);
     int best_slice_index = -1;
@@ -428,10 +428,12 @@ void ReconstructionComponent::switch_if_necessary(
     if (!drag_machine_ || drag_machine_->kind() != kind) {
         switch (kind) {
         case recon_drag_machine_kind::translator:
-            drag_machine_ = std::make_unique<SliceTranslator>(*this);
+            drag_machine_ = std::make_unique<SliceTranslator>(
+                *this, glm::vec2{prev_x_, prev_y_});
             break;
         case recon_drag_machine_kind::rotator:
-            drag_machine_ = std::make_unique<SliceRotator>(*this);
+            drag_machine_ = std::make_unique<SliceRotator>(
+                *this, glm::vec2{prev_x_, prev_y_});
             break;
         default:
             break;
@@ -506,6 +508,20 @@ void SliceTranslator::on_drag(glm::vec2 delta) {
     o[2][0] += dx[0];
     o[2][1] += dx[1];
     o[2][2] += dx[2];
+}
+
+SliceRotator::SliceRotator(ReconstructionComponent& comp, glm::vec2 initial)
+    : ReconDragMachine(comp, initial) {
+    auto inv_matrix =
+        glm::inverse(comp.object().camera().matrix() * comp.volume_transform());
+    // figure out the position within the slice
+    auto maybe_point =
+        comp.intersection_point(inv_matrix, comp.dragged_slice()->orientation, initial_);
+    assert(maybe_point.first);
+
+    // 1. need to identify the opposite axis
+    // 2. need to rotate around that at on drag
+    // 3. highlight the edge
 }
 
 void SliceRotator::on_drag(glm::vec2 delta) {
