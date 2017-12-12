@@ -27,6 +27,9 @@ class MakeScenePacket : public PacketBase<MakeScenePacket> {
 
 class KillScenePacket : public PacketBase<KillScenePacket> {
   public:
+    KillScenePacket()
+        : PacketBase<KillScenePacket>(packet_desc::kill_scene), scene_id(-1) {}
+
     KillScenePacket(int scene_id_)
         : PacketBase<KillScenePacket>(packet_desc::kill_scene),
           scene_id(scene_id_) {}

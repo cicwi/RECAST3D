@@ -110,7 +110,8 @@ class server {
         subscribe_socket_.connect(subscribe_host);
 
         std::vector<packet_desc> descriptors = {packet_desc::set_slice,
-                                                packet_desc::remove_slice};
+                                                packet_desc::remove_slice,
+                                                packet_desc::kill_scene};
 
         for (auto descriptor : descriptors) {
             int32_t filter[] = {
@@ -133,7 +134,7 @@ class server {
 
                 switch (desc) {
                 case packet_desc::kill_scene: {
-                    auto packet = std::make_unique<SetSlicePacket>();
+                    auto packet = std::make_unique<KillScenePacket>();
                     packet->deserialize(std::move(buffer));
 
                     if (packet->scene_id != scene_id_) {
