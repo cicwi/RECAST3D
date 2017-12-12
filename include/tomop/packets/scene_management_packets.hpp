@@ -8,10 +8,9 @@
 namespace tomop {
 
 class MakeScenePacket : public PacketBase<MakeScenePacket> {
-   public:
+  public:
     MakeScenePacket(std::string name_ = "", int32_t dimension_ = 3)
-        : PacketBase<MakeScenePacket>(packet_desc::make_scene),
-          name(name_),
+        : PacketBase<MakeScenePacket>(packet_desc::make_scene), name(name_),
           dimension(dimension_) {}
 
     template <typename Buffer>
@@ -26,4 +25,18 @@ class MakeScenePacket : public PacketBase<MakeScenePacket> {
     int32_t scene_id;
 };
 
-}  // namespace tomop
+class KillScenePacket : public PacketBase<KillScenePacket> {
+  public:
+    KillScenePacket(int scene_id_)
+        : PacketBase<KillScenePacket>(packet_desc::kill_scene),
+          scene_id(scene_id_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+    }
+
+    int32_t scene_id;
+};
+
+} // namespace tomop

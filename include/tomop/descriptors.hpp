@@ -5,6 +5,7 @@ namespace tomop {
 enum class packet_desc : int {
     // SCENE MANAGEMENT
     make_scene,
+    kill_scene,
 
     // RECONSTRUCTION
     slice_data,

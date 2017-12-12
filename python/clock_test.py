@@ -52,6 +52,8 @@ def main():
 
     print("Loaded reconstruction..")
 
+    slice_shape = [1000, 1000]
+
     def callback(orientation, slice_id):
         slice_payload = slice_data(space, orientation, slice_shape)
         return [1000, 1000], slice_payload.ravel()

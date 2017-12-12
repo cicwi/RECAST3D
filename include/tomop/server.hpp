@@ -123,34 +123,52 @@ class server {
     void serve() {
         while (true) {
             zmq::message_t update;
+            bool kill = false;
             if (!subscribe_socket_.recv(&update)) {
-                std::cout << "Closing server...\n";
-                break;
+                kill = true;
+            } else {
+                auto desc = ((packet_desc*)update.data())[0];
+                auto buffer =
+                    memory_buffer(update.size(), (char*)update.data());
+
+                switch (desc) {
+                case packet_desc::kill_scene: {
+                    auto packet = std::make_unique<SetSlicePacket>();
+                    packet->deserialize(std::move(buffer));
+
+                    if (packet->scene_id != scene_id_) {
+                        std::cout
+                            << "Received kill request with wrong scene id\n";
+                    } else {
+                        kill = true;
+                    }
+                    break;
+                }
+
+                case packet_desc::set_slice: {
+                    auto packet = std::make_unique<SetSlicePacket>();
+                    packet->deserialize(std::move(buffer));
+
+                    make_slice(packet->slice_id, packet->orientation);
+                    break;
+                }
+                case packet_desc::remove_slice: {
+                    auto packet = std::make_unique<RemoveSlicePacket>();
+                    packet->deserialize(std::move(buffer));
+
+                    auto to_erase = std::find_if(
+                        slices_.begin(), slices_.end(),
+                        [&](auto x) { return x.first == packet->slice_id; });
+                    slices_.erase(to_erase);
+                    break;
+                }
+                default:
+                    break;
+                }
             }
 
-            auto desc = ((packet_desc*)update.data())[0];
-            auto buffer = memory_buffer(update.size(), (char*)update.data());
-
-            switch (desc) {
-            case packet_desc::set_slice: {
-                auto packet = std::make_unique<SetSlicePacket>();
-                packet->deserialize(std::move(buffer));
-
-                make_slice(packet->slice_id, packet->orientation);
-                break;
-            }
-            case packet_desc::remove_slice: {
-                auto packet = std::make_unique<RemoveSlicePacket>();
-                packet->deserialize(std::move(buffer));
-
-                auto to_erase =
-                    std::find_if(slices_.begin(), slices_.end(), [&](auto x) {
-                        return x.first == packet->slice_id;
-                    });
-                slices_.erase(to_erase);
-                break;
-            }
-            default:
+            if (kill) {
+                std::cout << "Scene closed...\n";
                 break;
             }
         }
