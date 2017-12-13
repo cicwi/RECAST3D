@@ -16,10 +16,14 @@ TomoPackets
     cmake ..
     make
     ```
-3. Build test server and python bindings
+3. (Optional) Build test server and python bindings
     ```bash
     # in project root directory
     mkdir build && cd build
     cmake ..
     make
+    ```
+4. (Optional) Install using pip
+    ```bash
+    pip install -e .
     ```

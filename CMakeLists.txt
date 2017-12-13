@@ -33,8 +33,8 @@ target_link_libraries(${EXEC_NAME} ${LIB_NAMES})
 add_subdirectory("ext/pybind11")
 
 set(BINDING_NAME "py_tomop")
-set(BINDING_SOURCES "python/module.cpp")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "../python")
+set(BINDING_SOURCES "tomop/module.cpp")
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "tomop")
 
 pybind11_add_module(${BINDING_NAME} ${BINDING_SOURCES})
 
