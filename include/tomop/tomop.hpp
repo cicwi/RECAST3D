@@ -1,5 +1,6 @@
 #include "descriptors.hpp"
 #include "packets.hpp"
+#include "publisher.hpp"
 #include "serialize.hpp"
 #include "server.hpp"
 

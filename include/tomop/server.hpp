@@ -220,6 +220,11 @@ class server {
                     // ignore all other packets
                     break;
                 }
+
+                zmq::message_t reply(sizeof(int));
+                int success = 1;
+                memcpy(reply.data(), &success, sizeof(int));
+                socket.send(reply);
             }
 
         });

@@ -38,4 +38,9 @@ PYBIND11_MODULE(py_tomop, m) {
         .def("serve", &tomop::server::serve, py::call_guard<py::gil_scoped_release>())
         .def("listen", &tomop::server::listen, py::call_guard<py::gil_scoped_release>())
         .def("send", &tomop::server::send);
+
+    py::class_<tomop::publisher>(m, "publisher")
+        .def(py::init<std::string>())
+        .def("send", &tomop::publisher::send);
+
 }
