@@ -206,12 +206,6 @@ class server {
                 case packet_desc::projection_data: {
                     auto packet = std::make_unique<ProjectionDataPacket>();
                     packet->deserialize(std::move(buffer));
-
-                    if (packet->scene_id != scene_id_) {
-                        std::cout
-                            << "Received proejction data for wrong scene id\n";
-                    }
-
                     projection_data_callback_(packet->detector_pixels,
                                               packet->data,
                                               packet->projection_id);
