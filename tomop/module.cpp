@@ -34,7 +34,8 @@ PYBIND11_MODULE(py_tomop, m) {
         .def(py::init<int32_t, int32_t, std::string, std::string>())
         .def("scene_id", &tomop::server::scene_id)
         .def("set_callback", &tomop::server::set_slice_callback)
-        .def("serve", &tomop::server::serve)
-        .def("listen", &tomop::server::listen)
+        .def("set_projection_callback", &tomop::server::set_projection_callback)
+        .def("serve", &tomop::server::serve, py::call_guard<py::gil_scoped_release>())
+        .def("listen", &tomop::server::listen, py::call_guard<py::gil_scoped_release>())
         .def("send", &tomop::server::send);
 }

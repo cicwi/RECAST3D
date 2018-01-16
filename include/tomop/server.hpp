@@ -11,6 +11,7 @@
 
 #include "exceptions.hpp"
 #include "packets.hpp"
+#include "packets/geometry_packets.hpp"
 #include "packets/reconstruction_packets.hpp"
 #include "packets/scene_management_packets.hpp"
 
@@ -21,6 +22,9 @@ class server {
     using callback_type =
         std::function<std::pair<std::array<int32_t, 2>, std::vector<float>>(
             std::array<float, 9>, int32_t)>;
+
+    using projection_callback_type = std::function<void(
+        std::array<int32_t, 2>, std::vector<float>, int32_t)>;
 
     server(std::string name, std::string hostname = "tcp://localhost:5555",
            std::string subscribe_hostname = "tcp://localhost:5556")
@@ -122,57 +126,106 @@ class server {
     }
 
     void serve() {
-        while (true) {
-            zmq::message_t update;
-            bool kill = false;
-            if (!subscribe_socket_.recv(&update)) {
-                kill = true;
-            } else {
-                auto desc = ((packet_desc*)update.data())[0];
+        // not only serve this, but also other..
+        auto recast_thread = std::thread([&] {
+            while (true) {
+                zmq::message_t update;
+                bool kill = false;
+                if (!subscribe_socket_.recv(&update)) {
+                    kill = true;
+                } else {
+                    auto desc = ((packet_desc*)update.data())[0];
+                    auto buffer =
+                        memory_buffer(update.size(), (char*)update.data());
+
+                    switch (desc) {
+                    case packet_desc::kill_scene: {
+                        auto packet = std::make_unique<KillScenePacket>();
+                        packet->deserialize(std::move(buffer));
+
+                        if (packet->scene_id != scene_id_) {
+                            std::cout << "Received kill request with wrong "
+                                         "scene id\n";
+                        } else {
+                            kill = true;
+                        }
+                        break;
+                    }
+
+                    case packet_desc::set_slice: {
+                        auto packet = std::make_unique<SetSlicePacket>();
+                        packet->deserialize(std::move(buffer));
+
+                        make_slice(packet->slice_id, packet->orientation);
+                        break;
+                    }
+                    case packet_desc::remove_slice: {
+                        auto packet = std::make_unique<RemoveSlicePacket>();
+                        packet->deserialize(std::move(buffer));
+
+                        auto to_erase = std::find_if(
+                            slices_.begin(), slices_.end(), [&](auto x) {
+                                return x.first == packet->slice_id;
+                            });
+                        slices_.erase(to_erase);
+                        break;
+                    }
+                    default:
+                        break;
+                    }
+                }
+
+                if (kill) {
+                    std::cout << "Scene closed...\n";
+                    break;
+                }
+            }
+        });
+
+        // projection server..
+        auto proj_server_thread = std::thread([&]() {
+            // only host if there is actually a projection data callback
+            if (!projection_data_callback_) {
+                return;
+            }
+
+            std::cout << "Hosting projection server at localhost:5557...\n";
+            zmq::socket_t socket(context_, ZMQ_REP);
+            socket.bind("tcp://*:5557");
+
+            while (true) {
+                zmq::message_t request;
+
+                //  Wait for next request from client
+                socket.recv(&request);
+                auto desc = ((packet_desc*)request.data())[0];
                 auto buffer =
-                    memory_buffer(update.size(), (char*)update.data());
+                    memory_buffer(request.size(), (char*)request.data());
 
                 switch (desc) {
-                case packet_desc::kill_scene: {
-                    auto packet = std::make_unique<KillScenePacket>();
+                case packet_desc::projection_data: {
+                    auto packet = std::make_unique<ProjectionDataPacket>();
                     packet->deserialize(std::move(buffer));
 
                     if (packet->scene_id != scene_id_) {
                         std::cout
-                            << "Received kill request with wrong scene id\n";
-                    } else {
-                        kill = true;
+                            << "Received proejction data for wrong scene id\n";
                     }
-                    break;
-                }
 
-                case packet_desc::set_slice: {
-                    auto packet = std::make_unique<SetSlicePacket>();
-                    packet->deserialize(std::move(buffer));
-
-                    make_slice(packet->slice_id, packet->orientation);
-                    break;
-                }
-                case packet_desc::remove_slice: {
-                    auto packet = std::make_unique<RemoveSlicePacket>();
-                    packet->deserialize(std::move(buffer));
-
-                    auto to_erase = std::find_if(
-                        slices_.begin(), slices_.end(),
-                        [&](auto x) { return x.first == packet->slice_id; });
-                    slices_.erase(to_erase);
-                    break;
+                    projection_data_callback_(packet->detector_pixels,
+                                              packet->data,
+                                              packet->projection_id);
                 }
                 default:
+                    // ignore all other packets
                     break;
                 }
             }
 
-            if (kill) {
-                std::cout << "Scene closed...\n";
-                break;
-            }
-        }
+        });
+
+        proj_server_thread.join();
+        recast_thread.join();
     }
 
     void make_slice(int32_t slice_id, std::array<float, 9> orientation) {
@@ -210,7 +263,14 @@ class server {
         slice_data_callback_ = callback;
     }
 
-    void listen() { serve_thread_ = std::thread(&server::serve, this); }
+    void set_projection_callback(projection_callback_type callback) {
+        projection_data_callback_ = callback;
+    }
+
+    void listen() {
+        std::cout << "TomoPackets server listening...\n";
+        serve_thread_ = std::thread([this] { this->serve(); });
+    }
 
     int32_t scene_id() { return scene_id_; }
 
@@ -227,6 +287,8 @@ class server {
 
     callback_type slice_data_callback_;
     std::vector<std::pair<int32_t, std::array<float, 9>>> slices_;
+
+    projection_callback_type projection_data_callback_;
 };
 
 } // namespace tomop
