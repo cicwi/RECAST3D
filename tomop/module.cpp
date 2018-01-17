@@ -27,6 +27,10 @@ PYBIND11_MODULE(py_tomop, m) {
         m, "geometry_specification_packet")
         .def(py::init<int32_t, bool, int32_t>());
 
+    py::class_<tomop::GroupRequestSlicesPacket, tomop::Packet>(
+         m, "group_request_slices_packet")
+        .def(py::init<int32_t, int32_t>());
+
     py::class_<tomop::server>(m, "server")
         .def(py::init<std::string>())
         .def(py::init<std::string, std::string, std::string>())
