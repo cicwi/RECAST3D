@@ -13,9 +13,7 @@
 
 namespace tomovis {
 
-SceneCamera3d::SceneCamera3d() {
-    reset_view();
-}
+SceneCamera3d::SceneCamera3d() { reset_view(); }
 
 void SceneCamera3d::reset_view() {
     // explicitely set to identity
@@ -55,7 +53,7 @@ bool SceneCamera3d::handle_mouse_button(int /* button */, bool down) {
         return false;
     }
     dragging_ = down;
-    if(!dragging_) {
+    if (!dragging_) {
         drag_machine_ = nullptr;
     } else {
         switch_if_necessary(drag_machine_kind::rotator);
@@ -112,7 +110,8 @@ void SceneCamera3d::switch_if_necessary(drag_machine_kind kind) {
     if (!drag_machine_ || drag_machine_->kind() != kind) {
         switch (kind) {
         case drag_machine_kind::rotator:
-            drag_machine_ = std::make_unique<Rotator>(*this, prev_x_, prev_y_, instant_);
+            drag_machine_ =
+                std::make_unique<Rotator>(*this, prev_x_, prev_y_, instant_);
             break;
         default:
             break;
@@ -149,6 +148,37 @@ bool SceneCamera3d::handle_mouse_moved(float x, float y) {
 void SceneCamera3d::describe() {
     SceneCamera::describe();
     ImGui::Checkbox("Instant Camera", &instant_);
+
+    if (ImGui::Button("camera xy")) {
+        rotation_ = glm::mat4(1.0f);
+        position_ = center_;
+        position_.z += 5.0;
+        up_ = glm::vec3(0.0f, 1.0f, 0.0f);
+        right_ = glm::vec3(1.0f, 0.0f, 0.0f);
+    }
+    if (ImGui::Button("camera yz")) {
+        rotation_ = glm::mat4(1.0f);
+        position_ = center_;
+        position_.x += 5.0;
+        up_ = glm::vec3(0.0f, 0.0f, 1.0f);
+        right_ = glm::vec3(0.0f, 1.0f, 0.0f);
+    }
+    if (ImGui::Button("camera xz")) {
+        rotation_ = glm::mat4(1.0f);
+        position_ = center_;
+        position_.y -= 5.0;
+        up_ = glm::vec3(0.0f, 0.0f, 1.0f);
+        right_ = glm::vec3(1.0f, 0.0f, 0.0f);
+    }
+    if (ImGui::Button("camera persp")) {
+        rotation_ = glm::mat4(1.0f);
+        position_ = center_;
+        position_.z += 5.0;
+        position_.y += 2.5;
+        position_.x += 2.5;
+        up_ = glm::vec3(0.0f, 1.0f, 0.0f);
+        right_ = glm::vec3(1.0f, 0.0f, 0.0f);
+    }
 }
 
 void SceneCamera3d::tick(float time_elapsed) {

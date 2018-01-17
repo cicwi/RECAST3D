@@ -9,11 +9,11 @@
 namespace tomovis {
 
 std::vector<uint32_t> pack(const std::vector<float> &data,
-                           float max_value) {
+                           float min_value, float max_value) {
   std::vector<uint32_t> data_buffer(data.size());
 
   // convert data to uint32_t, then set
-  auto min = 0.0f;
+  auto min = min_value;
   auto max = max_value;
   if (max < min) {
     min = *std::min_element(data.begin(), data.end());

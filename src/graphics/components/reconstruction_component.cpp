@@ -115,12 +115,18 @@ void ReconstructionComponent::set_data(std::vector<float>& data,
     if (!additive || !slices_[slice]->has_data()) {
         slices_[slice]->size = size;
         slices_[slice]->data = data;
-        update_image_(slice);
     } else {
         assert(slices_[slice]->size == size);
         slices_[slice]->add_data(data);
-        update_image_(slice);
     }
+
+    this->min_value_ = std::max(this->min_value_,
+                                *std::min_element(slices_[slice]->data.begin(),
+                                                  slices_[slice]->data.end()));
+    this->max_value_ = std::max(this->max_value_,
+                                *std::max_element(slices_[slice]->data.begin(),
+                                                  slices_[slice]->data.end()));
+    update_image_(slice);
 }
 
 void ReconstructionComponent::update_partial_slice(
@@ -141,6 +147,10 @@ void ReconstructionComponent::update_partial_slice(
         assert(global_size == the_slice->size);
         slices_[slice]->add_partial_data(data, offset, size);
     }
+
+    this->min_value_ = std::max(this->min_value_,
+                                *std::min_element(slices_[slice]->data.begin(),
+                                                  slices_[slice]->data.end()));
 
     this->max_value_ = std::max(this->max_value_,
                                 *std::max_element(slices_[slice]->data.begin(),
@@ -208,7 +218,7 @@ void ReconstructionComponent::describe() {
 }
 
 void ReconstructionComponent::update_image_(int slice) {
-    slices_[slice]->update_texture(this->max_value_);
+    slices_[slice]->update_texture(this->min_value_, this->max_value_);
 }
 
 void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
@@ -217,8 +227,7 @@ void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
     volume_transform_ = glm::translate(center) *
                         glm::scale(glm::vec3(max_pt - min_pt)) *
                         glm::scale(glm::vec3(0.5f));
-    object_.camera().set_look_at(
-        glm::vec3(volume_transform_ * glm::vec4(glm::vec3(0.0f), 1.0f)));
+    object_.camera().set_look_at(center);
 }
 
 void ReconstructionComponent::draw(glm::mat4 world_to_screen) {

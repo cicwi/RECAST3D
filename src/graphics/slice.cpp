@@ -10,11 +10,11 @@ slice::slice(int id_) : id(id_), size{32, 32}, tex_(32, 32) {
     update_texture();
 }
 
-void slice::update_texture(float max_value) {
+void slice::update_texture(float min_value, float max_value) {
     if (!has_data()) {
         return;
     }
-    auto packed_data = pack(data, max_value);
+    auto packed_data = pack(data, min_value, max_value);
     tex_.set_data(packed_data, size[0], size[1]);
 }
 

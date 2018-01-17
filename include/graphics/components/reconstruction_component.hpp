@@ -124,6 +124,7 @@ class ReconstructionComponent : public ObjectComponent {
 
     int scene_id_;
 
+    float min_value_ = 1.0f;
     float max_value_ = -1.0f;
 };
 
