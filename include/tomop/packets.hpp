@@ -36,15 +36,15 @@ class Packet {
         memory_buffer& membuf;
     };
 
-    void send(zmq::socket_t& socket) {
+    void send(zmq::socket_t& socket) const {
         auto packet_size = size();
         zmq::message_t request(packet_size);
         memcpy(request.data(), &serialize(packet_size).buffer[0], packet_size);
         socket.send(request);
     }
 
-    virtual std::size_t size() = 0;
-    virtual memory_buffer serialize(int size) = 0;
+    virtual std::size_t size() const = 0;
+    virtual memory_buffer serialize(int size) const = 0;
     virtual void deserialize(memory_buffer buffer) = 0;
 
     virtual ~Packet() = default;
@@ -56,14 +56,14 @@ class PacketBase : public Packet {
     PacketBase(packet_desc desc_) : Packet(desc_) {}
 
 
-    std::size_t size() override {
+    std::size_t size() const override {
         scale total;
         total | this->desc;
         ((Derived*)this)->fill(total);
         return total.size;
     }
 
-    memory_buffer serialize(int packet_size = -1) override {
+    memory_buffer serialize(int packet_size = -1) const override {
         if (packet_size == -1) {
             packet_size = size();
         }

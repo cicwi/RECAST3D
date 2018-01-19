@@ -96,7 +96,7 @@ class server {
         }
     }
 
-    void send(Packet& packet) {
+    void send(const Packet& packet) {
         packet.send(socket_);
         zmq::message_t reply;
         socket_.recv(&reply);
