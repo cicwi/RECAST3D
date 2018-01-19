@@ -60,9 +60,8 @@ struct memory_buffer {
     template <typename T>
     void operator<<(std::vector<T>& xs) {
         (*this) << (int)xs.size();
-        for (auto x : xs) {
-            (*this) << x;
-        }
+        memcpy(buffer.get() + index, xs.data(), sizeof(T) * xs.size());
+        index += xs.size() * sizeof(T);
     }
 
     template <typename T>
