@@ -23,27 +23,23 @@ struct scale {
     }
 };
 
-struct memory_buffer {
-    memory_buffer(std::size_t size) { buffer = std::make_unique<char[]>(size); }
+struct memory_span {
+    // TODO: Add size, and asserts with size checks
+    memory_span(std::size_t, char* data_) : data(data_) { }
+    memory_span() : data(nullptr) { }
 
-    memory_buffer(std::size_t size, char* data) {
-        buffer = std::make_unique<char[]>(size);
-        // double buffer is kind of a waste
-        memcpy(buffer.get(), data, size);
-    }
-
-    std::unique_ptr<char[]> buffer;
+    char *data = nullptr;
     std::size_t index = 0;
 
     template <typename T>
     void operator<<(const T& value) {
-        memcpy(buffer.get() + index, &value, sizeof(T));
+        memcpy(data + index, &value, sizeof(T));
         index += sizeof(T);
     }
 
     template <typename T>
     void operator>>(T& value) {
-        memcpy(&value, buffer.get() + index, sizeof(T));
+        memcpy(&value, data + index, sizeof(T));
         index += sizeof(T);
     }
 
@@ -53,14 +49,14 @@ struct memory_buffer {
     }
 
     void operator>>(std::string& str) {
-        str = std::string(buffer.get() + index);
+        str = std::string(data + index);
         index += (str.size() + 1) * sizeof(char);
     }
 
     template <typename T>
     void operator<<(std::vector<T>& xs) {
         (*this) << (int)xs.size();
-        memcpy(buffer.get() + index, xs.data(), sizeof(T) * xs.size());
+        memcpy(data + index, xs.data(), sizeof(T) * xs.size());
         index += xs.size() * sizeof(T);
     }
 
@@ -69,9 +65,25 @@ struct memory_buffer {
         int size = 0;
         (*this) >> size;
         xs.resize(size);
-        memcpy(xs.data(), buffer.get() + index, sizeof(T) * size);
+        memcpy(xs.data(), data + index, sizeof(T) * size);
         index += size * sizeof(T);
     }
+};
+
+struct memory_buffer : public memory_span {
+    memory_buffer(std::size_t size) {
+        buffer = std::make_unique<char[]>(size);
+        data = buffer.get();
+    }
+
+    memory_buffer(std::size_t size, char* data_) {
+        buffer = std::make_unique<char[]>(size);
+        // double buffer is kind of a waste
+        memcpy(buffer.get(), data_, size);
+        data = buffer.get();
+    }
+
+    std::unique_ptr<char[]> buffer;
 };
 
 }  // namespace tomop

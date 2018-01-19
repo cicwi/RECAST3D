@@ -205,13 +205,11 @@ class server {
                 socket.send(reply);
 
                 auto desc = ((packet_desc*)request.data())[0];
-                auto buffer =
-                    memory_buffer(request.size(), (char*)request.data());
 
                 switch (desc) {
                 case packet_desc::projection_data: {
                     auto packet = std::make_unique<ProjectionDataPacket>();
-                    packet->deserialize(std::move(buffer));
+                    packet->deserialize(request);
                     projection_data_callback_(packet->detector_pixels,
                                               packet->data,
                                               packet->projection_id);

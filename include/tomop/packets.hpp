@@ -14,38 +14,43 @@ class Packet {
     Packet(packet_desc desc_) : desc(desc_) {}
     packet_desc desc;
 
+    template <typename BufferT>
     struct omembuf {
-        omembuf(memory_buffer& membuf_) : membuf(membuf_) {}
+        omembuf(BufferT& membuf_) : membuf(membuf_) {}
 
         template <typename T>
         void operator|(T& rhs) {
             membuf >> rhs;
         }
 
-        memory_buffer& membuf;
+        BufferT& membuf;
     };
 
+    template <typename BufferT>
     struct imembuf {
-        imembuf(memory_buffer& membuf_) : membuf(membuf_) {}
+        imembuf(BufferT& membuf_) : membuf(membuf_) {}
 
         template <typename T>
         void operator|(T& rhs) {
             membuf << rhs;
         }
 
-        memory_buffer& membuf;
+        BufferT& membuf;
     };
 
     void send(zmq::socket_t& socket) const {
         auto packet_size = size();
         zmq::message_t request(packet_size);
-        memcpy(request.data(), &serialize(packet_size).buffer[0], packet_size);
+        serialize(request);
         socket.send(request);
     }
 
     virtual std::size_t size() const = 0;
     virtual memory_buffer serialize(int size) const = 0;
     virtual void deserialize(memory_buffer buffer) = 0;
+
+    virtual void serialize(zmq::message_t& request) const = 0;
+    virtual void deserialize(zmq::message_t& request) = 0;
 
     virtual ~Packet() = default;
 };
@@ -70,7 +75,7 @@ class PacketBase : public Packet {
         memory_buffer buffer(packet_size);
         buffer << this->desc;
 
-        auto im = imembuf(buffer);
+        auto im = imembuf<memory_buffer>(buffer);
         ((Derived*)this)->fill(im);
 
         return buffer;
@@ -78,7 +83,23 @@ class PacketBase : public Packet {
 
     void deserialize(memory_buffer buffer) override {
         buffer >> this->desc;
-        auto om = omembuf(buffer);
+        auto om = omembuf<memory_buffer>(buffer);
+        ((Derived*)this)->fill(om);
+    }
+
+    void serialize(zmq::message_t& request) const override {
+        memory_span buffer(request.size(), (char*)request.data());
+        buffer << this->desc;
+
+        auto im = imembuf<memory_span>(buffer);
+        ((Derived*)this)->fill(im);
+    }
+
+    void deserialize(zmq::message_t& request) override {
+        memory_span buffer(request.size(), (char*)request.data());
+        buffer >> this->desc;
+
+        auto om = omembuf<memory_span>(buffer);
         ((Derived*)this)->fill(om);
     }
 };
