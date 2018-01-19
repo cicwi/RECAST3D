@@ -198,6 +198,12 @@ class server {
 
                 //  Wait for next request from client
                 socket.recv(&request);
+
+                zmq::message_t reply(sizeof(int));
+                int success = 1;
+                memcpy(reply.data(), &success, sizeof(int));
+                socket.send(reply);
+
                 auto desc = ((packet_desc*)request.data())[0];
                 auto buffer =
                     memory_buffer(request.size(), (char*)request.data());
@@ -215,10 +221,6 @@ class server {
                     break;
                 }
 
-                zmq::message_t reply(sizeof(int));
-                int success = 1;
-                memcpy(reply.data(), &success, sizeof(int));
-                socket.send(reply);
             }
 
         });
