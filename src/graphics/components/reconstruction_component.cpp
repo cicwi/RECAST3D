@@ -120,7 +120,7 @@ void ReconstructionComponent::set_data(std::vector<float>& data,
         slices_[slice]->add_data(data);
     }
 
-    this->min_value_ = std::max(this->min_value_,
+    this->min_value_ = std::min(this->min_value_,
                                 *std::min_element(slices_[slice]->data.begin(),
                                                   slices_[slice]->data.end()));
     this->max_value_ = std::max(this->max_value_,
@@ -148,7 +148,7 @@ void ReconstructionComponent::update_partial_slice(
         slices_[slice]->add_partial_data(data, offset, size);
     }
 
-    this->min_value_ = std::max(this->min_value_,
+    this->min_value_ = std::min(this->min_value_,
                                 *std::min_element(slices_[slice]->data.begin(),
                                                   slices_[slice]->data.end()));
 
