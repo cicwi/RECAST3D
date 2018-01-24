@@ -95,7 +95,10 @@ set(
 set(
     LIB_NAMES
     "dl"
-    "glfw"
+    "glfw3"
+    "X11"
+    "Xrandr"
+    "Xi"
     "GL"
     "zmq"
     "pthread"
