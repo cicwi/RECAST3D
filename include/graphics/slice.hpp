@@ -55,6 +55,9 @@ struct slice {
             orientation[1][0], orientation[1][1], orientation[1][2],
             orientation[2][0], orientation[2][1], orientation[2][2]};
     }
+
+    float min_value = 1.0f;
+    float max_value = -1.0f;
 };
 
 } // namespace tomovis

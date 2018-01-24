@@ -120,12 +120,10 @@ void ReconstructionComponent::set_data(std::vector<float>& data,
         slices_[slice]->add_data(data);
     }
 
-    this->min_value_ = std::min(this->min_value_,
-                                *std::min_element(slices_[slice]->data.begin(),
-                                                  slices_[slice]->data.end()));
-    this->max_value_ = std::max(this->max_value_,
-                                *std::max_element(slices_[slice]->data.begin(),
-                                                  slices_[slice]->data.end()));
+    slices_[slice]->min_value = *std::min_element(slices_[slice]->data.begin(),
+                                                 slices_[slice]->data.end());
+    slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
+                                                 slices_[slice]->data.end());
     update_image_(slice);
 }
 
@@ -148,13 +146,10 @@ void ReconstructionComponent::update_partial_slice(
         slices_[slice]->add_partial_data(data, offset, size);
     }
 
-    this->min_value_ = std::min(this->min_value_,
-                                *std::min_element(slices_[slice]->data.begin(),
-                                                  slices_[slice]->data.end()));
-
-    this->max_value_ = std::max(this->max_value_,
-                                *std::max_element(slices_[slice]->data.begin(),
-                                                  slices_[slice]->data.end()));
+    slices_[slice]->min_value = *std::min_element(slices_[slice]->data.begin(),
+                                                 slices_[slice]->data.end());
+    slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
+                                                 slices_[slice]->data.end());
     update_image_(slice);
 }
 
@@ -218,7 +213,16 @@ void ReconstructionComponent::describe() {
 }
 
 void ReconstructionComponent::update_image_(int slice) {
-    slices_[slice]->update_texture(this->min_value_, this->max_value_);
+    auto overall_min = std::numeric_limits<float>::max();
+    auto overall_max = std::numeric_limits<float>::min();
+    for (auto&& [slice_idx, slice] : slices_) {
+        (void)slice_idx;
+        overall_min =
+            slice->min_value < overall_min ? slice->min_value : overall_min;
+        overall_max =
+            slice->max_value > overall_max ? slice->max_value : overall_max;
+    }
+    slices_[slice]->update_texture(overall_min, overall_max);
 }
 
 void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
