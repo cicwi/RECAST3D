@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <limits>
 #include <iostream>
 #include <vector>
@@ -18,6 +19,21 @@ inline GLenum data_type<uint8_t>() { return GL_UNSIGNED_BYTE; }
 
 template <>
 inline GLenum data_type<uint32_t>() { return GL_UNSIGNED_INT; }
+
+template <>
+inline GLenum data_type<float>() { return GL_FLOAT; }
+
+template <typename T>
+inline GLint format_type();
+
+template <>
+inline GLint format_type<uint8_t>() { return GL_RED; }
+
+template <>
+inline GLint format_type<uint32_t>() { return GL_RED; }
+
+template <>
+inline GLint format_type<float>() { return GL_R32F; }
 
 template <typename T = unsigned char>
 class texture {
@@ -53,12 +69,14 @@ class texture {
     }
 
     void fill_texture(std::vector<T>& data) {
+        std::cout << "tmin: " << *std::min_element(data.begin(), data.end()) << "\n";
+        std::cout << "tmax: " << *std::max_element(data.begin(), data.end()) << "\n";
         glBindTexture(GL_TEXTURE_2D, texture_id_);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, x_, y_, 0, GL_RED,
+        glTexImage2D(GL_TEXTURE_2D, 0, format_type<T>(), x_, y_, 0, GL_RED,
                      data_type<T>(), data.data());
 
         glGenerateMipmap(GL_TEXTURE_2D);

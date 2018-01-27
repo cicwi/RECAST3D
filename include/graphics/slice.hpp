@@ -13,7 +13,7 @@ namespace tomovis {
 struct slice {
     slice(int id_);
 
-    void update_texture(float min_value = 1.0f, float max_value = -1.0f);
+    void update_texture();
     void set_orientation(glm::vec3 base, glm::vec3 x, glm::vec3 y);
 
     std::vector<float> data;
@@ -46,7 +46,7 @@ struct slice {
 
     auto& get_texture() { return tex_; }
 
-    texture<uint32_t> tex_;
+    texture<float> tex_;
     glm::mat4 orientation;
 
     std::array<float, 9> packed_orientation() {
