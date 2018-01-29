@@ -83,6 +83,8 @@ class ReconstructionComponent : public ObjectComponent {
                                               glm::mat4 orientation,
                                               glm::vec2 point);
 
+    std::pair<float, float> overall_min_and_max();
+
   private:
     void update_image_(int slice);
 
@@ -117,6 +119,9 @@ class ReconstructionComponent : public ObjectComponent {
 
     float prev_x_ = -1.1f;
     float prev_y_ = -1.1f;
+
+    float lower_value_ = -1.0f;
+    float upper_value_ = 1.0f;
 
     bool dragging_ = false;
     bool hovering_ = false;

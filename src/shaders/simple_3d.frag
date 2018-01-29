@@ -9,11 +9,17 @@ uniform sampler3D volume_data_sampler;
 
 uniform int hovered;
 uniform int has_data;
+uniform float min_value;
+uniform float max_value;
 
 out vec4 fragColor;
 
 void main() {
     float value = texture(texture_sampler, tex_coord).x;
+
+    if (max_value != min_value) {
+        value = (value - min_value) / (max_value - min_value);
+    }
 
     if (has_data != 1) {
         value = texture(volume_data_sampler, volume_coord).x;

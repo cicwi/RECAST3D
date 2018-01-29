@@ -120,10 +120,16 @@ void ReconstructionComponent::set_data(std::vector<float>& data,
         slices_[slice]->add_data(data);
     }
 
+    std::cout << "additive: " << additive << "\n";
+    std::cout << "dmin: " << *std::min_element(data.begin(), data.end())
+              << "\n";
+    std::cout << "dmax: " << *std::max_element(data.begin(), data.end())
+              << "\n";
+
     slices_[slice]->min_value = *std::min_element(slices_[slice]->data.begin(),
-                                                 slices_[slice]->data.end());
+                                                  slices_[slice]->data.end());
     slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
-                                                 slices_[slice]->data.end());
+                                                  slices_[slice]->data.end());
     update_image_(slice);
 }
 
@@ -147,9 +153,9 @@ void ReconstructionComponent::update_partial_slice(
     }
 
     slices_[slice]->min_value = *std::min_element(slices_[slice]->data.begin(),
-                                                 slices_[slice]->data.end());
+                                                  slices_[slice]->data.end());
     slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
-                                                 slices_[slice]->data.end());
+                                                  slices_[slice]->data.end());
     update_image_(slice);
 }
 
@@ -210,19 +216,34 @@ void ReconstructionComponent::describe() {
     ImGui::PlotHistogram("Reconstruction histogram", histogram_.data(),
                          histogram_.size(), 0, NULL, FLT_MAX, FLT_MAX,
                          ImVec2(window_size.x, 128));
+
+    auto[min, max] = overall_min_and_max();
+    ImGui::SliderFloat("Lower", &lower_value_, min, max);
+    ImGui::SliderFloat("Upper", &upper_value_, min, max);
 }
 
-void ReconstructionComponent::update_image_(int slice) {
+std::pair<float, float> ReconstructionComponent::overall_min_and_max() {
     auto overall_min = std::numeric_limits<float>::max();
     auto overall_max = std::numeric_limits<float>::min();
-    for (auto&& [slice_idx, slice] : slices_) {
+    for (auto && [ slice_idx, slice ] : slices_) {
         (void)slice_idx;
         overall_min =
             slice->min_value < overall_min ? slice->min_value : overall_min;
         overall_max =
             slice->max_value > overall_max ? slice->max_value : overall_max;
     }
-    slices_[slice]->update_texture(overall_min, overall_max);
+
+    return {overall_min - (0.2f * (overall_max - overall_min)),
+            overall_max + (0.2f * (overall_max - overall_min))};
+}
+
+void ReconstructionComponent::update_image_(int slice) {
+
+    if (lower_value_ == -1.0f && upper_value_ == 1.0f) {
+        lower_value_ = slices_[slice]->min_value;
+        upper_value_ = slices_[slice]->max_value;
+    }
+    slices_[slice]->update_texture();
 }
 
 void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
@@ -247,6 +268,9 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) {
     program_->uniform("texture_sampler", 0);
     program_->uniform("colormap_sampler", 1);
     program_->uniform("volume_data_sampler", 3);
+
+    program_->uniform("min_value", lower_value_);
+    program_->uniform("max_value", upper_value_);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormap_texture_);
