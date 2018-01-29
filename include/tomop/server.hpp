@@ -252,7 +252,7 @@ class server {
 
         if (!result.first.empty()) {
             auto data_packet =
-                SliceDataPacket(scene_id_, slice_id, result.first, true,
+                SliceDataPacket(scene_id_, slice_id, result.first, false,
                                 std::move(result.second));
             send(data_packet);
         }
