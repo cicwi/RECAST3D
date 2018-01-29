@@ -14,10 +14,6 @@ void slice::update_texture() {
     if (!has_data()) {
         return;
     }
-    std::cout << "smin: " << *std::min_element(data.begin(), data.end()) << "\n";
-    std::cout << "smax: " << *std::max_element(data.begin(), data.end()) << "\n";
-
-
     tex_.set_data(data, size[0], size[1]);
 }
 

@@ -112,6 +112,11 @@ void ReconstructionComponent::set_data(std::vector<float>& data,
         std::cout << "Updating inactive slice: " << slice << "\n";
         return;
     }
+
+    if (slices_[slice].get() == dragged_slice_) {
+        return;
+    }
+
     if (!additive || !slices_[slice]->has_data()) {
         slices_[slice]->size = size;
         slices_[slice]->data = data;
@@ -119,12 +124,6 @@ void ReconstructionComponent::set_data(std::vector<float>& data,
         assert(slices_[slice]->size == size);
         slices_[slice]->add_data(data);
     }
-
-    std::cout << "additive: " << additive << "\n";
-    std::cout << "dmin: " << *std::min_element(data.begin(), data.end())
-              << "\n";
-    std::cout << "dmax: " << *std::max_element(data.begin(), data.end())
-              << "\n";
 
     slices_[slice]->min_value = *std::min_element(slices_[slice]->data.begin(),
                                                   slices_[slice]->data.end());
@@ -162,10 +161,9 @@ void ReconstructionComponent::update_partial_slice(
 void ReconstructionComponent::set_volume_data(
     std::vector<float>& data, std::array<int32_t, 3>& volume_size) {
     volume_data_ = data;
-    auto packed_data = pack(volume_data_);
     volume_texture_.set_data(volume_size[0], volume_size[1], volume_size[2],
-                             packed_data);
-    update_histogram(packed_data);
+                             data);
+    update_histogram(data);
 }
 
 void ReconstructionComponent::update_partial_volume(
@@ -187,24 +185,24 @@ void ReconstructionComponent::update_partial_volume(
         }
     }
 
-    auto packed_data = pack(volume_data_);
     volume_texture_.set_data(global_size[0], global_size[1], global_size[2],
-                             packed_data);
-    update_histogram(packed_data);
+                             volume_data_);
+    update_histogram(volume_data_);
 }
 
 void ReconstructionComponent::update_histogram(
-    const std::vector<uint32_t>& data) {
+    const std::vector<float>& data) {
     auto bins = 30;
-    auto max = (float)std::numeric_limits<uint32_t>::max();
-    auto min = (float)std::numeric_limits<uint32_t>::min();
-    auto step = (max - min) / bins;
+    auto min = *std::min_element(data.begin(), data.end());
+    auto max = *std::max_element(data.begin(), data.end());
+std::cout << "MIN VOL: " << min << "\n";
+std::cout << "MAX VOL: " << max << "\n";
 
     histogram_.clear();
     histogram_.resize(bins);
 
     for (auto x : data) {
-        auto bin = (int)(x / step);
+        auto bin = (int)(((x - min) / (max - min)) * (bins - 1));
         histogram_[bin] += 1.0f;
     }
 }

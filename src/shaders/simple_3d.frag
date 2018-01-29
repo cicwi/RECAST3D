@@ -17,12 +17,12 @@ out vec4 fragColor;
 void main() {
     float value = texture(texture_sampler, tex_coord).x;
 
-    if (max_value != min_value) {
-        value = (value - min_value) / (max_value - min_value);
-    }
-
     if (has_data != 1) {
         value = texture(volume_data_sampler, volume_coord).x;
+    }
+
+    if (max_value != min_value) {
+        value = (value - min_value) / (max_value - min_value);
     }
 
     fragColor = vec4(texture(colormap_sampler, value).xyz, 1.0f);

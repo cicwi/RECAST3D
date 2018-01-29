@@ -69,8 +69,6 @@ class texture {
     }
 
     void fill_texture(std::vector<T>& data) {
-        std::cout << "tmin: " << *std::min_element(data.begin(), data.end()) << "\n";
-        std::cout << "tmax: " << *std::max_element(data.begin(), data.end()) << "\n";
         glBindTexture(GL_TEXTURE_2D, texture_id_);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -136,7 +134,7 @@ class texture3d {
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, x_, y_, z_, 0, GL_RED,
+        glTexImage3D(GL_TEXTURE_3D, 0, format_type<T>(), x_, y_, z_, 0, GL_RED,
                      data_type<T>(), data.data());
 
         glGenerateMipmap(GL_TEXTURE_3D);

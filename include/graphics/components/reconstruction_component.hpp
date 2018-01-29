@@ -60,7 +60,7 @@ class ReconstructionComponent : public ObjectComponent {
                                std::array<int32_t, 3>& size,
                                std::array<int32_t, 3>& global_size);
     void set_volume_position(glm::vec3 min_pt, glm::vec3 max_pt);
-    void update_histogram(const std::vector<uint32_t>& data);
+    void update_histogram(const std::vector<float>& data);
 
     void send_slices();
 
@@ -108,7 +108,7 @@ class ReconstructionComponent : public ObjectComponent {
     SceneObject& object_;
 
     GLuint colormap_texture_;
-    texture3d<uint32_t> volume_texture_;
+    texture3d<float> volume_texture_;
     std::vector<float> volume_data_;
 
     std::unique_ptr<ReconDragMachine> drag_machine_;
