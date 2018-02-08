@@ -195,8 +195,9 @@ void ReconstructionComponent::update_histogram(
     auto bins = 30;
     auto min = *std::min_element(data.begin(), data.end());
     auto max = *std::max_element(data.begin(), data.end());
-std::cout << "MIN VOL: " << min << "\n";
-std::cout << "MAX VOL: " << max << "\n";
+    if (max == min) {
+        max = min + 1;
+    }
 
     histogram_.clear();
     histogram_.resize(bins);
