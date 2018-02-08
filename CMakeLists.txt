@@ -99,6 +99,8 @@ set(
     "X11"
     "Xrandr"
     "Xi"
+    "Xinerama"
+    "Xcursor"
     "GL"
     "zmq"
     "pthread"
