@@ -18,8 +18,6 @@ include_directories(
 )
 
 link_directories(
-    "~/.local/lib/"
-    "~/local/lib/"
     "ext/libzmq/build/lib/"
     "ext/assimp/build/code/"
     "ext/glfw/build/src"
