@@ -47,17 +47,24 @@ void SceneSwitcher::reload_data_() {
 void SceneSwitcher::describe() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Scenes")) {
-            if (ImGui::MenuItem("Next scene", "ctrl + n"))
+            if (ImGui::MenuItem("Next scene", "ctrl + n")) {
                 next_scene();
-            if (ImGui::MenuItem("Add scene", "ctrl + a"))
+            }
+            if (ImGui::MenuItem("Add scene", "ctrl + a")) {
                 add_scene();
-            if (ImGui::MenuItem("Add scene (3D)", "ctrl + b"))
+            }
+            if (ImGui::MenuItem("Add scene (3D)", "ctrl + b")) {
                 add_scene_3d();
-            if (ImGui::MenuItem("Add movie", "ctrl + m"))
-                show_movie_modal();
-
-            if (ImGui::MenuItem("Delete scene", "ctrl + d"))
+            }
+            if (ImGui::MenuItem("Delete scene", "ctrl + d")) {
                 delete_scene();
+            }
+            if (ImGui::MenuItem("Add movie", "ctrl + m")) {
+                show_movie_modal();
+            }
+            if (ImGui::MenuItem("Load dataset", "ctrl + l")) {
+                show_dataset_modal();
+            }
 
             if (scenes_.active_scene()) {
 
@@ -120,6 +127,36 @@ void SceneSwitcher::describe() {
             ImGui::EndPopup();
         }
     }
+
+    if (loading_dataset_) {
+        ImGui::OpenPopup("Choose dataset");
+        if (ImGui::BeginPopupModal("Choose dataset", NULL,
+                                   ImGuiWindowFlags_AlwaysAutoResize)) {
+            static char str0[128] = "/";
+            ImGui::InputText("location", str0, IM_ARRAYSIZE(str0));
+
+            ImGui::Separator();
+
+            const char* listbox_items[] = { "FleX-ray", "HDF5"};
+            static int listbox_item_current = 0;
+            ImGui::ListBox("Dataset type", &listbox_item_current, listbox_items, IM_ARRAYSIZE(listbox_items));
+
+            if (ImGui::Button("OK")) {
+                add_dataset_scene(str0);
+                loading_dataset_ = false;
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                loading_dataset_ = false;
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+    }
 }
 
 bool SceneSwitcher::handle_key(int key, bool down, int mods) {
@@ -137,6 +174,10 @@ bool SceneSwitcher::handle_key(int key, bool down, int mods) {
     }
     if (down && key == GLFW_KEY_M && (mods & GLFW_MOD_CONTROL)) {
         show_movie_modal();
+        return true;
+    }
+    if (down && key == GLFW_KEY_L && (mods & GLFW_MOD_CONTROL)) {
+        show_dataset_modal();
         return true;
     }
     if (down && key == GLFW_KEY_D && (mods & GLFW_MOD_CONTROL)) {
@@ -174,6 +215,7 @@ void SceneSwitcher::add_scene_3d() {
 }
 
 void SceneSwitcher::show_movie_modal() { adding_movie_ = true; }
+void SceneSwitcher::show_dataset_modal() { loading_dataset_ = true; }
 
 void SceneSwitcher::add_movie_scene(std::string file) {
     std::stringstream ss;
@@ -182,6 +224,18 @@ void SceneSwitcher::add_movie_scene(std::string file) {
     auto& obj = scenes_.active_scene()->object();
     obj.add_component(
         std::make_unique<MovieComponent>(obj, obj.scene_id(), file));
+}
+
+void SceneSwitcher::add_dataset_scene(std::string location) {
+    std::cout << "Add dataset: " << location << "\n";
+    std::cout << "TODO...\n";
+    // 1. start a new reconstruction server
+    // Q: hold list of reconstruction threads?
+    // Q: multiple reconsruction scenes cannot be held in GPU memory.. make
+    // reconstruction scene exclusive?
+    // Q: how do we delete a scene if it already exists
+    // 1b. we want to kill the server when scene is deleted, add delete scene package
+    // 2. make a scene with recon component to the appropriate server
 }
 
 void SceneSwitcher::delete_scene() {

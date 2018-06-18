@@ -79,7 +79,7 @@ make -j8
 Authors
 =======
 
-Slicevis is developed by the Computational Imaging group at CWI. Main author:
+RECAST3D is developed by the Computational Imaging group at CWI. Main author:
 
 - Jan-Willem Buurlage
 
