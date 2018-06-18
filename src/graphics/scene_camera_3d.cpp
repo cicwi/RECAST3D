@@ -1,6 +1,8 @@
 #include <iostream>
 #include <limits>
 
+#include <imgui.h>
+
 #include "graphics/scene_camera_3d.hpp"
 
 #include <GLFW/glfw3.h>
@@ -182,7 +184,7 @@ void SceneCamera3d::describe() {
 }
 
 void SceneCamera3d::tick(float time_elapsed) {
-    if (drag_machine_) {
+    if (dragging_) {
         drag_machine_->tick(time_elapsed);
     }
 }

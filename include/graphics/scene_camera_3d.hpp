@@ -79,6 +79,9 @@ class SceneCamera3d : public SceneCamera {
     glm::vec3 center_;
     glm::mat4 rotation_;
 
+    float total_time_ = 0.0f;
+    bool toggled_ = false;
+
     std::unique_ptr<CameraDragMachine> drag_machine_;
 };
 

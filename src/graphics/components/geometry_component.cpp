@@ -55,6 +55,8 @@ void GeometryComponent::describe() {
     ImGui::SliderInt("Projection", &current_projection_, 0,
                      projections_.size() - 1);
     ImGui::SliderFloat("Speed (pps)", &speed_, 0.0f, 0.1f);
+
+    recorder_.describe();
 }
 
 void GeometryComponent::tick(float time_elapsed) {
@@ -73,6 +75,7 @@ void GeometryComponent::tick(float time_elapsed) {
 
 void GeometryComponent::draw(glm::mat4 world_to_screen) {
     if (!show_) {
+        recorder_.capture();
         return;
     }
 
@@ -131,6 +134,7 @@ void GeometryComponent::draw(glm::mat4 world_to_screen) {
         glEnable(GL_CULL_FACE);
         glDrawArrays(GL_TRIANGLES, 0, 12 * 9);
         glDisable(GL_CULL_FACE);
+        recorder_.capture();
     };
 
     draw_projection(projections_[current_projection_]);

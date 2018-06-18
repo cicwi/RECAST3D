@@ -46,6 +46,7 @@ class ReconstructionComponent : public ObjectComponent {
     void draw(glm::mat4 world_to_screen) override;
     void describe() override;
 
+
     void set_data(std::vector<float>& data, std::array<int32_t, 2> size,
                   int slice, bool additive = true);
     void update_partial_slice(std::vector<float>& data,
