@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     if (argc == 1 || std::string(argv[1]) != std::string("--unsafe")) {
         if (argc > 1 || fs::path(argv[0]).parent_path() != ".") {
             std::cout
-                << "Please run slicevis from the `bin/` directory, and without "
+                << "Please run the program from the `bin/` directory, and without "
                    "any arguments.\n"
                 << "Run from: " << fs::path(argv[0]).parent_path() << " with "
                 << argc << " arguments\n";

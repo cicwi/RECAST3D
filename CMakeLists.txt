@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 include(FindPkgConfig)
 
-project(slicevis)
+project(recast3d)
 
 include_directories(
     "include"
@@ -29,7 +29,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ../ext/eigen/")
 add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
-set(EXEC_NAME "slicevis")
+set(EXEC_NAME "recast3d")
 
 set(
     IMGUI_SOURCE_NAMES
