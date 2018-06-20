@@ -59,14 +59,14 @@ make -j8
 **GLFW**
 
 ```
-cd ext/assimp/
+cd ext/glfw/
 mkdir build
 cd build
 cmake ..
 make -j8
 ```
 
-Build slicevis:
+Build RECAST3D:
 ---------------
 
 ```
@@ -75,6 +75,8 @@ cd build
 cmake ..
 make -j8
 ```
+
+It can then be run from the `bin` directory.
 
 Authors
 =======
