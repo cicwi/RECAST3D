@@ -19,18 +19,7 @@ namespace fs = std::experimental::filesystem;
 #include "scene_list.hpp"
 #include "server/server.hpp"
 
-int main(int argc, char* argv[]) {
-    if (argc == 1 || std::string(argv[1]) != std::string("--unsafe")) {
-        if (argc > 1 || fs::path(argv[0]).parent_path() != ".") {
-            std::cout
-                << "Please run the program from the `bin/` directory, and without "
-                   "any arguments.\n"
-                << "Run from: " << fs::path(argv[0]).parent_path() << " with "
-                << argc << " arguments\n";
-            return 1;
-        }
-    }
-
+int main() {
     tomovis::Renderer renderer;
 
     auto& input = tomovis::Input::instance(renderer.window());

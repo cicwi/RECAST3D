@@ -52,12 +52,25 @@ ReconstructionComponent::ReconstructionComponent(SceneObject& object,
                  GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    program_ = std::make_unique<ShaderProgram>("../src/shaders/simple_3d.vert",
-                                               "../src/shaders/simple_3d.frag");
+  auto simple_vert =
+#include "../src/shaders/simple_3d.vert"
+      ;
+  auto simple_frag =
+#include "../src/shaders/simple_3d.frag"
+      ;
 
+    program_ = std::make_unique<ShaderProgram>(simple_vert,
+                                               simple_frag, false);
+
+  auto cube_vert =
+#include "../src/shaders/wireframe_cube.vert"
+      ;
+  auto cube_frag =
+#include "../src/shaders/wireframe_cube.frag"
+      ;
     cube_program_ =
-        std::make_unique<ShaderProgram>("../src/shaders/wireframe_cube.vert",
-                                        "../src/shaders/wireframe_cube.frag");
+        std::make_unique<ShaderProgram>(cube_vert,
+                                        cube_frag, false);
 
     slices_[0] = std::make_unique<slice>(0);
     slices_[1] = std::make_unique<slice>(1);

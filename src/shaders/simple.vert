@@ -1,3 +1,4 @@
+R"(
 #version 150
 
 in vec2 in_position;
@@ -17,3 +18,4 @@ void main() {
                                 inv_aspect_ratio * position.y, 0.0f, 1.0f);
     tex_coord = 0.5f * (position + vec2(1.0f));
 }
+)"

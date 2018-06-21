@@ -24,15 +24,34 @@ GeometryComponent::GeometryComponent(SceneObject& object, int scene_id)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
+  auto tex_vert =
+#include "../src/shaders/show_texture.vert"
+      ;
+  auto tex_frag =
+#include "../src/shaders/show_texture.frag"
+      ;
     program_ = std::make_unique<ShaderProgram>(
-        "../src/shaders/show_texture.vert", "../src/shaders/show_texture.frag");
+        tex_vert, tex_frag, false);
 
+  auto cube_vert =
+#include "../src/shaders/wireframe_cube.vert"
+      ;
+  auto cube_frag =
+#include "../src/shaders/wireframe_cube.frag"
+      ;
     cube_program_ =
-        std::make_unique<ShaderProgram>("../src/shaders/wireframe_cube.vert",
-                                        "../src/shaders/wireframe_cube.frag");
+        std::make_unique<ShaderProgram>(cube_vert,
+                                        cube_frag, false);
 
-    beam_program_ = std::make_unique<ShaderProgram>("../src/shaders/beam.vert",
-                                                    "../src/shaders/beam.frag");
+  auto beam_vert =
+#include "../src/shaders/beam.vert"
+      ;
+  auto beam_frag =
+#include "../src/shaders/beam.frag"
+      ;
+    beam_program_ = std::make_unique<ShaderProgram>(beam_vert,
+                                                    beam_frag, false);
+
 
     glGenVertexArrays(1, &beam_vao_handle_);
     glBindVertexArray(beam_vao_handle_);

@@ -1,3 +1,4 @@
+R"(
 #version 150
 
 in vec2 tex_coord;
@@ -9,3 +10,4 @@ void main() {
     float value = texture(texture_sampler, tex_coord).x;
     gl_FragColor = vec4(texture(colormap_sampler, value).xyz, 1.0f);
 }
+)"

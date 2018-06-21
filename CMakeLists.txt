@@ -43,9 +43,12 @@ target_include_directories(imgui PUBLIC
 find_package(assimp QUIET)
 
 if (assimp_FOUND)
-    add_library(assimp INTERFACE)
-    target_include_directories(assimp INTERFACE ${assimp_INCLUDE_DIR})
-    target_link_libraries(assimp INTERFACE ${assimp_LIBRARY})
+    message("'assimp' found")
+    link_directories(${ASSIMP_LIBRARY_DIRS})
+    add_library(assimp_ INTERFACE)
+    target_include_directories(assimp_ INTERFACE ${ASSIMP_INCLUDE_DIRS})
+    target_link_libraries(assimp_ INTERFACE ${ASSIMP_LIBRARIES})
+    message(${ASSIMP_LIBRARY_DIRS} " " ${ASSIMP_INCLUDE_DIRS} " " ${ASSIMP_LIBRARIES})
 else()
     message("'assimp' not installed on the system, building from source...")
 
@@ -53,17 +56,19 @@ else()
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
     add_subdirectory(${CMAKE_SOURCE_DIR}/ext/assimp)
-    set(assimp_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/assimp/include ${CMAKE_BINARY_DIR}/ext/assimp/include)
+    set(ASSIMP_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/ext/assimp/include ${CMAKE_BINARY_DIR}/ext/assimp/include)
+
+    add_library(assimp_ INTERFACE assimp)
 endif()
 
 # --------------------------------------------------------------------------------------------
-# ZMQ
-find_package(ZMQ QUIET)
+# ZeroMQ
+find_package(ZeroMQ QUIET)
 
-if (ZMQ_FOUND)
+if (ZeroMQ_FOUND)
     add_library(zmq INTERFACE)
-    target_include_directories(zmq INTERFACE ${ZMQ_INCLUDE_DIR})
-    target_link_libraries(zmq INTERFACE ${ZMQ_LIBRARY})
+    target_include_directories(zmq INTERFACE ${ZeroMQ_INCLUDE_DIR})
+    target_link_libraries(zmq INTERFACE ${ZeroMQ_LIBRARY})
 else()
     message("'zmq' not installed on the system, building from source...")
 
@@ -88,8 +93,8 @@ find_package(OpenGL)
 find_package(glfw3 QUIET)
 if (glfw3_FOUND)
     add_library(glfw3 INTERFACE)
-    target_include_directories(glfw INTERFACE ${glfw3_INCLUDE_DIR})
-    target_link_libraries(glfw INTERFACE ${glfw3_LIBRARY})
+    target_include_directories(glfw3 INTERFACE ${glfw3_INCLUDE_DIR})
+    target_link_libraries(glfw3 INTERFACE ${glfw3_LIBRARY})
 else()
     message("'glfw3' not installed on the system, building from source...")
 
@@ -176,10 +181,10 @@ set(
     "pthread"
     "stdc++fs"
     "imgui"
-    "assimp"
     "zmq"
     "eigen"
     "tomop"
+    "assimp_"
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})
@@ -192,12 +197,14 @@ target_compile_definitions(${EXEC_NAME} PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_
 
 target_include_directories(${EXEC_NAME} PRIVATE
     "include"
-    "ext/tomopackets/include/"
-    "ext/cppzmq/"
-    "ext/glm/"
-    "ext/glfw/include"
-    ${assimp_INCLUDE_DIR}
-    ${ZMQ_INCLUDE_DIR}
+    ${ASSIMP_INCLUDE_DIRS}
+    ${ZeroMQ_INCLUDE_DIR}
 )
+
+# INSTALL COMMANDS
+install(TARGETS recast3d imgui
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib/static)
 
 #add_subdirectory(test/build test/build)

@@ -21,11 +21,24 @@ ProjectionObject::ProjectionObject() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
-    program_ = std::make_unique<ShaderProgram>("../src/shaders/screen.vert",
-                                               "../src/shaders/screen.frag");
+  auto screen_vert =
+#include "../src/shaders/screen.vert"
+      ;
+  auto screen_frag =
+#include "../src/shaders/screen.frag"
+      ;
 
+    program_ = std::make_unique<ShaderProgram>(screen_vert,
+                                               screen_frag, false);
+
+  auto shadow_vert =
+#include "../src/shaders/shadow_model.vert"
+      ;
+  auto shadow_frag =
+#include "../src/shaders/shadow_model.frag"
+      ;
     shadow_program_ = std::make_unique<ShaderProgram>(
-        "../src/shaders/shadow_model.vert", "../src/shaders/shadow_model.frag");
+        shadow_vert, shadow_frag, false);
 
     source_ = glm::vec3(0.0f, 0.0, 6.0f);
     detector_base_ = glm::vec3(-2.0f, -2.0f, -2.0f);
@@ -35,8 +48,15 @@ ProjectionObject::ProjectionObject() {
     orientation_matrix_ = create_orientation_matrix(
         detector_base_, detector_axis1_, detector_axis2_);
 
-    beam_program_ = std::make_unique<ShaderProgram>("../src/shaders/beam.vert",
-                                                    "../src/shaders/beam.frag");
+  auto beam_vert =
+#include "../src/shaders/beam.vert"
+      ;
+  auto beam_frag =
+#include "../src/shaders/beam.frag"
+      ;
+
+    beam_program_ = std::make_unique<ShaderProgram>(beam_vert,
+                                                    beam_frag, false);
 
     glGenVertexArrays(1, &cube_vao_handle_);
     glBindVertexArray(cube_vao_handle_);

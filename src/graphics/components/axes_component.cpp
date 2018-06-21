@@ -31,8 +31,14 @@ AxesComponent::AxesComponent(SceneObject &object, int scene_id)
   glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), axes_data, GL_STATIC_DRAW);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  axes_program_ = std::make_unique<ShaderProgram>("../src/shaders/lines.vert",
-                                                  "../src/shaders/lines.frag");
+  auto vert =
+#include "../src/shaders/lines.vert"
+      ;
+  auto frag =
+#include "../src/shaders/lines.frag"
+      ;
+
+  axes_program_ = std::make_unique<ShaderProgram>(vert, frag, false);
 }
 
 void AxesComponent::draw(glm::mat4 world_to_screen) {

@@ -1,3 +1,4 @@
+R"(
 #version 330
 
 layout(location = 0) in vec3 in_position;
@@ -16,3 +17,4 @@ void main() {
     varying_normal = (model_matrix * mesh_rotate * vec4(in_normal, 1.0f)).xyz;
     fragment_position = in_position;
 }
+)"

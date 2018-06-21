@@ -7,18 +7,22 @@
 
 namespace tomovis {
 
-ShaderProgram::ShaderProgram(std::string vert_file, std::string frag_file) {
-    auto create_shader = [](auto type, std::string file) {
+ShaderProgram::ShaderProgram(std::string vert_file, std::string frag_file, bool from_file) {
+    auto create_shader = [from_file](auto type, std::string file) {
         auto shader = glCreateShader(type);
 
         auto string_from_file = [](std::string filename) {
             std::ifstream file_stream(filename);
+            if(!file_stream.good()) {
+                std::cerr << "Shader: " << filename << " not found\n";
+                exit(-1);
+            }
             std::string result((std::istreambuf_iterator<char>(file_stream)),
                                std::istreambuf_iterator<char>());
             return result;
         };
 
-        auto file_as_string = string_from_file(file);
+        auto file_as_string = from_file ? string_from_file(file) : file;
         auto file_buffer = file_as_string.c_str();
 
         GLint file_size = file_as_string.size() + 1;

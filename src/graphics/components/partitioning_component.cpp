@@ -50,8 +50,13 @@ PartitioningComponent::PartitioningComponent(SceneObject& object, int scene_id)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
-    part_program_ = std::make_unique<ShaderProgram>("../src/shaders/part.vert",
-                                                    "../src/shaders/part.frag");
+  auto part_vert =
+#include "../src/shaders/part.vert"
+      ;
+  auto part_frag =
+#include "../src/shaders/part.frag"
+      ;
+    part_program_ = std::make_unique<ShaderProgram>(part_vert, part_frag, false);
 }
 
 PartitioningComponent::~PartitioningComponent() {}

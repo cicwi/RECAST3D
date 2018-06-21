@@ -1,3 +1,4 @@
+R"(
 #version 330
 
 in vec3 varying_normal;
@@ -30,3 +31,4 @@ void main() {
 
     fragColor = vec4(ambient + diffuse + specular, 1.0f);
 }
+)"

@@ -8,7 +8,7 @@ namespace tomovis {
 
 class ShaderProgram {
   public:
-    ShaderProgram(std::string vert, std::string frag);
+    ShaderProgram(std::string vert, std::string frag, bool file = true);
     ~ShaderProgram();
 
     void use();

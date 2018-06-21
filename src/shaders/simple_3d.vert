@@ -1,3 +1,4 @@
+R"(
 #version 150
 
 in vec3 in_position;
@@ -13,3 +14,4 @@ void main() {
     volume_coord = 0.5f * (world_position + vec3(1.0f));
     gl_Position = world_to_screen_matrix * vec4(world_position, 1.0f);
 }
+)"
