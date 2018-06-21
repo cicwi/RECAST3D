@@ -216,9 +216,9 @@ void ReconstructionComponent::describe() {
                          histogram_.size(), 0, NULL, FLT_MAX, FLT_MAX,
                          ImVec2(window_size.x, 128));
 
-    auto[min, max] = overall_min_and_max();
-    ImGui::SliderFloat("Lower", &lower_value_, min, max);
-    ImGui::SliderFloat("Upper", &upper_value_, min, max);
+    auto minmax = overall_min_and_max();
+    ImGui::SliderFloat("Lower", &lower_value_, minmax.first, minmax.second);
+    ImGui::SliderFloat("Upper", &upper_value_, minmax.first, minmax.second);
 }
 
 std::pair<float, float> ReconstructionComponent::overall_min_and_max() {

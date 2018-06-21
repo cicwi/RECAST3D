@@ -3,53 +3,136 @@ include(FindPkgConfig)
 
 project(recast3d)
 
-include_directories(
-    "include"
-    "ext/imgui/"
-    "ext/tomopackets/include/"
-    "ext/cppzmq/"
-    "ext/libzmq/include/"
-    "ext/assimp/include"
-    "ext/assimp/build/include"
-    "ext/imgui/examples/libs/gl3w/"
-    "ext/imgui/examples/opengl3_example/"
-    "ext/glm/"
-    "ext/glfw/include"
-)
 
-link_directories(
-    "ext/libzmq/build/lib/"
-    "ext/assimp/build/code/"
-    "ext/glfw/build/src"
-)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -Wall -Wfatal-errors -Wextra -Werror -g -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ../ext/eigen/")
-
-add_definitions(-DGLM_ENABLE_EXPERIMENTAL)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(EXEC_NAME "recast3d")
+
+# multiple dependencies define 'uninstall' target
+set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS 1)
+
+## DEPENDENCIES
+# --------------------------------------------------------------------------------------------
+# ImGui
+execute_process(COMMAND git submodule update --init -- ext/imgui
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 set(
     IMGUI_SOURCE_NAMES
     "ext/imgui/imgui.cpp"
     "ext/imgui/imgui_draw.cpp"
-    "ext/imgui/imgui_demo.cpp"
-    "ext/imgui/examples/opengl3_example/imgui_impl_glfw_gl3.cpp"
+    "ext/imgui/examples/imgui_impl_opengl3.cpp"
+    "ext/imgui/examples/imgui_impl_glfw.cpp"
     "ext/imgui/examples/libs/gl3w/GL/gl3w.c"
 )
 
-# ignore warnings from external libs
+# ignore warnings from imgui
 set_source_files_properties(
   ${IMGUI_SOURCE_NAMES}
   PROPERTIES
   COMPILE_FLAGS "-w"
 )
 
+add_library(imgui ${IMGUI_SOURCE_NAMES}) 
+target_include_directories(imgui PUBLIC
+    "ext/imgui"
+    "ext/imgui/examples/libs/gl3w/"
+    "ext/imgui/examples/opengl3_example/")
+
+# --------------------------------------------------------------------------------------------
+# ASSIMP
+find_package(assimp QUIET)
+
+if (assimp_FOUND)
+    add_library(assimp INTERFACE)
+    target_include_directories(assimp INTERFACE ${assimp_INCLUDE_DIR})
+    target_link_libraries(assimp INTERFACE ${assimp_LIBRARY})
+else()
+    message("'assimp' not installed on the system, building from source...")
+
+    execute_process(COMMAND git submodule update --init -- ext/assimp
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/assimp)
+    set(assimp_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/assimp/include ${CMAKE_BINARY_DIR}/ext/assimp/include)
+endif()
+
+# --------------------------------------------------------------------------------------------
+# ZMQ
+find_package(ZMQ QUIET)
+
+if (ZMQ_FOUND)
+    add_library(zmq INTERFACE)
+    target_include_directories(zmq INTERFACE ${ZMQ_INCLUDE_DIR})
+    target_link_libraries(zmq INTERFACE ${ZMQ_LIBRARY})
+else()
+    message("'zmq' not installed on the system, building from source...")
+
+    execute_process(COMMAND git submodule update --init -- ext/libzmq
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+    set(ZMQ_BUILD_TESTS OFF CACHE BOOL "disable tests" FORCE)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/libzmq)
+    set(ZMQ_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/libzmq/include)
+
+    # ZeroMQ names their target libzmq, which is inconsistent => create a ghost dependency
+    add_library(zmq INTERFACE)
+    target_link_libraries(zmq INTERFACE libzmq)
+endif()
+
+# --------------------------------------------------------------------------------------------
+# OpenGL
+find_package(OpenGL)
+
+# --------------------------------------------------------------------------------------------
+# GLFW
+find_package(glfw3 QUIET)
+if (glfw3_FOUND)
+    add_library(glfw3 INTERFACE)
+    target_include_directories(glfw INTERFACE ${glfw3_INCLUDE_DIR})
+    target_link_libraries(glfw INTERFACE ${glfw3_LIBRARY})
+else()
+    message("'glfw3' not installed on the system, building from source...")
+
+    execute_process(COMMAND git submodule update --init -- ext/glfw
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/glfw)
+    set(glfw3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/glfw/include)
+endif()
+
+# --------------------------------------------------------------------------------------------
+# Eigen
+execute_process(COMMAND git submodule update --init -- ext/eigen
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/ext/eigen)
+set(Eigen3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/eigen/include)
+
+# --------------------------------------------------------------------------------------------
+# cppzmq
+
+execute_process(COMMAND git submodule update --init -- ext/cppzmq
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_library(cppzmq INTERFACE)
+target_include_directories(cppzmq INTERFACE ext/cppzmq)
+target_link_libraries(cppzmq INTERFACE zmq)
+
+# --------------------------------------------------------------------------------------------
+# tomopackets
+
+execute_process(COMMAND git submodule update --init -- ext/tomopackets
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# TODO move to tomopackets
+add_library(tomop INTERFACE)
+target_include_directories(tomop INTERFACE ext/tomopackets/include)
+target_link_libraries(tomop INTERFACE cppzmq zmq)
+
+# --------------------------------------------------------------------------------------------
+
 set(
     SOURCE_NAMES
-    ${IMGUI_SOURCE_NAMES}
     "src/main.cpp"
     "src/math_common.cpp"
     "src/input.cpp"
@@ -86,37 +169,35 @@ set(
 )
 
 set(
-    EXAMPLE_NAME
-    "examples/client.cpp"
-)
-
-set(
     LIB_NAMES
     "dl"
-    "glfw3"
+    "glfw"
     "X11"
-    "Xrandr"
-    "Xi"
-    "Xinerama"
-    "Xcursor"
-    "GL"
-    "zmq"
     "pthread"
-    "assimp"
     "stdc++fs"
+    "imgui"
+    "assimp"
+    "zmq"
+    "eigen"
+    "tomop"
 )
 
-## multiple binaries:
-# foreach(source_file ${EXAMPLE_SOURCES})
-#     string(REPLACE ".cpp" "" source_name ${source_file})
-#     add_executable(${source_name} ${EXAMPLE_DIR}${source_file})
-#     target_link_libraries( ${source_name} ${LIB_NAMES} )
-# endforeach(source_file)
-
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})
-target_link_libraries(${EXEC_NAME} ${LIB_NAMES})
+target_link_libraries(${EXEC_NAME} ${LIB_NAMES} ${OPENGL_gl_LIBRARY})
 
-add_executable(client ${EXAMPLE_NAME})
-target_link_libraries(client "zmq" "pthread")
+target_compile_options(${EXEC_NAME} PRIVATE -std=c++17 -Wall -Wfatal-errors -Wextra -Werror -g -O3)
+target_compile_options(${EXEC_NAME} PRIVATE -isystem ../ext/eigen/)
+# This is to work around GLM issue#754 <https://github.com/g-truc/glm/issues/754>
+target_compile_definitions(${EXEC_NAME} PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT)
+
+target_include_directories(${EXEC_NAME} PRIVATE
+    "include"
+    "ext/tomopackets/include/"
+    "ext/cppzmq/"
+    "ext/glm/"
+    "ext/glfw/include"
+    ${assimp_INCLUDE_DIR}
+    ${ZMQ_INCLUDE_DIR}
+)
 
 #add_subdirectory(test/build test/build)

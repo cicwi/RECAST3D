@@ -18,7 +18,7 @@
 	url = https://github.com/assimp/assimp
 [submodule "ext/eigen"]
 	path = ext/eigen
-	url = https://github.com/RLovelett/eigen.git
+	url = https://github.com/eigenteam/eigen-git-mirror.git
 [submodule "ext/tomopackets"]
 	path = ext/tomopackets
 	url = https://github.com/cicwi/tomopackets
@@ -28,3 +28,6 @@
 [submodule "ext/glfw"]
 	path = ext/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "Eigen"]
+	path = ext/eigen
+	url = https://github.com/eigenteam/eigen-git-mirror.git

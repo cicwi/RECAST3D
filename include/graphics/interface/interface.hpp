@@ -34,6 +34,7 @@ class Interface : public RenderTarget, public InputHandler {
       int priority() const override { return 1; }
 
   private:
+    void set_style_();
     std::vector<Window*> windows_;
 };
 
