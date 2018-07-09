@@ -32,7 +32,8 @@ class multiserver {
         : context_(1), server_count_(hostnames.size()),
           sockets_(),
           subscribe_sockets_(),
-          scene_ids_(server_count_, -1) {
+          scene_ids_(server_count_, -1),
+          slices_(server_count_) {
         using namespace std::chrono_literals;
 
         // set socket timeout to 200 ms
