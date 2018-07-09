@@ -27,5 +27,7 @@ int main() {
     // 5. test callback
     server.listen();
 
+    tomop::multiserver multiserver("test server", {}, {});
+
     return 0;
 }
