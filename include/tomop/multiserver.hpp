@@ -118,6 +118,7 @@ class multiserver {
         auto recast_threads = std::vector<std::thread>();
         for (auto i = 0; i < server_count_; ++i) {
             recast_threads.emplace_back([&, i] {
+                    std::cout << "Running server: #" << i << "\n";
                 auto& subscribe_socket_ = subscribe_sockets_[i];
 
                 while (true) {
