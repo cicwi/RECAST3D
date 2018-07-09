@@ -59,6 +59,7 @@ class multiserver {
                 zmq::message_t reply;
                 socket.recv(&reply);
                 scene_ids_[i] = *(int32_t*)reply.data();
+                std::cout << "Scene ID (" << i << "): " << scene_ids_[i] << "\n";
             }
         }
 
