@@ -14,10 +14,10 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
 
     SliceDataPacket(int32_t scene_id_, int32_t slice_id_,
                     std::array<int32_t, 2> slice_size_, bool additive_,
-                    std::vector<float> data_)
+                    std::vector<float> data_, bool processed_ = false)
         : PacketBase<SliceDataPacket>(packet_desc::slice_data),
           scene_id(scene_id_), slice_id(slice_id_), slice_size(slice_size_),
-          additive(additive_), data(data_) {}
+          additive(additive_), data(data_), processed(processed_) {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
@@ -26,6 +26,7 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
         buffer | slice_size;
         buffer | additive;
         buffer | data;
+        buffer | processed;
     }
 
     int32_t scene_id;
@@ -33,6 +34,7 @@ class SliceDataPacket : public PacketBase<SliceDataPacket> {
     std::array<int32_t, 2> slice_size;
     bool additive;
     std::vector<float> data;
+    bool processed;
 };
 
 class PartialSliceDataPacket : public PacketBase<PartialSliceDataPacket> {
@@ -184,6 +186,25 @@ class GroupRequestSlicesPacket : public PacketBase<GroupRequestSlicesPacket> {
 
     int32_t scene_id;
     int32_t group_size;
+};
+
+class PostProcessPacket : public PacketBase<PostProcessPacket> {
+  public:
+    PostProcessPacket()
+        : PacketBase<PostProcessPacket>(packet_desc::post_process_set),
+          scene_id(-1), enabled(false) {}
+
+    PostProcessPacket(int32_t scene_id_, bool enabled_)
+        : PacketBase<PostProcessPacket>(packet_desc::post_process_set),
+          scene_id(scene_id_), enabled(enabled_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+    }
+
+    int32_t scene_id;
+    bool enabled;
 };
 
 } // namespace tomop
