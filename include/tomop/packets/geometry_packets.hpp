@@ -124,16 +124,26 @@ class PartialProjectionDataPacket
 class ProjectionPacket : public PacketBase<ProjectionPacket> {
   public:
     ProjectionPacket()
-        : PacketBase<PartialProjectionDataPacket>(packet_desc::projection),
+        : PacketBase<ProjectionPacket>(packet_desc::projection),
           projection_id(-1) {}
+
+    ProjectionPacket(int32_t type_, int32_t projection_id_,
+                     std::array<int32_t, 2> shape_, std::vector<float> data_)
+        : PacketBase<ProjectionPacket>(packet_desc::projection), type(type_),
+          projection_id(projection_id_), shape(shape_), data(data_) {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
+        buffer | type;
         buffer | projection_id;
         buffer | shape;
         buffer | data;
     }
 
+    // NOTE: some dependencies rely on this fixed order,
+    // options are: 0 dark, 1 flat, 2 standard
+    int32_t type;
+    // this is cyclic: scan_id * angles + angle_idx
     int32_t projection_id;
     std::array<int32_t, 2> shape;
     std::vector<float> data;
