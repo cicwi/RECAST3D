@@ -12,16 +12,17 @@ class GeometrySpecificationPacket
     GeometrySpecificationPacket()
         : PacketBase<GeometrySpecificationPacket>(
               packet_desc::geometry_specification),
-          scene_id(-1), parallel(false), projections(0),
-          volume_min_point{0.0f, 0.0f, 0.0f},
-          volume_max_point{1.0f, 1.0f, 1.0f} {}
+          scene_id(-1), parallel(false),
+          projections(0), volume_min_point{0.0f, 0.0f, 0.0f}, volume_max_point{
+                                                                  1.0f, 1.0f,
+                                                                  1.0f} {}
 
     GeometrySpecificationPacket(int32_t scene_id_, bool parallel_,
                                 int32_t projections_)
         : PacketBase<GeometrySpecificationPacket>(
               packet_desc::geometry_specification),
-          scene_id(scene_id_), parallel(parallel_), projections(projections_),
-          volume_min_point{0.0f, 0.0f, 0.0f},
+          scene_id(scene_id_), parallel(parallel_),
+          projections(projections_), volume_min_point{0.0f, 0.0f, 0.0f},
           volume_max_point{1.0f, 1.0f, 1.0f} {}
 
     template <typename Buffer>
@@ -117,6 +118,24 @@ class PartialProjectionDataPacket
     std::array<int32_t, 2> detector_pixels;
     std::array<int32_t, 2> partial_offset;
     std::array<int32_t, 2> partial_size;
+    std::vector<float> data;
+};
+
+class ProjectionPacket : public PacketBase<ProjectionPacket> {
+  public:
+    ProjectionPacket()
+        : PacketBase<PartialProjectionDataPacket>(packet_desc::projection),
+          projection_id(-1) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | projection_id;
+        buffer | shape;
+        buffer | data;
+    }
+
+    int32_t projection_id;
+    std::array<int32_t, 2> shape;
     std::vector<float> data;
 };
 
