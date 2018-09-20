@@ -41,10 +41,19 @@ void Recorder::start() {
     std::cout << "Recording video...\n";
 
     ffmpeg_ = popen(cmd.c_str(), "w");
-    if (!ffmpeg_) {
-        std::cout << "Could not open ffmpeg\n";
+    if (ffmpeg_) {
+        auto err_check = pclose(ffmpeg_);
+        if (err_check != 0) {
+            std::cout << "Child process (ffmpeg) exited with an error\n";
+            return;
+        } else {
+            ffmpeg_ = popen(cmd.c_str(), "w");
+        }
+    } else {
+        std::cout << "Could not open process (ffmpeg)\n";
         return;
     }
+
     buffer_ = new int[width_ * height_];
 
     recording_ = true;
@@ -53,6 +62,7 @@ void Recorder::start() {
 void Recorder::stop() {
     if (ffmpeg_) {
         pclose(ffmpeg_);
+        ffmpeg_ = nullptr;
     }
 
     if (buffer_) {
