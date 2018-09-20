@@ -41,8 +41,14 @@ Model::Model(std::string file) {
     std::cout << "Loading model: '" << file << "' ...\n";
     async_load_(file);
 
-    program_ = std::make_unique<ShaderProgram>(
-        "../src/shaders/basic_model.vert", "../src/shaders/basic_model.frag");
+  auto vert =
+#include "../src/shaders/basic_model.vert"
+      ;
+  auto frag =
+#include "../src/shaders/basic_model.frag"
+      ;
+
+    program_ = std::make_unique<ShaderProgram>(vert, frag, false);
 }
 
 void Model::async_load_(std::string file) {

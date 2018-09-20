@@ -58,7 +58,9 @@ else()
     add_subdirectory(${CMAKE_SOURCE_DIR}/ext/assimp)
     set(ASSIMP_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/ext/assimp/include ${CMAKE_BINARY_DIR}/ext/assimp/include)
 
-    add_library(assimp_ INTERFACE assimp)
+    add_library(assimp_ INTERFACE)
+    target_include_directories(assimp_ INTERFACE ${ASSIMP_INCLUDE_DIRS})
+    target_link_libraries(assimp_ INTERFACE assimp)
 endif()
 
 # --------------------------------------------------------------------------------------------
