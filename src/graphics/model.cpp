@@ -41,14 +41,15 @@ Model::Model(std::string file) {
     std::cout << "Loading model: '" << file << "' ...\n";
     async_load_(file);
 
-  auto vert =
+    auto vert =
 #include "../src/shaders/basic_model.vert"
-      ;
-  auto frag =
+        ;
+    auto frag =
 #include "../src/shaders/basic_model.frag"
-      ;
+        ;
 
     program_ = std::make_unique<ShaderProgram>(vert, frag, false);
+    //program_ = std::make_unique<ShaderProgram>("../src/shaders/basic_model.vert", "../src/shaders/basic_model.frag");
 }
 
 void Model::async_load_(std::string file) {
@@ -114,6 +115,12 @@ void Model::represent_() {
         if (opacity <= 0.01f || opacity > 1.0f) {
             opacity = 1.0f;
         }
+        std::cout << "Ambient: " << glm::to_string(material.ambient_color)
+                  << "\n";
+        std::cout << "Diffuse: " << glm::to_string(material.diffuse_color)
+                  << "\n";
+        std::cout << "Specular: " << glm::to_string(material.specular_color)
+                  << "\n";
         std::cout << "Opacity: " << opacity << "\n";
         material.opacity = opacity;
         material.shininess = (int)shininess;
@@ -124,6 +131,7 @@ void Model::represent_() {
         meshes_.push_back(std::make_unique<Mesh>(scene_->mMeshes[i]));
         meshes_[i]->mesh_material_ =
             materials[scene_->mMeshes[i]->mMaterialIndex];
+        std::cout << "Mat idx: " << scene_->mMeshes[i]->mMaterialIndex << "\n";
         meshes_[i]->material() = meshes_[i]->mesh_material_;
     }
 
@@ -226,11 +234,18 @@ void Model::tick(float time_elapsed) {
 
 void Model::draw(glm::mat4 world_to_screen, glm::vec3 camera_position,
                  ShaderProgram* program) const {
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+
     auto model = model_matrix();
     for (auto& mesh : meshes_) {
         mesh->draw(world_to_screen, model, camera_position,
                    program ? program : program_.get());
     }
+
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+
 }
 
 } // namespace tomovis

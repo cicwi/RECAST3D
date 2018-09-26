@@ -3,6 +3,8 @@
 #include "graphics/components/axes_component.hpp"
 #include "graphics/scene_camera_3d.hpp"
 
+#include <imgui.h>
+
 namespace tomovis {
 
 AxesComponent::AxesComponent(SceneObject &object, int scene_id)
@@ -41,7 +43,14 @@ AxesComponent::AxesComponent(SceneObject &object, int scene_id)
   axes_program_ = std::make_unique<ShaderProgram>(vert, frag, false);
 }
 
+void AxesComponent::describe() {
+    ImGui::Checkbox("Show axes", &show_);
+}
+
 void AxesComponent::draw(glm::mat4 world_to_screen) {
+    if (!show_) {
+        return;
+    }
   // TODO draw axes on screen, should have access to camera here
   axes_program_->use();
 

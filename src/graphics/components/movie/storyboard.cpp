@@ -353,6 +353,41 @@ void Storyboard::add_scripts_() {
         short_time_pts, short_path, (SceneCamera3d*)&movie_->object().camera());
 
     scripts_.push_back(std::move(short_script));
+
+    // toothpick script
+    auto tooth_script = std::make_unique<Script>();
+    auto initial_scene_tooth = [&]() {
+        for (auto& mesh : movie_->model()->meshes()) {
+            mesh->material() = mesh->mesh_material();
+            mesh->reset_internal_time();
+            mesh->set_visible(true);
+        }
+
+        movie_->object().camera().reset_view();
+        movie_->object().camera().position() = glm::vec3(0.0f, 0.0f, 6.0f);
+        movie_->projection()->source() = glm::vec3(0.0f, 0.0f, 3.5f);
+        movie_->model()->phi() = 0.0f;
+        movie_->model()->rotate(false);
+        movie_->model()->rotations_per_second(0.25f);
+    };
+
+    tooth_script->name = "Toothpick";
+    tooth_script->initial_scene = initial_scene_tooth;
+
+    tooth_script->animate<TriggerAnimation>(
+        0.0f, [&]() { movie_->model()->toggle_rotate(); });
+
+    size_t mesh_idx = 0;
+    for (auto& mesh : movie_->model()->meshes()) {
+        if (mesh_idx != 0) {
+            tooth_script->animate<PropertyAnimation<Material>>(
+                8.0f, 2.0f, mesh->mesh_material(), bland_transparent,
+                mesh->material());
+        }
+        ++mesh_idx;
+    }
+
+    scripts_.push_back(std::move(tooth_script));
 }
 
 void Storyboard::perform_script_() {
@@ -383,7 +418,6 @@ void Storyboard::describe() {
     }
 
     ImGui::SliderFloat("Animation speed", &animation_speed_, 1.0f, 10.0f);
-    movie_->model()->rotations_per_second(animation_speed_ * 0.06125f);
 
     ImGui::ListBox(
         "Choose script", &current_script_,

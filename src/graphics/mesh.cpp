@@ -30,6 +30,9 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
         }
     }
 
+    std::cout << "Loaded mesh with: " << asset_mesh_->mNumVertices
+              << " vertices\n";
+
     std::vector<unsigned int> indices;
     for (size_t i = 0; i < asset_mesh_->mNumFaces; ++i) {
         if (asset_mesh_->mFaces[i].mNumIndices != 3) {
@@ -57,12 +60,18 @@ Mesh::Mesh(aiMesh* asset_mesh) : asset_mesh_(asset_mesh) {
                  (void*)asset_mesh_->mVertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+    std::cout << "Random vertex coordinate: "
+              << asset_mesh_->mVertices[asset_mesh_->mNumVertices / 2][0] << "\n";
+
     glEnableVertexAttribArray(1);
     glGenBuffers(1, &vbo_normals_handle_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_normals_handle_);
     glBufferData(GL_ARRAY_BUFFER, asset_mesh_->mNumVertices * 3 * sizeof(float),
                  (void*)asset_mesh_->mNormals, GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    mesh_rotate_ = glm::mat4(1.0);
+    std::cout << "Rotate: " << glm::to_string(mesh_rotate_) << "\n";
 }
 
 Mesh::~Mesh() {
@@ -154,11 +163,12 @@ void Mesh::tick(float time_elapsed) {
     assert(beta <= 1);
 
     mesh_translate_ = glm::translate(ipos);
-    mesh_rotate_ = glm::mat4_cast(glm::slerp(g1.quaternion, g2.quaternion, beta));
+    mesh_rotate_ =
+        glm::mat4_cast(glm::slerp(g1.quaternion, g2.quaternion, beta));
 }
 
-void Mesh::draw(glm::mat4 world, glm::mat4 model,
-                glm::vec3 camera_position, ShaderProgram* program) const {
+void Mesh::draw(glm::mat4 world, glm::mat4 model, glm::vec3 camera_position,
+                ShaderProgram* program) const {
     if (!visible_) {
         return;
     }
@@ -172,7 +182,8 @@ void Mesh::draw(glm::mat4 world, glm::mat4 model,
     program->uniform("world_matrix", world);
     program->uniform("model_matrix", model);
     program->uniform("mesh_rotate", mesh_rotate_);
-    program->uniform("mesh_translate", static_mesh_transformation_ * mesh_translate_);
+    program->uniform("mesh_translate",
+                     static_mesh_transformation_);
     program->uniform("camera_position", camera_position);
 
     // set material
