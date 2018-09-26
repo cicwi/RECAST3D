@@ -25,7 +25,7 @@ Renderer::Renderer() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    window_ = glfwCreateWindow(1920, 1024, "SliceVisualizer", NULL, NULL);
+    window_ = glfwCreateWindow(1920, 1080, "SliceVisualizer", NULL, NULL);
     glfwMakeContextCurrent(window_);
 
     gl3wInit();
@@ -46,18 +46,22 @@ void Renderer::main_loop() {
 
         auto current_time = glfwGetTime();
         float time_elapsed = current_time - previous_time_;
-        (void)time_elapsed;
         previous_time_ = current_time;
 
+        const auto time_step = 0.0166666666;
         for (auto ticker : tickers_) {
-           ticker->tick(0.0166666);
+            while (time_elapsed > time_step) {
+               ticker->tick(time_step);
+               time_elapsed -= time_step;
+            }
+           ticker->tick(time_elapsed);
         }
 
         // Rendering
         int display_w, display_h;
         glfwGetFramebufferSize(window_, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float ratio = (float)display_h / (float)display_w;
