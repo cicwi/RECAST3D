@@ -1,0 +1,17 @@
+
+[submodule "example/ext/flags"]
+	path = example/ext/flags
+	url = https://www.github.com/jwbuurlage/flags.git
+
+[submodule "ext/cppzmq"]
+	path = ext/cppzmq
+	url = https://github.com/zeromq/cppzmq
+[submodule "ext/libzmq"]
+	path = ext/libzmq
+	url = https://github.com/zeromq/libzmq
+[submodule "ext/eigen"]
+	path = ext/eigen
+	url = https://github.com/eigenteam/eigen-git-mirror.git
+[submodule "ext/tomopackets"]
+	path = ext/tomopackets
+	url = https://github.com/cicwi/tomopackets.git
