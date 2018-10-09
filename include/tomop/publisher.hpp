@@ -11,9 +11,12 @@ namespace tomop {
 
 class publisher {
   public:
-    publisher(std::string hostname = "tcp://localhost:5555")
-        : context_(1), socket_(context_, ZMQ_REQ) {
-        using namespace std::chrono_literals;
+    publisher(std::string hostname = "tcp://localhost", int port = 5555,
+              int type = ZMQ_REQ)
+        : context_(1), socket_(context_, type) {
+        using namespace std::string_literals;
+
+        auto address = "tcp://"s + hostname + ":"s + std::to_string(port);
 
         // set socket timeout to 200 ms
         socket_.setsockopt(ZMQ_LINGER, 200);
