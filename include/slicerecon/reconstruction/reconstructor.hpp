@@ -24,6 +24,8 @@
 
 namespace slicerecon {
 
+class reconstructor;
+
 struct settings {
     int32_t slice_size;
     int32_t preview_size;
@@ -31,6 +33,11 @@ struct settings {
     int32_t filter_cores;
     int32_t darks;
     int32_t flats;
+};
+
+class listener {
+  public:
+    virtual void notify(reconstructor& recon) = 0;
 };
 
 namespace detail {
@@ -94,7 +101,10 @@ class cone_beam_solver : public solver {
     }
 
     void reconstruct_preview(std::vector<float>& preview_buffer,
-                             int buffer_idx) override {}
+                             int buffer_idx) override {
+        (void)preview_buffer;
+        (void)buffer_idx;
+    }
 };
 
 } // namespace detail
@@ -103,6 +113,8 @@ class cone_beam_solver : public solver {
 class reconstructor {
   public:
     reconstructor(acquisition::geometry geom, settings parameters);
+
+    void add_listener(listener* l) { listeners_.push_back(l); }
 
     // push a projection
     void push_projection(proj_kind k, int32_t idx, std::array<int32_t, 2> shape,
@@ -159,6 +171,10 @@ class reconstructor {
     slice_data reconstruct_slice(orientation x) {
         return alg_->reconstruct_slice(x, 1 - write_index_);
     }
+
+    std::vector<float>& preview_data() { return small_volume_buffer_; }
+    settings parameters() { return parameters_; }
+    acquisition::geometry geometry() { return geom_; }
 
   private:
     std::vector<float> average_(std::vector<float> all) {
@@ -228,6 +244,8 @@ class reconstructor {
 
     std::vector<float> filter_;
     std::vector<float> sino_buffer_;
+
+    std::vector<listener*> listeners_;
 };
 
 } // namespace slicerecon

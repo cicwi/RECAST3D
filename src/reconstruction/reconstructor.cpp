@@ -5,10 +5,10 @@ namespace slicerecon {
 
 template <typename T>
 void minmaxoutput(std::string name, const std::vector<T>& xs) {
-    std::cout << name << " min: " << *std::min_element(xs.begin(), xs.end())
-              << ", ";
-    std::cout << name << " max: " << *std::max_element(xs.begin(), xs.end())
-              << "\n";
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info << name
+                          << " (" << *std::min_element(xs.begin(), xs.end())
+                          << ", " << *std::max_element(xs.begin(), xs.end())
+                          << ")" << slicerecon::util::end_log;
 }
 
 namespace detail {
@@ -114,7 +114,7 @@ slice_data parallel_beam_solver::reconstruct_slice(orientation x,
         geometry_.proj_count, geometry_.rows, geometry_.cols, vec_buf_.data());
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
-                          << "Reconstructing from (" << 1 << ")"
+                          << "Reconstructing from (" << buffer_idx << ")"
                           << slicerecon::util::end_log;
 
     proj_datas_[buffer_idx]->changeGeometry(proj_geom_.get());
@@ -130,21 +130,20 @@ slice_data parallel_beam_solver::reconstruct_slice(orientation x,
     return {{(int)n, (int)n}, std::move(result)};
 }
 
+void parallel_beam_solver::reconstruct_preview(
+    std::vector<float>& preview_buffer, int buffer_idx) {
+    proj_datas_[buffer_idx]->changeGeometry(proj_geom_small_.get());
+    algs_small_[buffer_idx]->run();
 
-void parallel_beam_solver::reconstruct_preview(std::vector<float>& preview_buffer, int buffer_idx) {
-  proj_datas_[buffer_idx]->changeGeometry(proj_geom_small_.get());
-  algs_small_[buffer_idx]->run();
+    unsigned int n = parameters_.preview_size;
+    float factor = (n / (float)geometry_.cols);
+    auto pos = astraCUDA3d::SSubDimensions3D{n, n, n, n, n, n, n, 0, 0, 0};
+    astraCUDA3d::copyFromGPUMemory(preview_buffer.data(), vol_handle_small_,
+                                   pos);
 
-  unsigned int n = parameters_.preview_size;
-  float factor = (n / (float)geometry_.cols);
-  auto pos = astraCUDA3d::SSubDimensions3D{n, n, n, n, n,
-                                           n, n, 0, 0, 0};
-  astraCUDA3d::copyFromGPUMemory(preview_buffer.data(),
-                                 vol_handle_small_, pos);
-
-  for (auto& x : preview_buffer) {
-    x *= (factor * factor * factor);
-  }
+    for (auto& x : preview_buffer) {
+        x *= (factor * factor * factor);
+    }
 }
 
 cone_beam_solver::cone_beam_solver(settings parameters,
@@ -171,6 +170,7 @@ reconstructor::reconstructor(acquisition::geometry geom, settings parameters)
     small_volume_buffer_.resize(parameters_.preview_size *
                                 parameters_.preview_size *
                                 parameters_.preview_size);
+    filter_.resize(geom_.cols);
 
     if (geom_.parallel) {
         // make recosntruction object par
@@ -214,7 +214,10 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
                           << slicerecon::util::end_log;
 
     // TODO filter
-    // auto env = bulk::thread::environment();
+
+    process_projection(world_, rows_, cols_,
+                       buffer_.data(), dark_.data(),
+                       reciproc_.data(), filter_);
 
     transpose_sino_(buffer_[write_index_], sino_buffer_,
                     proj_id_max - proj_id_min + 1);
@@ -225,12 +228,16 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
 }
 
 void reconstructor::refresh_data_() {
-  alg_->reconstruct_preview(small_volume_buffer_, 1 - write_index_);
+    alg_->reconstruct_preview(small_volume_buffer_, 1 - write_index_);
 
-  slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
-                        << "Reconstructed low-res preview (" << 1 - write_index_ << ")"
-                        << slicerecon::util::end_log;
-  // TODO: send message to observers that new data is available
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << "Reconstructed low-res preview ("
+                          << 1 - write_index_ << ")"
+                          << slicerecon::util::end_log;
+    // TODO: send message to observers that new data is available
+    for (auto l : listeners_) {
+        l->notify(*this);
+    }
 }
 
 } // namespace slicerecon

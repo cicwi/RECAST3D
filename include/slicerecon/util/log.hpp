@@ -1,8 +1,9 @@
 #pragma once
 
-#include <map>
-#include <sstream>
 #include <iostream>
+#include <map>
+#include <mutex>
+#include <sstream>
 
 #include <string.h>
 
@@ -45,6 +46,7 @@ struct logger {
 
     void operator<<(end_log_ unused) {
         (void)unused;
+
         switch (level_) {
         case lvl::info:
             std::cout << color["black_bg"] << color["yellow"] << "INFO";

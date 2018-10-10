@@ -10,14 +10,33 @@
 #include "tomop/tomop.hpp"
 #include <zmq.hpp>
 
+#include <mutex>
+
+#include "../reconstruction/reconstructor.hpp"
 #include "../util/data_types.hpp"
 
 namespace slicerecon {
 
-class visualization_server {
+class visualization_server : public listener {
   public:
     using callback_type =
         std::function<slice_data(std::array<float, 9>, int32_t)>;
+
+    void notify(reconstructor& recon) override {
+      util::log << LOG_FILE << util::lvl::info
+                << "Sending volume preview....: "
+                << util::end_log;
+
+      zmq::message_t reply;
+      int n = recon.parameters().preview_size;
+
+      // this is from other thread... one socket per thread.. mutex..?
+      auto volprev = tomop::VolumeDataPacket(scene_id_, {n, n, n}, recon.preview_data());
+      send(volprev);
+
+      auto grsp = tomop::GroupRequestSlicesPacket(scene_id_, 1);
+      send(grsp);
+    }
 
     visualization_server(
         std::string name, std::string hostname = "tcp://localhost:5555",
@@ -65,6 +84,8 @@ class visualization_server {
     }
 
     void send(const tomop::Packet& packet) {
+        std::lock_guard<std::mutex> guard(socket_mutex_);
+
         packet.send(socket_);
         zmq::message_t reply;
         socket_.recv(&reply);
@@ -207,6 +228,8 @@ class visualization_server {
 
     callback_type slice_data_callback_;
     std::vector<std::pair<int32_t, std::array<float, 9>>> slices_;
+
+    std::mutex socket_mutex_;
 };
 
 } // namespace slicerecon

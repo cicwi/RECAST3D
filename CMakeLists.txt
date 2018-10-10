@@ -13,7 +13,7 @@ set(ASTRA_INCLUDE_DIRS "${ASTRA_PATH}/include" "${ASTRA_PATH}/cuda")
 link_directories("$ENV{HOME}/scratch/code/tomography/astra-scm/build/linux/.libs/")
 
 add_library(astra-toolbox INTERFACE)
-target_include_directories(astra-toolbox INTERFACE ${ASTRA_INCLUDE_DIRS})
+target_include_directories(astra-toolbox SYSTEM INTERFACE ${ASTRA_INCLUDE_DIRS})
 target_compile_definitions(astra-toolbox INTERFACE "ASTRA_CUDA")
 target_link_libraries(astra-toolbox INTERFACE "astra")
 # --------------------------------------------------------------------------------------------

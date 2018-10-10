@@ -13,3 +13,6 @@
 [submodule "ext/tomopackets"]
 	path = ext/tomopackets
 	url = https://github.com/cicwi/tomopackets.git
+[submodule "example/ext/tomos"]
+	path = example/ext/tomos
+	url = https://github.com/jwbuurlage/tomos.git
