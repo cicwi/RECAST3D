@@ -1,3 +1,6 @@
+#include <functional>
+#include <numeric>
+
 // not required, CLI args parser for testing server settings
 #include "flags/flags.hpp"
 
@@ -6,23 +9,31 @@
 
 int main(int argc, char** argv) {
     auto opts = flags::flags{argc, argv};
-    opts.info("setting_up_server", "example of how to use `slicerecon` to host a "
-                                   "slice reconstruction server");
+    opts.info("setting_up_server",
+              "example of how to use `slicerecon` to host a "
+              "slice reconstruction server");
 
     // maybe at some point support receive details over the network on acq
     // geometry, darks, flats now we just force the user to give it here..
-    auto geom = slicerecon::acquisition::geometry({1, 1, 1, {1.0f}, true});
+
+    int n = 10;
+    auto angles = std::vector<float>(n, 0.0f);
+    std::iota(angles.begin(), angles.end(), 0.0f);
+    std::transform(angles.begin(), angles.end(), angles.begin(),
+                   [](auto x) { return x * 2 * M_PI; });
+
+    auto geom = slicerecon::acquisition::geometry({n, n, n, angles, true});
 
     // This is defined for the reconstruction
     auto slice_size = opts.arg_as_or<int32_t>("--slice-size", 512);
     auto preview_size = opts.arg_as_or<int32_t>("--preview-size", 128);
-    auto group_size = opts.arg_as_or<int32_t>("--group-size", 80);
+    auto group_size = opts.arg_as_or<int32_t>("--group-size", 10);
     auto filter_cores = opts.arg_as_or<int32_t>("--filter-cores", 8);
 
-    auto params = slicerecon::reconstructor::settings{
-        slice_size, preview_size, group_size, filter_cores, 20, 20};
+    auto params = slicerecon::settings{
+        slice_size, preview_size, group_size, filter_cores, 1, 1};
 
-    auto host = opts.arg_or("--host", "localhost");
+    auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);
 
     if (opts.passed("-h") || !opts.sane()) {
@@ -38,14 +49,14 @@ int main(int argc, char** argv) {
     // 2. listen to projection stream
     // projection callback, push to projection stream
     // all raw data
-    auto proj = slicerecon::projection_server(host, port, *recon);
+    auto proj = slicerecon::projection_server(host, port, *recon, ZMQ_PULL);
     proj.serve();
 
     // 3. connect with (recast3d) visualization server
-    // setup using the standard tomop server
-    // slice callback to
-    // auto viz = slicerecon::visualization_server([&](..) { pool->reconstruct(..);
-    // });
+    auto viz = slicerecon::visualization_server("slicerecon test");
+    viz.set_slice_callback(
+        [&](auto x, auto idx) { return recon->reconstruct_slice(x); });
+    viz.serve();
 
     return 0;
 }

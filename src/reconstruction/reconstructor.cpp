@@ -1,109 +1,236 @@
 #include "slicerecon/reconstruction/reconstructor.hpp"
+#include "slicerecon/util/util.hpp"
 
 namespace slicerecon {
 
-reconstructor::reconstructor(acquisition::geometry geom, settings parameters)
-    : geom_(geom), parameters_(parameters) {
-    // init astra
-    initialize_astra_();
-    pixels_ = geom_.cols * geom_.rows;
-    if (geom_.parallel) {
-        // make recosntruction object par
-    } else {
-        // make recosntruction object cb
+template <typename T>
+void minmaxoutput(std::string name, const std::vector<T>& xs) {
+    std::cout << name << " min: " << *std::min_element(xs.begin(), xs.end())
+              << ", ";
+    std::cout << name << " max: " << *std::max_element(xs.begin(), xs.end())
+              << "\n";
+}
+
+namespace detail {
+
+parallel_beam_solver::parallel_beam_solver(settings parameters,
+                                           acquisition::geometry geometry)
+    : solver(parameters, geometry) {
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << "Initializing parallel beam solver"
+                          << slicerecon::util::end_log;
+
+    // 1) create projection geometry
+    auto proj_geom = astra::CParallelProjectionGeometry3D(
+        geometry_.proj_count, geometry_.rows, geometry_.cols, 1.0f, 1.0f,
+        geometry_.angles.data());
+
+    proj_geom_ = slicerecon::util::proj_to_vec(&proj_geom);
+    proj_geom_small_ = slicerecon::util::proj_to_vec(&proj_geom);
+    vectors_ = std::vector<astra::SPar3DProjection>(
+        proj_geom_->getProjectionVectors(),
+        proj_geom_->getProjectionVectors() + geometry_.proj_count);
+    vec_buf_ = vectors_;
+
+    // 1a) convert to par vec
+    auto zeros = std::vector<float>(
+        geometry_.proj_count * geometry_.cols * geometry_.rows, 0.0f);
+
+    // 2) create projection data..
+    for (int i = 0; i < 2; ++i) {
+        proj_handles_.push_back(astraCUDA3d::createProjectionArrayHandle(
+            zeros.data(), geometry_.cols, geometry_.proj_count,
+            geometry_.rows));
+        proj_datas_.push_back(
+            std::make_unique<astra::CFloat32ProjectionData3DGPU>(
+                proj_geom_.get(), proj_handles_[0]));
+    }
+
+    // 3) create volume geometry
+    vol_geom_ = std::make_unique<astra::CVolumeGeometry3D>(
+        parameters_.slice_size, parameters_.slice_size, 1);
+    // 4) create volume data
+    vol_handle_ = astraCUDA3d::allocateGPUMemory(parameters_.slice_size,
+                                                 parameters_.slice_size, 1,
+                                                 astraCUDA3d::INIT_ZERO);
+    vol_data_ = std::make_unique<astra::CFloat32VolumeData3DGPU>(
+        vol_geom_.get(), vol_handle_);
+
+    // SMALL PREVIEW VOL
+    vol_geom_small_ = std::make_unique<astra::CVolumeGeometry3D>(
+        parameters_.preview_size, parameters_.preview_size,
+        parameters_.preview_size, vol_geom_->getWindowMinX(),
+        vol_geom_->getWindowMinX(), vol_geom_->getWindowMinX(),
+        vol_geom_->getWindowMaxX(), vol_geom_->getWindowMaxX(),
+        vol_geom_->getWindowMaxX());
+    vol_handle_small_ = astraCUDA3d::allocateGPUMemory(
+        parameters_.preview_size, parameters_.preview_size,
+        parameters_.preview_size, astraCUDA3d::INIT_ZERO);
+    vol_data_small_ = std::make_unique<astra::CFloat32VolumeData3DGPU>(
+        vol_geom_small_.get(), vol_handle_small_);
+
+    // 5) create back projection algorithm, link to previously
+    // made objects
+    projector_ = std::make_unique<astra::CCudaProjector3D>();
+    // make algorithm for two targets if mode is single
+    for (int i = 0; i < 2; ++i) {
+        algs_.push_back(std::make_unique<astra::CCudaBackProjectionAlgorithm3D>(
+            projector_.get(), proj_datas_[i].get(), vol_data_.get()));
+        algs_small_.push_back(
+            std::make_unique<astra::CCudaBackProjectionAlgorithm3D>(
+                projector_.get(), proj_datas_[i].get(), vol_data_small_.get()));
     }
 }
 
-void reconstructor::initialize_astra_() {
-//    if (geom_.parallel) {
-//        auto& g = geom_;
-//        // auto& o = std::get<detail::parallel_beam_objs>(objs_);
-//
-//        // set up the projection geometry
-//        std::vector<float> angles(g.proj_count);
-//        for (auto i = 0; i < g.proj_count; ++i) {
-//            angles[i] = (i * M_PI) / g.proj_count;
-//        }
-//        auto proj_geom = astra::CParallelProjectionGeometry3D(
-//            g.proj_count, g.rows, g.cols, 1.0f, 1.0f, g.angles.data());
-//        o.proj_geom = parallel_beam_to_vec(&proj_geom);
-//        o.proj_geom_small = parallel_beam_to_vec(&proj_geom);
-//        o.vectors = std::vector<astra::SPar3DProjection>(
-//            o.proj_geom->getProjectionVectors(),
-//            o.proj_geom->getProjectionVectors() + g.proj_count);
-//        o.vec_buf = o.vectors;
-//
-//        // set up the projection data
-//        auto zeros = std::vector<float>(g.proj_count * g.cols * g.rows, 0.0f);
-//        for (int i = 0; i < 2; ++i) {
-//            o.proj_handles.push_back(astraCUDA3d::createProjectionArrayHandle(
-//                zeros.data(), g.cols, g.proj_count, g.rows));
-//            o.proj_datas.push_back(
-//                std::make_unique<astra::CFloat32ProjectionData3DGPU>(
-//                    o.proj_geom.get(), o.proj_handles[0]));
-//        }
-//
-//        // create volume geometry
-//        o.vol_geom = std::make_unique<astra::CVolumeGeometry3D>(
-//            parameters_.slice_size, parameters_.slice_size, 1);
-//        // create volume data
-//        o.vol_handle = astraCUDA3d::allocateGPUMemory(parameters_.slice_size,
-//                                                      parameters_.slice_size, 1,
-//                                                      astraCUDA3d::INIT_ZERO);
-//        o.vol_data = std::make_unique<astra::CFloat32VolumeData3DGPU>(
-//            o.vol_geom.get(), o.vol_handle);
-//
-//        // create small volume preview
-//        o.vol_geom_small = std::make_unique<astra::CVolumeGeometry3D>(
-//            parameters_.preview_size, parameters_.preview_size,
-//            parameters_.preview_size, o.vol_geom->getWindowMinX(),
-//            o.vol_geom->getWindowMinX(), o.vol_geom->getWindowMinX(),
-//            o.vol_geom->getWindowMaxX(), o.vol_geom->getWindowMaxX(),
-//            o.vol_geom->getWindowMaxX());
-//        o.vol_handle_small = astraCUDA3d::allocateGPUMemory(
-//            parameters_.preview_size, parameters_.preview_size,
-//            parameters_.preview_size, astraCUDA3d::INIT_ZERO);
-//        o.vol_data_small = std::make_unique<astra::CFloat32VolumeData3DGPU>(
-//            o.vol_geom_small.get(), o.vol_handle_small);
-//
-//        o.projector = std::make_unique<astra::CCudaProjector3D>();
-//        for (int i = 0; i < 2; ++i) {
-//            o.algs.push_back(
-//                std::make_unique<astra::CCudaBackProjectionAlgorithm3D>(
-//                    o.projector.get(), o.proj_datas[i].get(),
-//                    o.vol_data.get()));
-//            o.algs_small.push_back(
-//                std::make_unique<astra::CCudaBackProjectionAlgorithm3D>(
-//                    o.projector.get(), o.proj_datas[i].get(),
-//                    o.vol_data_small.get()));
-//        }
-//
-//        // create filter (TODO separate functions)
-//        // TODO migrate this somewhere else and add algebraic filters
-//        // 1) ram-lak
-//        auto mid = (g.cols + 1) / 2;
-//        filter_.resize(g.cols);
-//        for (int i = 0; i < mid; ++i) {
-//            filter_[i] = i;
-//        }
-//        for (int j = mid; j < g.cols; ++j) {
-//            filter_[j] = 2 * mid - j;
-//        }
-//        // 2) something more advanced
-//        auto filter_weight = [=](auto i) {
-//            return std::sin(M_PI * (i / (float)mid)) /
-//                   (M_PI * (i / (float)mid));
-//        };
-//        for (int i = 1; i < mid; ++i) {
-//            filter_[i] *= filter_weight(i);
-//        }
-//        for (int j = mid; j < g.cols; ++j) {
-//            filter_[j] = filter_weight(2 * mid - j);
-//        }
-//    } else if (std::holds_alternative<acquisition::circular_cone_beam>(geom_)) {
-//        std::cerr << "`initialize_astra_`: CCB not yet implemented...\n";
-//        exit(-1);
-//    }
+slice_data parallel_beam_solver::reconstruct_slice(orientation x,
+                                                   int buffer_idx) {
+    auto k = vol_geom_->getWindowMaxX();
+
+    auto [delta, rot, scale] = util::slice_transform(
+        {x[6], x[7], x[8]}, {x[0], x[1], x[2]}, {x[3], x[4], x[5]}, k);
+
+    // From the ASTRA geometry, get the vectors, modify, and reset them
+    int i = 0;
+    for (auto [rx, ry, rz, dx, dy, dz, pxx, pxy, pxz, pyx, pyy, pyz] :
+         vectors_) {
+        auto r = Eigen::Vector3f(rx, ry, rz);
+        auto d = Eigen::Vector3f(dx, dy, dz);
+        auto px = Eigen::Vector3f(pxx, pxy, pxz);
+        auto py = Eigen::Vector3f(pyx, pyy, pyz);
+
+        d += 0.5f * (geometry_.cols * px + geometry_.rows * py);
+        r = scale.cwiseProduct(rot * r);
+        d = scale.cwiseProduct(rot * (d + delta));
+        px = scale.cwiseProduct(rot * px);
+        py = scale.cwiseProduct(rot * py);
+        d -= 0.5f * (geometry_.cols * px + geometry_.rows * py);
+
+        vec_buf_[i] = {r[0],  r[1],  r[2],  d[0],  d[1],  d[2],
+                       px[0], px[1], px[2], py[0], py[1], py[2]};
+        ++i;
+    }
+
+    std::make_unique<astra::CParallelVecProjectionGeometry3D>(
+        geometry_.proj_count, geometry_.rows, geometry_.cols, vec_buf_.data());
+
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << "Reconstructing from (" << 1 << ")"
+                          << slicerecon::util::end_log;
+
+    proj_datas_[buffer_idx]->changeGeometry(proj_geom_.get());
+    algs_[buffer_idx]->run();
+
+    unsigned int n = parameters_.slice_size;
+    auto result = std::vector<float>(n * n, 0.0f);
+    auto pos = astraCUDA3d::SSubDimensions3D{n, n, 1, n, n, n, 1, 0, 0, 0};
+    astraCUDA3d::copyFromGPUMemory(result.data(), vol_handle_, pos);
+
+    minmaxoutput("result", result);
+
+    return {{(int)n, (int)n}, std::move(result)};
+}
+
+
+void parallel_beam_solver::reconstruct_preview(std::vector<float>& preview_buffer, int buffer_idx) {
+  proj_datas_[buffer_idx]->changeGeometry(proj_geom_small_.get());
+  algs_small_[buffer_idx]->run();
+
+  unsigned int n = parameters_.preview_size;
+  float factor = (n / (float)geometry_.cols);
+  auto pos = astraCUDA3d::SSubDimensions3D{n, n, n, n, n,
+                                           n, n, 0, 0, 0};
+  astraCUDA3d::copyFromGPUMemory(preview_buffer.data(),
+                                 vol_handle_small_, pos);
+
+  for (auto& x : preview_buffer) {
+    x *= (factor * factor * factor);
+  }
+}
+
+cone_beam_solver::cone_beam_solver(settings parameters,
+                                   acquisition::geometry geometry)
+    : solver(parameters, geometry) {}
+
+} // namespace detail
+
+reconstructor::reconstructor(acquisition::geometry geom, settings parameters)
+    : geom_(geom), parameters_(parameters) {
+    // init counts
+    pixels_ = geom_.cols * geom_.rows;
+    current_group_ = 0;
+    group_count_ = (geom_.proj_count - 1) / parameters_.group_size + 1;
+
+    // allocate the buffers
+    all_flats_.resize(pixels_ * parameters_.flats);
+    all_darks_.resize(pixels_ * parameters_.darks);
+    dark_.resize(pixels_);
+    flat_fielder_.resize(pixels_);
+    buffer_[0].resize(parameters_.group_size * pixels_);
+    buffer_[1].resize(parameters_.group_size * pixels_);
+    sino_buffer_.resize(geom_.rows * geom_.cols * parameters_.group_size);
+    small_volume_buffer_.resize(parameters_.preview_size *
+                                parameters_.preview_size *
+                                parameters_.preview_size);
+
+    if (geom_.parallel) {
+        // make recosntruction object par
+        alg_ =
+            std::make_unique<detail::parallel_beam_solver>(parameters_, geom_);
+    } else {
+        // make reconstruction object cb
+        alg_ = std::make_unique<detail::cone_beam_solver>(parameters_, geom_);
+    }
+}
+
+void reconstructor::transpose_sino_(std::vector<float>& projection_group,
+                                    std::vector<float>& sino_buffer,
+                                    int group_size) {
+    // [i, j, k] (major to minor)
+    //
+    // In projection_group we have:
+    // - i: projection_id
+    // - j: rows
+    // - k: cols
+    //
+    // For sinogram we want:
+    // - i: rows
+    // - j: projection_id
+    // - k: cols
+
+    for (int i = 0; i < geom_.rows; ++i) {
+        for (int j = 0; j < group_size; ++j) {
+            for (int k = 0; k < geom_.cols; ++k) {
+                sino_buffer[i * group_size * geom_.cols + j * geom_.cols + k] =
+                    projection_group[j * geom_.cols * geom_.rows +
+                                     i * geom_.cols + k];
+            }
+        }
+    }
+}
+
+void reconstructor::upload_(int proj_id_min, int proj_id_max) {
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << "Uploading buffer (" << write_index_ << ")"
+                          << slicerecon::util::end_log;
+
+    // TODO filter
+    // auto env = bulk::thread::environment();
+
+    transpose_sino_(buffer_[write_index_], sino_buffer_,
+                    proj_id_max - proj_id_min + 1);
+
+    astra::uploadMultipleProjections(alg_->proj_data(write_index_),
+                                     sino_buffer_.data(), proj_id_min,
+                                     proj_id_max, false);
+}
+
+void reconstructor::refresh_data_() {
+  alg_->reconstruct_preview(small_volume_buffer_, 1 - write_index_);
+
+  slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                        << "Reconstructed low-res preview (" << 1 - write_index_ << ")"
+                        << slicerecon::util::end_log;
+  // TODO: send message to observers that new data is available
 }
 
 } // namespace slicerecon

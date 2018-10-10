@@ -35,7 +35,7 @@ if (ZeroMQ_FOUND)
 else()
     message("'zmq' not installed on the system, building from source...")
 
-    execute_process(COMMAND git submodule update --init -- ext/libzmq
+    execute_process(COMMAND git submodule update --init --remote -- ext/libzmq
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
     set(ZMQ_BUILD_TESTS OFF CACHE BOOL "disable tests" FORCE)
@@ -49,7 +49,7 @@ else()
 endif()
 # --------------------------------------------------------------------------------------------
 # cppzmq
-execute_process(COMMAND git submodule update --init -- ext/cppzmq
+execute_process(COMMAND git submodule update --init --remote -- ext/cppzmq
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 add_library(cppzmq INTERFACE)
@@ -57,7 +57,7 @@ target_include_directories(cppzmq INTERFACE ext/cppzmq)
 target_link_libraries(cppzmq INTERFACE zmq)
 # --------------------------------------------------------------------------------------------
 # tomopackets
-execute_process(COMMAND git submodule update --init -- ext/tomopackets
+execute_process(COMMAND git submodule update --init --remote -- ext/tomopackets
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # TODO move to tomopackets
@@ -66,10 +66,10 @@ target_include_directories(tomop INTERFACE ext/tomopackets/include)
 target_link_libraries(tomop INTERFACE cppzmq zmq)
 # --------------------------------------------------------------------------------------------
 
-
-
 set(
     SOURCES
+    "src/util/util.cpp"
+    "src/util/log.cpp"
     "src/reconstruction/reconstructor.cpp"
     "src/reconstruction/helpers.cpp"
 )

@@ -2,6 +2,7 @@
 
 #include <map>
 #include <sstream>
+#include <iostream>
 
 #include <string.h>
 
@@ -17,7 +18,7 @@ namespace slicerecon::util {
 enum class lvl { info, warning, error, none_set };
 
 struct end_log_ {};
-end_log_ end_log;
+extern end_log_ end_log;
 
 static std::map<std::string, std::string> color{
     {"black", "\033[1;30m"},    {"red", "\033[1;31m"},
@@ -61,12 +62,15 @@ struct logger {
 
         std::cout << color["nc"] << " " << line.str() << "\n";
         level_ = lvl::none_set;
+
+        // reset the string stream
+        line.str(std::string());
     }
 
     std::stringstream line;
     lvl level_ = lvl::none_set;
 };
 
-logger log;
+extern logger log;
 
 } // namespace slicerecon::util

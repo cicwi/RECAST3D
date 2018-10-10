@@ -1,4 +1,5 @@
 #include <string>
+#include <thread>
 
 #include <zmq.hpp>
 
@@ -13,26 +14,34 @@ class projection_server {
   public:
     projection_server(std::string hostname, int port, reconstructor& pool,
                       int type = ZMQ_PULL)
-        : context_(1), socket_(context_, type), pool_(pool) {
+        : context_(1), socket_(context_, type), pool_(pool), type_(type) {
         using namespace std::string_literals;
         auto address = "tcp://"s + hostname + ":"s + std::to_string(port);
 
-        util::log << LOG_FILE << util::lvl::info << "Connecting to: " << address
+        util::log << LOG_FILE << util::lvl::info << "Binding to: " << address
                   << util::end_log;
+        socket_.bind(address);
 
-        socket_.connect(address);
         if (type == ZMQ_SUB) {
             socket_.setsockopt(ZMQ_SUBSCRIBE, nullptr, 0);
         }
     }
 
+    ~projection_server() {
+        if (serve_thread_.joinable()) {
+            serve_thread_.join();
+        }
+
+        socket_.close();
+        context_.close();
+    }
+
     void serve() {
-        auto kill = false;
-        while (true) {
+        serve_thread_ = std::thread([&] {
             zmq::message_t update;
-            if (!socket_.recv(&update)) {
-                kill = true;
-            } else {
+            while (true) {
+                socket_.recv(&update);
+
                 auto desc = ((tomop::packet_desc*)update.data())[0];
                 auto buffer = (char*)update.data();
 
@@ -40,8 +49,9 @@ class projection_server {
                 case tomop::packet_desc::projection: {
                     auto index = sizeof(tomop::packet_desc);
 
-                    /* This assumes that the projection packet from TOMOP does
-                       not change, but does avoid an unnecessary copy */
+                    /* This assumes that the projection packet from TOMOP
+                       does not change, but does avoid an unnecessary copy
+                     */
                     int32_t type = 0;
                     int32_t idx = 0;
                     std::array<int32_t, 2> shape = {};
@@ -55,17 +65,32 @@ class projection_server {
                     read(idx);
                     read(shape);
 
-                    pool_.push_projection((proj_kind)type, idx, shape, buffer + index);
+                    util::log << LOG_FILE << util::lvl::info
+                              << "Projection received [(" << shape[0] << " x "
+                              << shape[1] << "), " << type << ", " << idx << "]"
+                              << util::end_log;
+
+                    pool_.push_projection((proj_kind)type, idx, shape,
+                                          buffer + index);
+                    ack();
                     break;
                 }
                 default:
-                    break;
-                }
-
-                if (kill) {
+                    util::log << LOG_FILE << util::lvl::warning
+                              << "Unknown package received" << util::end_log;
+                    ack();
                     break;
                 }
             }
+        });
+    }
+
+    void ack() {
+        if (type_ == ZMQ_REP) {
+            zmq::message_t reply(sizeof(int));
+            int succes = 1;
+            memcpy(reply.data(), &succes, sizeof(int));
+            socket_.send(reply);
         }
     }
 
@@ -73,6 +98,9 @@ class projection_server {
     zmq::context_t context_;
     zmq::socket_t socket_;
     reconstructor& pool_;
-};
+    int type_;
+
+    std::thread serve_thread_;
+}; // namespace slicerecon
 
 } // namespace slicerecon
