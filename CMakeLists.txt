@@ -68,9 +68,6 @@ target_link_libraries(tomop INTERFACE cppzmq zmq)
 # Bulk
 add_subdirectory(${CMAKE_SOURCE_DIR}/ext/bulk)
 # --------------------------------------------------------------------------------------------
-# FFTW
-# find_package (FFTW3 REQUIRED)
-# --------------------------------------------------------------------------------------------
 
 set(
     SOURCES
@@ -90,7 +87,6 @@ set(
   "cppzmq"
   "tomop"
   "bulk_thread"
-  "fftw3f"
 )
 
 add_library(${TARGET_NAME} ${SOURCES})

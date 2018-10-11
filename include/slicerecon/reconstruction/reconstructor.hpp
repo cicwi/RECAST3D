@@ -57,8 +57,7 @@ namespace detail {
 
 class solver {
   public:
-    solver(settings parameters, acquisition::geometry geometry)
-        : parameters_(parameters), geometry_(geometry) {}
+    solver(settings parameters, acquisition::geometry geometry);
 
     virtual slice_data reconstruct_slice(orientation x, int buffer_idx) = 0;
     virtual void reconstruct_preview(std::vector<float>& preview_buffer,
@@ -196,7 +195,7 @@ class reconstructor {
 
     slice_data reconstruct_slice(orientation x) {
         if (!initialized_) {
-          return {{1, 1}, {0.0f}};
+            return {{1, 1}, {0.0f}};
         }
 
         return alg_->reconstruct_slice(x, 1 - write_index_);

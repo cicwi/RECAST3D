@@ -6,6 +6,35 @@ namespace slicerecon {
 
 namespace detail {
 
+solver::solver(settings parameters, acquisition::geometry geometry)
+    : parameters_(parameters), geometry_(geometry) {
+
+    // 1a) convert to par vec
+
+    // 3) TODO: MOVE UP create volume geometry
+    vol_geom_ = std::make_unique<astra::CVolumeGeometry3D>(
+        parameters_.slice_size, parameters_.slice_size, 1);
+    // 4) TODO: MOVE UP create volume data
+    vol_handle_ = astraCUDA3d::allocateGPUMemory(parameters_.slice_size,
+                                                 parameters_.slice_size, 1,
+                                                 astraCUDA3d::INIT_ZERO);
+    vol_data_ = std::make_unique<astra::CFloat32VolumeData3DGPU>(
+        vol_geom_.get(), vol_handle_);
+
+    // TODO: MOVE UP SMALL PREVIEW VOL
+    vol_geom_small_ = std::make_unique<astra::CVolumeGeometry3D>(
+        parameters_.preview_size, parameters_.preview_size,
+        parameters_.preview_size, vol_geom_->getWindowMinX(),
+        vol_geom_->getWindowMinX(), vol_geom_->getWindowMinX(),
+        vol_geom_->getWindowMaxX(), vol_geom_->getWindowMaxX(),
+        vol_geom_->getWindowMaxX());
+    vol_handle_small_ = astraCUDA3d::allocateGPUMemory(
+        parameters_.preview_size, parameters_.preview_size,
+        parameters_.preview_size, astraCUDA3d::INIT_ZERO);
+    vol_data_small_ = std::make_unique<astra::CFloat32VolumeData3DGPU>(
+        vol_geom_small_.get(), vol_handle_small_);
+}
+
 parallel_beam_solver::parallel_beam_solver(settings parameters,
                                            acquisition::geometry geometry)
     : solver(parameters, geometry) {
@@ -25,7 +54,6 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
         proj_geom_->getProjectionVectors() + geometry_.proj_count);
     vec_buf_ = vectors_;
 
-    // 1a) convert to par vec
     auto zeros = std::vector<float>(
         geometry_.proj_count * geometry_.cols * geometry_.rows, 0.0f);
 
@@ -38,30 +66,6 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
             std::make_unique<astra::CFloat32ProjectionData3DGPU>(
                 proj_geom_.get(), proj_handles_[0]));
     }
-
-    // 3) create volume geometry
-    vol_geom_ = std::make_unique<astra::CVolumeGeometry3D>(
-        parameters_.slice_size, parameters_.slice_size, 1);
-    // 4) create volume data
-    vol_handle_ = astraCUDA3d::allocateGPUMemory(parameters_.slice_size,
-                                                 parameters_.slice_size, 1,
-                                                 astraCUDA3d::INIT_ZERO);
-    vol_data_ = std::make_unique<astra::CFloat32VolumeData3DGPU>(
-        vol_geom_.get(), vol_handle_);
-
-    // SMALL PREVIEW VOL
-    vol_geom_small_ = std::make_unique<astra::CVolumeGeometry3D>(
-        parameters_.preview_size, parameters_.preview_size,
-        parameters_.preview_size, vol_geom_->getWindowMinX(),
-        vol_geom_->getWindowMinX(), vol_geom_->getWindowMinX(),
-        vol_geom_->getWindowMaxX(), vol_geom_->getWindowMaxX(),
-        vol_geom_->getWindowMaxX());
-    vol_handle_small_ = astraCUDA3d::allocateGPUMemory(
-        parameters_.preview_size, parameters_.preview_size,
-        parameters_.preview_size, astraCUDA3d::INIT_ZERO);
-    vol_data_small_ = std::make_unique<astra::CFloat32VolumeData3DGPU>(
-        vol_geom_small_.get(), vol_handle_small_);
-
     // 5) create back projection algorithm, link to previously
     // made objects
     projector_ = std::make_unique<astra::CCudaProjector3D>();
@@ -119,13 +123,6 @@ slice_data parallel_beam_solver::reconstruct_slice(orientation x,
     proj_datas_[buffer_idx]->changeGeometry(proj_geom_.get());
     algs_[buffer_idx]->run();
 
-    // auto proj_data =
-    //    std::vector<float>(geometry_.cols * geometry_.rows *
-    //    geometry_.proj_count);
-    // unsigned int m = geometry_.cols;
-    // auto posm = astraCUDA3d::SSubDimensions3D{m, m, m, m, m, m, m, 0, 0, 0};
-    // astraCUDA3d::copyFromGPUMemory(proj_data.data(),
-    //                               proj_handles_[buffer_idx], posm);
     unsigned int n = parameters_.slice_size;
     auto result = std::vector<float>(n * n, 0.0f);
     auto pos = astraCUDA3d::SSubDimensions3D{n, n, 1, n, n, n, 1, 0, 0, 0};
@@ -152,7 +149,9 @@ void parallel_beam_solver::reconstruct_preview(
 
 cone_beam_solver::cone_beam_solver(settings parameters,
                                    acquisition::geometry geometry)
-    : solver(parameters, geometry) {}
+    : solver(parameters, geometry) {
+    // TODO
+}
 
 } // namespace detail
 
@@ -196,17 +195,9 @@ void reconstructor::initialize(acquisition::geometry geom) {
 void reconstructor::transpose_sino_(std::vector<float>& projection_group,
                                     std::vector<float>& sino_buffer,
                                     int group_size) {
-    // [i, j, k] (major to minor)
-    //
-    // In projection_group we have:
-    // - i: projection_id
-    // - j: rows
-    // - k: cols
-    //
-    // For sinogram we want:
-    // - i: rows
-    // - j: projection_id
-    // - k: cols
+    // major to minor: [i, j, k]
+    // In projection_group we have: [projection_id, rows, cols ]
+    // For sinogram we want: [rows, projection_id, cols]
 
     for (int i = 0; i < geom_.rows; ++i) {
         for (int j = 0; j < group_size; ++j) {
@@ -220,10 +211,9 @@ void reconstructor::transpose_sino_(std::vector<float>& projection_group,
 }
 
 void reconstructor::upload_(int proj_id_min, int proj_id_max) {
-  if(!initialized_) {
-    return;
-  }
-
+    if (!initialized_) {
+        return;
+    }
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
                           << "Uploading buffer (" << write_index_
@@ -245,8 +235,8 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
 }
 
 void reconstructor::refresh_data_() {
-    if(!initialized_) {
-      return;
+    if (!initialized_) {
+        return;
     }
 
     alg_->reconstruct_preview(small_volume_buffer_, 1 - write_index_);
