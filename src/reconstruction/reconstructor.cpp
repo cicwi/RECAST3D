@@ -1,15 +1,8 @@
 #include "slicerecon/reconstruction/reconstructor.hpp"
+#include "slicerecon/util/processing.hpp"
 #include "slicerecon/util/util.hpp"
 
 namespace slicerecon {
-
-template <typename T>
-void minmaxoutput(std::string name, const std::vector<T>& xs) {
-    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info << name
-                          << " (" << *std::min_element(xs.begin(), xs.end())
-                          << ", " << *std::max_element(xs.begin(), xs.end())
-                          << ")" << slicerecon::util::end_log;
-}
 
 namespace detail {
 
@@ -110,7 +103,7 @@ slice_data parallel_beam_solver::reconstruct_slice(orientation x,
         ++i;
     }
 
-    std::make_unique<astra::CParallelVecProjectionGeometry3D>(
+    proj_geom_ = std::make_unique<astra::CParallelVecProjectionGeometry3D>(
         geometry_.proj_count, geometry_.rows, geometry_.cols, vec_buf_.data());
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
@@ -119,6 +112,15 @@ slice_data parallel_beam_solver::reconstruct_slice(orientation x,
 
     proj_datas_[buffer_idx]->changeGeometry(proj_geom_.get());
     algs_[buffer_idx]->run();
+
+    // auto proj_data =
+    //    std::vector<float>(geometry_.cols * geometry_.rows *
+    //    geometry_.proj_count);
+    // unsigned int m = geometry_.cols;
+    // auto posm = astraCUDA3d::SSubDimensions3D{m, m, m, m, m, m, m, 0, 0, 0};
+    // astraCUDA3d::copyFromGPUMemory(proj_data.data(),
+    //                               proj_handles_[buffer_idx], posm);
+    // minmaxoutput("proj_data", proj_data);
 
     unsigned int n = parameters_.slice_size;
     auto result = std::vector<float>(n * n, 0.0f);
@@ -144,6 +146,8 @@ void parallel_beam_solver::reconstruct_preview(
     for (auto& x : preview_buffer) {
         x *= (factor * factor * factor);
     }
+
+    minmaxoutput("preview_buffer", preview_buffer);
 }
 
 cone_beam_solver::cone_beam_solver(settings parameters,
@@ -170,7 +174,9 @@ reconstructor::reconstructor(acquisition::geometry geom, settings parameters)
     small_volume_buffer_.resize(parameters_.preview_size *
                                 parameters_.preview_size *
                                 parameters_.preview_size);
-    filter_.resize(geom_.cols);
+
+    // initialize filter. TODO make choice
+    filter_ = util::filter::shepp_logan(geom_.cols);
 
     if (geom_.parallel) {
         // make recosntruction object par
@@ -210,14 +216,15 @@ void reconstructor::transpose_sino_(std::vector<float>& projection_group,
 
 void reconstructor::upload_(int proj_id_min, int proj_id_max) {
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
-                          << "Uploading buffer (" << write_index_ << ")"
+                          << "Uploading buffer (" << write_index_
+                          << ") between " << proj_id_min << "/" << proj_id_max
                           << slicerecon::util::end_log;
 
-    // TODO filter
-
-    process_projection(world_, rows_, cols_,
-                       buffer_.data(), dark_.data(),
-                       reciproc_.data(), filter_);
+    environment_.spawn(parameters_.filter_cores, [&](auto& world) {
+        util::process_projection(world, geom_.rows, geom_.cols,
+                                 buffer_[write_index_].data(), dark_.data(),
+                                 flat_fielder_.data(), filter_);
+    });
 
     transpose_sino_(buffer_[write_index_], sino_buffer_,
                     proj_id_max - proj_id_min + 1);
@@ -234,7 +241,8 @@ void reconstructor::refresh_data_() {
                           << "Reconstructed low-res preview ("
                           << 1 - write_index_ << ")"
                           << slicerecon::util::end_log;
-    // TODO: send message to observers that new data is available
+
+    // send message to observers that new data is available
     for (auto l : listeners_) {
         l->notify(*this);
     }

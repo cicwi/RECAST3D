@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     auto angles = std::vector<float>(n, 0.0f);
     std::iota(angles.begin(), angles.end(), 0.0f);
     std::transform(angles.begin(), angles.end(), angles.begin(),
-                   [](auto x) { return x * 2.0f * M_PI; });
+                   [n](auto x) { return (x * M_PI) / n; });
 
     auto geom = slicerecon::acquisition::geometry({n, n, n, angles, true});
 

@@ -16,3 +16,6 @@
 [submodule "example/ext/tomos"]
 	path = example/ext/tomos
 	url = https://github.com/jwbuurlage/tomos.git
+[submodule "ext/bulk"]
+	path = ext/bulk
+	url = https://github.com/jwbuurlage/bulk.git

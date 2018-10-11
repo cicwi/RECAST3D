@@ -65,11 +65,18 @@ add_library(tomop INTERFACE)
 target_include_directories(tomop INTERFACE ext/tomopackets/include)
 target_link_libraries(tomop INTERFACE cppzmq zmq)
 # --------------------------------------------------------------------------------------------
+# Bulk
+add_subdirectory(${CMAKE_SOURCE_DIR}/ext/bulk)
+# --------------------------------------------------------------------------------------------
+# FFTW
+# find_package (FFTW3 REQUIRED)
+# --------------------------------------------------------------------------------------------
 
 set(
     SOURCES
     "src/util/util.cpp"
     "src/util/log.cpp"
+    "src/util/processing.cpp"
     "src/reconstruction/reconstructor.cpp"
     "src/reconstruction/helpers.cpp"
 )
@@ -82,6 +89,8 @@ set(
   "zmq"
   "cppzmq"
   "tomop"
+  "bulk_thread"
+  "fftw3f"
 )
 
 add_library(${TARGET_NAME} ${SOURCES})

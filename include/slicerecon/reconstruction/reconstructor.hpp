@@ -5,9 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "../util/data_types.hpp"
-#include "../util/log.hpp"
-#include "helpers.hpp"
+#include <fftw3.h>
 
 #ifndef ASTRA_CUDA
 #define ASTRA_CUDA
@@ -21,6 +19,13 @@
 #include "astra/ParallelProjectionGeometry3D.h"
 #include "astra/ParallelVecProjectionGeometry3D.h"
 #include "astra/VolumeGeometry3D.h"
+
+#include "bulk/backends/thread/thread.hpp"
+#include "bulk/bulk.hpp"
+
+#include "../util/data_types.hpp"
+#include "../util/log.hpp"
+#include "helpers.hpp"
 
 namespace slicerecon {
 
@@ -39,6 +44,14 @@ class listener {
   public:
     virtual void notify(reconstructor& recon) = 0;
 };
+
+template <typename T>
+void minmaxoutput(std::string name, const std::vector<T>& xs) {
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info << name
+                          << " (" << *std::min_element(xs.begin(), xs.end())
+                          << ", " << *std::max_element(xs.begin(), xs.end())
+                          << ")" << slicerecon::util::end_log;
+}
 
 namespace detail {
 
@@ -119,6 +132,13 @@ class reconstructor {
     // push a projection
     void push_projection(proj_kind k, int32_t idx, std::array<int32_t, 2> shape,
                          char* data) {
+
+        auto buf = std::vector<float>(pixels_);
+        memcpy(&buf[0], data, sizeof(float) * pixels_);
+        std::cout << buf[0] << " " << buf[1] << " " << buf[2] << " ... "
+                  << buf[pixels_ - 1] << "\n";
+        minmaxoutput("data proj", buf);
+
         if (shape[0] * shape[1] != pixels_) {
             util::log << LOG_FILE << util::lvl::warning
                       << "Ignoring projection of wrong shape [(" << shape[0]
@@ -142,14 +162,15 @@ class reconstructor {
             if (idx % parameters_.group_size == parameters_.group_size - 1 ||
                 idx == geom_.proj_count - 1) {
                 // upload and switch writing idx
-                upload_(current_group_ * parameters_.group_size,
-                        std::min(current_group_ * parameters_.group_size,
-                                 geom_.proj_count - 1));
-                write_index_ = 1 - write_index_;
+                upload_(
+                    current_group_ * parameters_.group_size,
+                    std::min((current_group_ + 1) * parameters_.group_size - 1,
+                             geom_.proj_count - 1));
                 current_group_ = (current_group_ + 1) % group_count_;
 
                 if (current_group_ == 0) {
                     refresh_data_();
+                    write_index_ = 1 - write_index_;
                 }
             }
 
@@ -199,6 +220,10 @@ class reconstructor {
         auto dark = average_(all_darks_);
         // 2) average flats
         auto light = average_(all_flats_);
+
+        minmaxoutput("dark", dark);
+        minmaxoutput("light", light);
+
         // 3) compute reciprocal
         for (int i = 0; i < rows_ * cols_; ++i) {
             if (dark[i] == light[i]) {
@@ -207,6 +232,10 @@ class reconstructor {
                 flat_fielder_[i] = 1.0f / (light[i] - dark[i]);
             }
         }
+
+        minmaxoutput("flat field", flat_fielder_);
+
+        dark_ = dark;
     }
 
     void upload_(int proj_id_min, int proj_id_max);
@@ -244,6 +273,8 @@ class reconstructor {
 
     std::vector<float> filter_;
     std::vector<float> sino_buffer_;
+
+    bulk::thread::environment environment_;
 
     std::vector<listener*> listeners_;
 };

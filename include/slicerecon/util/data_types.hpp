@@ -20,6 +20,8 @@ struct geometry {
     bool parallel;
 };
 
+// TODO what do we need for cone beam
+
 }
 
  // namespace acquisition
