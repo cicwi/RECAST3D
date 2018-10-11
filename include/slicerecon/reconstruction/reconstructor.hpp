@@ -125,19 +125,24 @@ class cone_beam_solver : public solver {
 // the stream-independent pool of data, and slice reconstructor
 class reconstructor {
   public:
-    reconstructor(acquisition::geometry geom, settings parameters);
+    reconstructor(settings parameters);
+    void initialize(acquisition::geometry geom);
 
     void add_listener(listener* l) { listeners_.push_back(l); }
 
     // push a projection
     void push_projection(proj_kind k, int32_t idx, std::array<int32_t, 2> shape,
                          char* data) {
+        if (!initialized_) {
+            slicerecon::util::log
+                << LOG_FILE << slicerecon::util::lvl::error
+                << "Pushing projection into uninitialized reconstructor"
+                << slicerecon::util::end_log;
+            return;
+        }
 
         auto buf = std::vector<float>(pixels_);
         memcpy(&buf[0], data, sizeof(float) * pixels_);
-        std::cout << buf[0] << " " << buf[1] << " " << buf[2] << " ... "
-                  << buf[pixels_ - 1] << "\n";
-        minmaxoutput("data proj", buf);
 
         if (shape[0] * shape[1] != pixels_) {
             util::log << LOG_FILE << util::lvl::warning
@@ -190,6 +195,10 @@ class reconstructor {
     }
 
     slice_data reconstruct_slice(orientation x) {
+        if (!initialized_) {
+          return {{1, 1}, {0.0f}};
+        }
+
         return alg_->reconstruct_slice(x, 1 - write_index_);
     }
 
@@ -221,9 +230,6 @@ class reconstructor {
         // 2) average flats
         auto light = average_(all_flats_);
 
-        minmaxoutput("dark", dark);
-        minmaxoutput("light", light);
-
         // 3) compute reciprocal
         for (int i = 0; i < rows_ * cols_; ++i) {
             if (dark[i] == light[i]) {
@@ -232,8 +238,6 @@ class reconstructor {
                 flat_fielder_[i] = 1.0f / (light[i] - dark[i]);
             }
         }
-
-        minmaxoutput("flat field", flat_fielder_);
 
         dark_ = dark;
     }
@@ -277,6 +281,7 @@ class reconstructor {
     bulk::thread::environment environment_;
 
     std::vector<listener*> listeners_;
+    bool initialized_ = false;
 };
 
 } // namespace slicerecon

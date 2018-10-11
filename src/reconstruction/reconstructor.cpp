@@ -107,7 +107,13 @@ slice_data parallel_beam_solver::reconstruct_slice(orientation x,
         geometry_.proj_count, geometry_.rows, geometry_.cols, vec_buf_.data());
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
-                          << "Reconstructing from (" << buffer_idx << ")"
+                          << "Reconstructing slice: "
+                          << "[" << x[0] << ", " << x[1] << ", " << x[2]
+                          << "], "
+                          << "[" << x[3] << ", " << x[4] << ", " << x[5]
+                          << "], "
+                          << "[" << x[6] << ", " << x[7] << ", " << x[8] << "]"
+                          << " buffer (" << buffer_idx << ")"
                           << slicerecon::util::end_log;
 
     proj_datas_[buffer_idx]->changeGeometry(proj_geom_.get());
@@ -120,14 +126,10 @@ slice_data parallel_beam_solver::reconstruct_slice(orientation x,
     // auto posm = astraCUDA3d::SSubDimensions3D{m, m, m, m, m, m, m, 0, 0, 0};
     // astraCUDA3d::copyFromGPUMemory(proj_data.data(),
     //                               proj_handles_[buffer_idx], posm);
-    // minmaxoutput("proj_data", proj_data);
-
     unsigned int n = parameters_.slice_size;
     auto result = std::vector<float>(n * n, 0.0f);
     auto pos = astraCUDA3d::SSubDimensions3D{n, n, 1, n, n, n, 1, 0, 0, 0};
     astraCUDA3d::copyFromGPUMemory(result.data(), vol_handle_, pos);
-
-    minmaxoutput("result", result);
 
     return {{(int)n, (int)n}, std::move(result)};
 }
@@ -146,8 +148,6 @@ void parallel_beam_solver::reconstruct_preview(
     for (auto& x : preview_buffer) {
         x *= (factor * factor * factor);
     }
-
-    minmaxoutput("preview_buffer", preview_buffer);
 }
 
 cone_beam_solver::cone_beam_solver(settings parameters,
@@ -156,8 +156,11 @@ cone_beam_solver::cone_beam_solver(settings parameters,
 
 } // namespace detail
 
-reconstructor::reconstructor(acquisition::geometry geom, settings parameters)
-    : geom_(geom), parameters_(parameters) {
+reconstructor::reconstructor(settings parameters) : parameters_(parameters) {}
+
+void reconstructor::initialize(acquisition::geometry geom) {
+    geom_ = geom;
+
     // init counts
     pixels_ = geom_.cols * geom_.rows;
     current_group_ = 0;
@@ -186,7 +189,9 @@ reconstructor::reconstructor(acquisition::geometry geom, settings parameters)
         // make reconstruction object cb
         alg_ = std::make_unique<detail::cone_beam_solver>(parameters_, geom_);
     }
-}
+
+    initialized_ = true;
+} // namespace slicerecon
 
 void reconstructor::transpose_sino_(std::vector<float>& projection_group,
                                     std::vector<float>& sino_buffer,
@@ -215,6 +220,11 @@ void reconstructor::transpose_sino_(std::vector<float>& projection_group,
 }
 
 void reconstructor::upload_(int proj_id_min, int proj_id_max) {
+  if(!initialized_) {
+    return;
+  }
+
+
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
                           << "Uploading buffer (" << write_index_
                           << ") between " << proj_id_min << "/" << proj_id_max
@@ -235,6 +245,10 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
 }
 
 void reconstructor::refresh_data_() {
+    if(!initialized_) {
+      return;
+    }
+
     alg_->reconstruct_preview(small_volume_buffer_, 1 - write_index_);
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info

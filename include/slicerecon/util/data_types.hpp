@@ -18,13 +18,14 @@ struct geometry {
     int32_t proj_count;
     std::vector<float> angles;
     bool parallel;
+    // only relevant for cone_beam
+    float source_origin;
+    float origin_det;
 };
 
 // TODO what do we need for cone beam
 
-}
-
- // namespace acquisition
+} // namespace acquisition
 
 /**
  * The orientation is an array of 9 floating point numbers. This corresponds to

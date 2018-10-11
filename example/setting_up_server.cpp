@@ -42,9 +42,7 @@ int main(int argc, char** argv) {
     }
 
     // 1. setup reconstructor
-    std::unique_ptr<slicerecon::reconstructor> recon = nullptr;
-    // ... after receiving parameters
-    recon = std::make_unique<slicerecon::reconstructor>(geom, params);
+    auto recon = std::make_unique<slicerecon::reconstructor>(params);
 
     // 2. listen to projection stream
     // projection callback, push to projection stream

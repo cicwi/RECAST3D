@@ -66,16 +66,26 @@ class projection_server {
                            sizeof(std::array<int32_t, 2>));
                     index += sizeof(std::array<int32_t, 2>);
 
-                    util::log << LOG_FILE << util::lvl::info
-                              << "Projection received [(" << shape[0] << " x "
-                              << shape[1] << "), " << type << ", " << idx << "]"
-                              << util::end_log;
-
                     // the first 4 bytes of the buffer are the size of the data,
                     // so we skip ahead (its equal to reduce(shape))
                     pool_.push_projection((proj_kind)type, idx, shape,
                                           buffer + index + sizeof(int));
                     ack();
+                    break;
+                }
+                case tomop::packet_desc::acquisition_geometry: {
+                    auto mbuffer = tomop::memory_buffer(update.size(),
+                                                        (char*)update.data());
+                    auto packet =
+                        std::make_unique<tomop::AcquisitionGeometryPacket>();
+                    packet->deserialize(std::move(mbuffer));
+
+                    auto geom = slicerecon::acquisition::geometry(
+                        {packet->rows, packet->cols, packet->proj_count,
+                         packet->angles, packet->parallel,
+                         packet->source_origin, packet->origin_det});
+
+                    pool_.initialize(geom);
                     break;
                 }
                 default:

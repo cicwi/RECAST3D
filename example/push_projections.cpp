@@ -34,12 +34,18 @@ int main(int argc, char** argv) {
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
                           << "Send geometry info" << slicerecon::util::end_log;
 
-    // TODO: send proper geometry info
-    auto geometry_info = tomop::GeometrySpecificationPacket(0, false, count);
+    auto size = count;
+    auto angles = std::vector<float>(size, 0.0f);
+    std::iota(angles.begin(), angles.end(), 0.0f);
+    std::transform(angles.begin(), angles.end(), angles.begin(),
+                   [size](auto x) { return (x * M_PI) / size; });
+
+    auto geometry_info = tomop::AcquisitionGeometryPacket(
+        0, size, size, size, true, 0.0f, 0.0f, angles);
     pub.send(geometry_info);
 
+    // 1b) Simulate experiment
     using T = float;
-    int size = count;
     auto v = tomo::volume<3_D, T>(size);
     auto g = tomo::geometry::parallel<3_D, T>(v, size);
     auto f = tomo::modified_shepp_logan_phantom<T>(v);
@@ -53,7 +59,6 @@ int main(int argc, char** argv) {
     tomo::ascii_plot(p.get_projection(64));
 
     // 2) Send some projections
-    // TODO: create (low-res) sinogram with Tomos
     auto shape = std::array<int, 2>{size, size};
 
     auto data = std::vector<float>(size * size, 0.0f);
