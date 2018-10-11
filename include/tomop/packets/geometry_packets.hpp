@@ -43,6 +43,10 @@ class GeometrySpecificationPacket
 
 class AcquisitionGeometryPacket : public PacketBase<AcquisitionGeometryPacket> {
   public:
+    AcquisitionGeometryPacket()
+        : PacketBase<AcquisitionGeometryPacket>(
+              packet_desc::acquisition_geometry) {}
+
     AcquisitionGeometryPacket(int32_t scene_id_, int32_t rows_, int32_t cols_,
                               int32_t proj_count_, bool parallel_,
                               float source_origin_, float origin_det_,
