@@ -41,6 +41,41 @@ class GeometrySpecificationPacket
     std::array<float, 3> volume_max_point;
 };
 
+class AcquisitionGeometryPacket : public PacketBase<AcquisitionGeometryPacket> {
+  public:
+    AcquisitionGeometryPacket()
+        : PacketBase<AcquisitionGeometryPacket>(
+              packet_desc::acquisition_geometry, int32_t scene_id_,
+              int32_t rows_, int32_t cols_, int32_t proj_count_, bool parallel_,
+              float source_origin_, float origin_det_,
+              std::vector<float> angles_),
+          scene_id(scene_id_), rows(rows_), cols(cols_),
+          proj_count(proj_count_), parallel(parallel_),
+          source_origin(source_origin_), origin_det(origin_det_),
+          angles(angles_) {}
+
+    template <typename Buffer>
+    void fill(Buffer& buffer) {
+        buffer | scene_id;
+        buffer | rows;
+        buffer | cols;
+        buffer | proj_count;
+        buffer | parallel;
+        buffer | source_origin;
+        buffer | origin_det;
+        buffer | angles;
+    }
+
+    int32_t scene_id;
+    int32_t rows;
+    int32_t cols;
+    int32_t proj_count;
+    bool parallel;
+    float source_origin;
+    float origin_det;
+    std::vector<float> angles;
+};
+
 class ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
   public:
     ProjectionDataPacket()
