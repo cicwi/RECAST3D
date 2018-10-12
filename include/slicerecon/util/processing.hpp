@@ -1,5 +1,7 @@
 #pragma once
 
+#include "data_types.hpp"
+
 #include <cmath>
 #include <complex>
 #include <vector>
@@ -14,7 +16,9 @@ namespace slicerecon::util {
 
 void process_projection(bulk::world& world, int rows, int cols, float* data,
                         const float* dark, const float* reciproc,
-                        const std::vector<float>& filter);
+                        const std::vector<float>& filter, int proj_id_min,
+                        int proj_id_max, bool weigh,
+                        const std::vector<float>& fdk_weights);
 
 namespace filter {
 

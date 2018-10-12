@@ -11,6 +11,8 @@
 #define ASTRA_CUDA
 #endif
 
+#include "astra/ConeProjectionGeometry3D.h"
+#include "astra/ConeVecProjectionGeometry3D.h"
 #include "astra/CudaBackProjectionAlgorithm3D.h"
 #include "astra/CudaProjector3D.h"
 #include "astra/Float32Data3DGPU.h"
@@ -58,6 +60,7 @@ namespace detail {
 class solver {
   public:
     solver(settings parameters, acquisition::geometry geometry);
+  // FIXME ~solver clean up
 
     virtual slice_data reconstruct_slice(orientation x, int buffer_idx) = 0;
     virtual void reconstruct_preview(std::vector<float>& preview_buffer,
@@ -89,6 +92,7 @@ class solver {
 class parallel_beam_solver : public solver {
   public:
     parallel_beam_solver(settings parameters, acquisition::geometry geometry);
+  // FIXME ~solver clean up
 
     slice_data reconstruct_slice(orientation x, int buffer_idx) override;
     void reconstruct_preview(std::vector<float>& preview_buffer,
@@ -105,18 +109,19 @@ class parallel_beam_solver : public solver {
 class cone_beam_solver : public solver {
   public:
     cone_beam_solver(settings parameters, acquisition::geometry geometry);
+  // FIXME ~solver clean up
 
-    slice_data reconstruct_slice(orientation x, int buffer_idx) override {
-        (void)x;
-        (void)buffer_idx;
-        return {{1, 1}, {0.0f}};
-    }
-
+    slice_data reconstruct_slice(orientation x, int buffer_idx) override;
     void reconstruct_preview(std::vector<float>& preview_buffer,
-                             int buffer_idx) override {
-        (void)preview_buffer;
-        (void)buffer_idx;
-    }
+                             int buffer_idx) override;
+  std::vector<float> fdk_weights();
+
+  private:
+    // Cone specific stuff
+    std::unique_ptr<astra::CConeVecProjectionGeometry3D> proj_geom_;
+    std::unique_ptr<astra::CConeVecProjectionGeometry3D> proj_geom_small_;
+    std::vector<astra::SConeProjection> vectors_;
+    std::vector<astra::SConeProjection> vec_buf_;
 };
 
 } // namespace detail
@@ -230,7 +235,7 @@ class reconstructor {
         auto light = average_(all_flats_);
 
         // 3) compute reciprocal
-        for (int i = 0; i < rows_ * cols_; ++i) {
+        for (int i = 0; i < geom_.rows * geom_.cols; ++i) {
             if (dark[i] == light[i]) {
                 flat_fielder_[i] = 1.0f;
             } else {
@@ -262,9 +267,6 @@ class reconstructor {
     int32_t pixels_ = -1;
     int32_t received_flats_ = 0;
 
-    int32_t rows_ = -1;
-    int32_t cols_ = -1;
-
     std::unique_ptr<detail::solver> alg_;
 
     acquisition::geometry geom_;
@@ -276,6 +278,7 @@ class reconstructor {
 
     std::vector<float> filter_;
     std::vector<float> sino_buffer_;
+    std::vector<float> fdk_weights_;
 
     bulk::thread::environment environment_;
 
