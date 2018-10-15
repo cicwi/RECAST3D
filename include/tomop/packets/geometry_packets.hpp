@@ -12,30 +12,26 @@ class GeometrySpecificationPacket
     GeometrySpecificationPacket()
         : PacketBase<GeometrySpecificationPacket>(
               packet_desc::geometry_specification),
-          scene_id(-1), parallel(false),
-          projections(0), volume_min_point{0.0f, 0.0f, 0.0f}, volume_max_point{
-                                                                  1.0f, 1.0f,
-                                                                  1.0f} {}
+          scene_id(-1), volume_min_point{0.0f, 0.0f, 0.0f}, volume_max_point{
+                                                                1.0f, 1.0f,
+                                                                1.0f} {}
 
-    GeometrySpecificationPacket(int32_t scene_id_, bool parallel_,
-                                int32_t projections_)
+    GeometrySpecificationPacket(int32_t scene_id_,
+                                std::array<float, 3> volume_min_point_,
+                                std::array<float, 3> volume_max_point_)
         : PacketBase<GeometrySpecificationPacket>(
               packet_desc::geometry_specification),
-          scene_id(scene_id_), parallel(parallel_),
-          projections(projections_), volume_min_point{0.0f, 0.0f, 0.0f},
-          volume_max_point{1.0f, 1.0f, 1.0f} {}
+          scene_id(scene_id_), volume_min_point(volume_min_point_),
+          volume_max_point(volume_max_point_) {}
 
     template <typename Buffer>
     void fill(Buffer& buffer) {
         buffer | scene_id;
-        buffer | projections;
         buffer | volume_min_point;
         buffer | volume_max_point;
     }
 
     int32_t scene_id;
-    bool parallel;
-    int32_t projections;
     std::array<float, 3> volume_min_point;
     std::array<float, 3> volume_max_point;
 };
@@ -102,8 +98,7 @@ class ParallelVecGeometryPacket : public PacketBase<ParallelVecGeometryPacket> {
 class ConeBeamGeometryPacket : public PacketBase<ConeBeamGeometryPacket> {
   public:
     ConeBeamGeometryPacket()
-        : PacketBase<ConeBeamGeometryPacket>(
-              packet_desc::cone_beam_geometry) {}
+        : PacketBase<ConeBeamGeometryPacket>(packet_desc::cone_beam_geometry) {}
 
     ConeBeamGeometryPacket(int32_t scene_id_, int32_t rows_, int32_t cols_,
                            int32_t proj_count_, float source_origin_,
@@ -141,8 +136,7 @@ class ConeBeamGeometryPacket : public PacketBase<ConeBeamGeometryPacket> {
 class ConeVecGeometryPacket : public PacketBase<ConeVecGeometryPacket> {
   public:
     ConeVecGeometryPacket()
-        : PacketBase<ConeVecGeometryPacket>(packet_desc::cone_vec_geometry) {
-    }
+        : PacketBase<ConeVecGeometryPacket>(packet_desc::cone_vec_geometry) {}
 
     ConeVecGeometryPacket(int32_t scene_id_, int32_t rows_, int32_t cols_,
                           int32_t proj_count_, std::vector<float> vectors_)

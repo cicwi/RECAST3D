@@ -11,8 +11,8 @@ namespace tomop {
 
 class publisher {
   public:
-    publisher(std::string hostname = "tcp://localhost", int port = 5555,
-              int type = ZMQ_REQ)
+    publisher(std::string hostname = "localhost", int port = 5555,
+              int type = ZMQ_PUSH)
         : context_(1), socket_(context_, type), type_(type) {
         using namespace std::string_literals;
         using namespace std::chrono_literals;
