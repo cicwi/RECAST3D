@@ -17,18 +17,42 @@ PYBIND11_MODULE(py_tomop, m) {
         .def(py::init<int32_t, int32_t, std::array<int32_t, 2>, bool,
                       std::vector<float>>());
 
+    py::class_<tomop::ProjectionPacket, tomop::Packet>(m, "projection_packet")
+        .def(py::init<int32_t, int32_t, std::array<int32_t, 2>,
+                      std::vector<float>>());
+
     py::class_<tomop::ProjectionDataPacket, tomop::Packet>(
         m, "projection_data_packet")
         .def(py::init<int32_t, int32_t, std::array<float, 3>,
                       std::array<float, 9>, std::array<int32_t, 2>,
                       std::vector<float>>());
 
+    py::class_<tomop::ParallelBeamGeometryPacket, tomop::Packet>(
+        m, "parallel_beam_packet")
+        .def(
+            py::init<int32_t, int32_t, int32_t, int32_t, std::vector<float>>());
+
+    py::class_<tomop::ParallelVecGeometryPacket, tomop::Packet>(
+        m, "parallel_vec_packet")
+        .def(
+            py::init<int32_t, int32_t, int32_t, int32_t, std::vector<float>>());
+
+    py::class_<tomop::ConeBeamGeometryPacket, tomop::Packet>(
+        m, "cone_beam_packet")
+        .def(py::init<int32_t, int32_t, int32_t, int32_t, float, float,
+                      std::array<float, 2>, std::vector<float>>());
+
+    py::class_<tomop::ConeVecGeometryPacket, tomop::Packet>(m,
+                                                            "cone_vec_packet")
+        .def(
+            py::init<int32_t, int32_t, int32_t, int32_t, std::vector<float>>());
+
     py::class_<tomop::GeometrySpecificationPacket, tomop::Packet>(
         m, "geometry_specification_packet")
         .def(py::init<int32_t, bool, int32_t>());
 
     py::class_<tomop::GroupRequestSlicesPacket, tomop::Packet>(
-         m, "group_request_slices_packet")
+        m, "group_request_slices_packet")
         .def(py::init<int32_t, int32_t>());
 
     py::class_<tomop::server>(m, "server")
