@@ -13,16 +13,18 @@ namespace acquisition {
  * Parameters that define a simple single-axis circular geometry.
  */
 struct geometry {
-    int32_t rows;
-    int32_t cols;
-    int32_t proj_count;
-    std::vector<float> angles;
-    bool parallel;
-    bool vec_geometry;
+    int32_t rows = 0;
+    int32_t cols = 0;
+    int32_t proj_count = 0;
+    std::vector<float> angles = {};
+    bool parallel = false;
+    bool vec_geometry = false;
+    std::array<float, 2> detector_size = {0.0f, 0.0f};
+    std::array<float, 3> volume_min_point = {0.0f, 0.0f, 0.0f};
+    std::array<float, 3> volume_max_point = {1.0f, 1.0f, 1.0f};
     // for cone beam
-    float source_origin;
-    float origin_det;
-    std::array<float, 2> detector_size;
+    float source_origin = 0.0f;
+    float origin_det = 0.0f;
 };
 
 } // namespace acquisition

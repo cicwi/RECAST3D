@@ -9,9 +9,19 @@ namespace detail {
 solver::solver(settings parameters, acquisition::geometry geometry)
     : parameters_(parameters), geometry_(geometry) {
 
+    float half_slab_height =
+        0.5f * (geometry_.volume_max_point[0] - geometry_.volume_min_point[0]) /
+        parameters_.slice_size;
+    float mid_z =
+        0.5f * (geometry_.volume_max_point[2] + geometry_.volume_min_point[2]);
+
     // Volume geometry
     vol_geom_ = std::make_unique<astra::CVolumeGeometry3D>(
-        parameters_.slice_size, parameters_.slice_size, 1);
+        parameters_.slice_size, parameters_.slice_size, 1,
+        geometry_.volume_min_point[0], geometry_.volume_min_point[1],
+        mid_z - half_slab_height, geometry_.volume_max_point[0],
+        geometry_.volume_max_point[1], mid_z + half_slab_height);
+
     // Volume data
     vol_handle_ = astraCUDA3d::allocateGPUMemory(parameters_.slice_size,
                                                  parameters_.slice_size, 1,
@@ -22,10 +32,10 @@ solver::solver(settings parameters, acquisition::geometry geometry)
     // Small preview volume
     vol_geom_small_ = std::make_unique<astra::CVolumeGeometry3D>(
         parameters_.preview_size, parameters_.preview_size,
-        parameters_.preview_size, vol_geom_->getWindowMinX(),
-        vol_geom_->getWindowMinX(), vol_geom_->getWindowMinX(),
-        vol_geom_->getWindowMaxX(), vol_geom_->getWindowMaxX(),
-        vol_geom_->getWindowMaxX());
+        parameters_.preview_size, geometry_.volume_min_point[0],
+        geometry_.volume_min_point[1], geometry_.volume_min_point[2],
+        geometry_.volume_max_point[0], geometry_.volume_max_point[1],
+        geometry_.volume_max_point[2]);
     vol_handle_small_ = astraCUDA3d::allocateGPUMemory(
         parameters_.preview_size, parameters_.preview_size,
         parameters_.preview_size, astraCUDA3d::INIT_ZERO);
@@ -158,9 +168,14 @@ void parallel_beam_solver::reconstruct_preview(
 cone_beam_solver::cone_beam_solver(settings parameters,
                                    acquisition::geometry geometry)
     : solver(parameters, geometry) {
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << "Initializing cone beam solver"
+                          << slicerecon::util::end_log;
+
     if (!geometry_.vec_geometry) {
         auto proj_geom = astra::CConeProjectionGeometry3D(
-            geometry_.proj_count, geometry_.rows, geometry_.cols, 1.0f, 1.0f,
+            geometry_.proj_count, geometry_.rows, geometry_.cols,
+            geometry_.detector_size[0], geometry_.detector_size[1],
             geometry_.angles.data(), geometry_.source_origin,
             geometry_.origin_det);
 

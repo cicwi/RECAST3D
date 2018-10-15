@@ -60,7 +60,7 @@ namespace detail {
 class solver {
   public:
     solver(settings parameters, acquisition::geometry geometry);
-  // FIXME ~solver clean up
+    // FIXME ~solver clean up
 
     virtual slice_data reconstruct_slice(orientation x, int buffer_idx) = 0;
     virtual void reconstruct_preview(std::vector<float>& preview_buffer,
@@ -92,7 +92,7 @@ class solver {
 class parallel_beam_solver : public solver {
   public:
     parallel_beam_solver(settings parameters, acquisition::geometry geometry);
-  // FIXME ~solver clean up
+    // FIXME ~solver clean up
 
     slice_data reconstruct_slice(orientation x, int buffer_idx) override;
     void reconstruct_preview(std::vector<float>& preview_buffer,
@@ -109,12 +109,12 @@ class parallel_beam_solver : public solver {
 class cone_beam_solver : public solver {
   public:
     cone_beam_solver(settings parameters, acquisition::geometry geometry);
-  // FIXME ~solver clean up
+    // FIXME ~solver clean up
 
     slice_data reconstruct_slice(orientation x, int buffer_idx) override;
     void reconstruct_preview(std::vector<float>& preview_buffer,
                              int buffer_idx) override;
-  std::vector<float> fdk_weights();
+    std::vector<float> fdk_weights();
 
   private:
     // Cone specific stuff
@@ -209,6 +209,7 @@ class reconstructor {
     std::vector<float>& preview_data() { return small_volume_buffer_; }
     settings parameters() { return parameters_; }
     acquisition::geometry geometry() { return geom_; }
+    bool initialized() const { return initialized_; }
 
   private:
     std::vector<float> average_(std::vector<float> all) {

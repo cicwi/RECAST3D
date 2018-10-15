@@ -41,6 +41,7 @@ class projection_server {
             zmq::message_t update;
             while (true) {
                 socket_.recv(&update);
+                ack();
 
                 auto desc = ((tomop::packet_desc*)update.data())[0];
                 auto buffer = (char*)update.data();
@@ -70,7 +71,26 @@ class projection_server {
                     // so we skip ahead (its equal to reduce(shape))
                     pool_.push_projection((proj_kind)type, idx, shape,
                                           buffer + index + sizeof(int));
-                    ack();
+                    break;
+                }
+                case tomop::packet_desc::geometry_specification: {
+                    auto mbuffer = tomop::memory_buffer(update.size(),
+                                                        (char*)update.data());
+                    auto packet =
+                        std::make_unique<tomop::GeometrySpecificationPacket>();
+                    packet->deserialize(std::move(mbuffer));
+
+                    geom_.volume_min_point = packet->volume_min_point;
+                    geom_.volume_max_point = packet->volume_max_point;
+
+                    if (pool_.initialized()) {
+                        util::log
+                            << LOG_FILE << util::lvl::warning
+                            << "Geometry specification received while "
+                               "reconstruction is already initialized (ignored)"
+                            << util::end_log;
+                    }
+
                     break;
                 }
                 case tomop::packet_desc::parallel_beam_geometry: {
@@ -80,18 +100,15 @@ class projection_server {
                         std::make_unique<tomop::ParallelBeamGeometryPacket>();
                     packet->deserialize(std::move(mbuffer));
 
-                    auto geom =
-                        slicerecon::acquisition::geometry({packet->rows,
-                                                           packet->cols,
-                                                           packet->proj_count,
-                                                           packet->angles,
-                                                           true,
-                                                           false,
-                                                           0.0f,
-                                                           0.0f,
-                                                           {0.0f, 0.0f}});
+                    geom_.rows = packet->rows;
+                    geom_.cols = packet->cols;
+                    geom_.proj_count = packet->proj_count;
+                    geom_.angles = packet->angles;
+                    geom_.parallel = true;
+                    geom_.vec_geometry = false;
 
-                    pool_.initialize(geom);
+                    pool_.initialize(geom_);
+
                     break;
                 }
                 case tomop::packet_desc::parallel_vec_geometry: {
@@ -101,18 +118,15 @@ class projection_server {
                         std::make_unique<tomop::ParallelVecGeometryPacket>();
                     packet->deserialize(std::move(mbuffer));
 
-                    auto geom =
-                        slicerecon::acquisition::geometry({packet->rows,
-                                                           packet->cols,
-                                                           packet->proj_count,
-                                                           packet->vectors,
-                                                           true,
-                                                           true,
-                                                           0.0f,
-                                                           0.0f,
-                                                           {0.0f, 0.0f}});
+                    geom_.rows = packet->rows;
+                    geom_.cols = packet->cols;
+                    geom_.proj_count = packet->proj_count;
+                    geom_.angles = packet->vectors;
+                    geom_.parallel = true;
+                    geom_.vec_geometry = true;
 
-                    pool_.initialize(geom);
+                    pool_.initialize(geom_);
+
                     break;
                 }
                 case tomop::packet_desc::cone_beam_geometry: {
@@ -122,12 +136,18 @@ class projection_server {
                         std::make_unique<tomop::ConeBeamGeometryPacket>();
                     packet->deserialize(std::move(mbuffer));
 
-                    auto geom = slicerecon::acquisition::geometry(
-                        {packet->rows, packet->cols, packet->proj_count,
-                         packet->angles, false, false, packet->source_origin,
-                         packet->origin_det, packet->detector_size});
+                    geom_.rows = packet->rows;
+                    geom_.cols = packet->cols;
+                    geom_.proj_count = packet->proj_count;
+                    geom_.angles = packet->angles;
+                    geom_.parallel = false;
+                    geom_.vec_geometry = false;
+                    geom_.source_origin = packet->source_origin;
+                    geom_.origin_det = packet->origin_det;
+                    geom_.detector_size = packet->detector_size;
 
-                    pool_.initialize(geom);
+                    pool_.initialize(geom_);
+
                     break;
                 }
                 case tomop::packet_desc::cone_vec_geometry: {
@@ -137,24 +157,20 @@ class projection_server {
                         std::make_unique<tomop::ConeVecGeometryPacket>();
                     packet->deserialize(std::move(mbuffer));
 
-                    auto geom =
-                        slicerecon::acquisition::geometry({packet->rows,
-                                                           packet->cols,
-                                                           packet->proj_count,
-                                                           packet->vectors,
-                                                           true,
-                                                           true,
-                                                           0.0f,
-                                                           0.0f,
-                                                           {0.0f, 0.0f}});
+                    geom_.rows = packet->rows;
+                    geom_.cols = packet->cols;
+                    geom_.proj_count = packet->proj_count;
+                    geom_.angles = packet->vectors;
+                    geom_.parallel = false;
+                    geom_.vec_geometry = true;
 
-                    pool_.initialize(geom);
+                    pool_.initialize(geom_);
+
                     break;
                 }
                 default:
                     util::log << LOG_FILE << util::lvl::warning
                               << "Unknown package received" << util::end_log;
-                    ack();
                     break;
                 }
             }
@@ -177,6 +193,8 @@ class projection_server {
     int type_;
 
     std::thread serve_thread_;
+
+    acquisition::geometry geom_ = {};
 }; // namespace slicerecon
 
 } // namespace slicerecon

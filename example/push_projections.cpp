@@ -47,7 +47,10 @@ int main(int argc, char** argv) {
                        [size](auto x) { return (x * M_PI) / size; });
 
         // 1b) Simulate experiment
-        auto v = tomo::volume<3_D, T>(size);
+        auto v = tomo::volume<3_D, T>(
+            {size, size, size}, {-0.5f * size, -0.5f * size, -0.5f * size},
+            {size, size, size});
+
         auto g = tomo::geometry::parallel<3_D, T>(v, size);
         auto f = tomo::modified_shepp_logan_phantom<T>(v);
         auto k = tomo::dim::closest<3_D, T>(v);
@@ -57,6 +60,13 @@ int main(int argc, char** argv) {
         for (auto& x : *p) {
             x = std::exp(-x / (1.5 * size));
         }
+
+        auto min_pt = v.origin();
+        auto max_pt = v.origin() + v.physical_lengths();
+        auto geometry_spec = tomop::GeometrySpecificationPacket(
+            0, {min_pt[0], min_pt[1], min_pt[2]},
+            {max_pt[0], max_pt[1], max_pt[2]});
+        pub.send(geometry_spec);
 
         auto geometry_info =
             tomop::ParallelBeamGeometryPacket(0, size, size, size, angles);
@@ -100,9 +110,9 @@ int main(int argc, char** argv) {
         auto dod = 4.0f * size;
 
         // 1b) Simulate experiment
-        auto v = tomo::volume<3_D, T>({size, size, size},
-                                      {0.5f * size, 0.5f * size, 0.5f * size},
-                                      {size, size, size});
+        auto v = tomo::volume<3_D, T>(
+            {size, size, size}, {-0.5f * size, -0.5f * size, -0.5f * size},
+            {size, size, size});
         auto g = tomo::geometry::cone_beam<T>(
             v, size, {1.5f * size, 1.5f * size}, {size, size}, dos, dod);
         auto f = tomo::modified_shepp_logan_phantom<T>(v);
@@ -115,6 +125,13 @@ int main(int argc, char** argv) {
         for (auto& x : *p) {
             x = std::exp(-x / max);
         }
+
+        auto min_pt = v.origin();
+        auto max_pt = v.origin() + v.physical_lengths();
+        auto geometry_spec = tomop::GeometrySpecificationPacket(
+            0, {min_pt[0], min_pt[1], min_pt[2]},
+            {max_pt[0], max_pt[1], max_pt[2]});
+        pub.send(geometry_spec);
 
         auto geometry_info = tomop::ConeBeamGeometryPacket(
             0, size, size, size, dos, dod, {1.5f, 1.5f}, angles);
