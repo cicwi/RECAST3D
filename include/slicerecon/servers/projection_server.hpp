@@ -73,17 +73,80 @@ class projection_server {
                     ack();
                     break;
                 }
-                case tomop::packet_desc::acquisition_geometry: {
+                case tomop::packet_desc::parallel_beam_geometry: {
                     auto mbuffer = tomop::memory_buffer(update.size(),
                                                         (char*)update.data());
                     auto packet =
-                        std::make_unique<tomop::AcquisitionGeometryPacket>();
+                        std::make_unique<tomop::ParallelBeamGeometryPacket>();
+                    packet->deserialize(std::move(mbuffer));
+
+                    auto geom =
+                        slicerecon::acquisition::geometry({packet->rows,
+                                                           packet->cols,
+                                                           packet->proj_count,
+                                                           packet->angles,
+                                                           true,
+                                                           false,
+                                                           0.0f,
+                                                           0.0f,
+                                                           {0.0f, 0.0f}});
+
+                    pool_.initialize(geom);
+                    break;
+                }
+                case tomop::packet_desc::parallel_vec_geometry: {
+                    auto mbuffer = tomop::memory_buffer(update.size(),
+                                                        (char*)update.data());
+                    auto packet =
+                        std::make_unique<tomop::ParallelVecGeometryPacket>();
+                    packet->deserialize(std::move(mbuffer));
+
+                    auto geom =
+                        slicerecon::acquisition::geometry({packet->rows,
+                                                           packet->cols,
+                                                           packet->proj_count,
+                                                           packet->vectors,
+                                                           true,
+                                                           true,
+                                                           0.0f,
+                                                           0.0f,
+                                                           {0.0f, 0.0f}});
+
+                    pool_.initialize(geom);
+                    break;
+                }
+                case tomop::packet_desc::cone_beam_geometry: {
+                    auto mbuffer = tomop::memory_buffer(update.size(),
+                                                        (char*)update.data());
+                    auto packet =
+                        std::make_unique<tomop::ConeBeamGeometryPacket>();
                     packet->deserialize(std::move(mbuffer));
 
                     auto geom = slicerecon::acquisition::geometry(
                         {packet->rows, packet->cols, packet->proj_count,
-                         packet->angles, packet->parallel,
-                         packet->source_origin, packet->origin_det});
+                         packet->angles, false, false, packet->source_origin,
+                         packet->origin_det, packet->detector_size});
+
+                    pool_.initialize(geom);
+                    break;
+                }
+                case tomop::packet_desc::cone_vec_geometry: {
+                    auto mbuffer = tomop::memory_buffer(update.size(),
+                                                        (char*)update.data());
+                    auto packet =
+                        std::make_unique<tomop::ConeVecGeometryPacket>();
+                    packet->deserialize(std::move(mbuffer));
+
+                    auto geom =
+                        slicerecon::acquisition::geometry({packet->rows,
+                                                           packet->cols,
+                                                           packet->proj_count,
+                                                           packet->vectors,
+                                                           true,
+                                                           true,
+                                                           0.0f,
+                                                           0.0f,
+                                                           {0.0f, 0.0f}});
 
                     pool_.initialize(geom);
                     break;

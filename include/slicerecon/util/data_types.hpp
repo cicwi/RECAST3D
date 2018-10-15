@@ -18,12 +18,12 @@ struct geometry {
     int32_t proj_count;
     std::vector<float> angles;
     bool parallel;
-    // only relevant for cone_beam
+    bool vec_geometry;
+    // for cone beam
     float source_origin;
     float origin_det;
+    std::array<float, 2> detector_size;
 };
-
-// TODO what do we need for cone beam
 
 } // namespace acquisition
 

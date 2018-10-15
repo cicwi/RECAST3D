@@ -58,8 +58,8 @@ int main(int argc, char** argv) {
             x = std::exp(-x / (1.5 * size));
         }
 
-        auto geometry_info = tomop::AcquisitionGeometryPacket(
-            0, size, size, size, true, 0.0f, 0.0f, angles);
+        auto geometry_info =
+            tomop::ParallelBeamGeometryPacket(0, size, size, size, angles);
         pub.send(geometry_info);
 
         // 2) Send some projections
@@ -103,8 +103,8 @@ int main(int argc, char** argv) {
         auto v = tomo::volume<3_D, T>({size, size, size},
                                       {0.5f * size, 0.5f * size, 0.5f * size},
                                       {size, size, size});
-        auto g = tomo::geometry::cone_beam<T>(v, size, {1.5f * size, 1.5f * size},
-                                              {size, size}, dos, dod);
+        auto g = tomo::geometry::cone_beam<T>(
+            v, size, {1.5f * size, 1.5f * size}, {size, size}, dos, dod);
         auto f = tomo::modified_shepp_logan_phantom<T>(v);
         auto k = tomo::dim::closest<3_D, T>(v);
         p = std::make_unique<tomo::projections<3_D, T>>(
@@ -116,8 +116,8 @@ int main(int argc, char** argv) {
             x = std::exp(-x / max);
         }
 
-        auto geometry_info = tomop::AcquisitionGeometryPacket(
-            0, size, size, size, false, dos, dod, angles);
+        auto geometry_info = tomop::ConeBeamGeometryPacket(
+            0, size, size, size, dos, dod, {1.5f, 1.5f}, angles);
         pub.send(geometry_info);
 
         // 2) Send some projections
