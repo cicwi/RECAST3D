@@ -39,14 +39,26 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
                           << "Initializing parallel beam solver"
                           << slicerecon::util::end_log;
+    if (!geometry_.vec_geometry) {
+        // Projection geometry
+        auto proj_geom = astra::CParallelProjectionGeometry3D(
+            geometry_.proj_count, geometry_.rows, geometry_.cols, 1.0f, 1.0f,
+            geometry_.angles.data());
+        proj_geom_ = slicerecon::util::proj_to_vec(&proj_geom);
+        proj_geom_small_ = slicerecon::util::proj_to_vec(&proj_geom);
 
-    // Projection geometry
-    auto proj_geom = astra::CParallelProjectionGeometry3D(
-        geometry_.proj_count, geometry_.rows, geometry_.cols, 1.0f, 1.0f,
-        geometry_.angles.data());
+    } else {
+        auto par_projs =
+            slicerecon::util::list_to_par_projections(geometry_.angles);
+        proj_geom_ = std::make_unique<astra::CParallelVecProjectionGeometry3D>(
+            geometry_.proj_count, geometry_.rows, geometry_.cols,
+            par_projs.data());
+        proj_geom_small_ =
+            std::make_unique<astra::CParallelVecProjectionGeometry3D>(
+                geometry_.proj_count, geometry_.rows, geometry_.cols,
+                par_projs.data());
+    }
 
-    proj_geom_ = slicerecon::util::proj_to_vec(&proj_geom);
-    proj_geom_small_ = slicerecon::util::proj_to_vec(&proj_geom);
     vectors_ = std::vector<astra::SPar3DProjection>(
         proj_geom_->getProjectionVectors(),
         proj_geom_->getProjectionVectors() + geometry_.proj_count);
@@ -146,14 +158,26 @@ void parallel_beam_solver::reconstruct_preview(
 cone_beam_solver::cone_beam_solver(settings parameters,
                                    acquisition::geometry geometry)
     : solver(parameters, geometry) {
-    // TODO
-    //// Projection geometry
-    auto proj_geom = astra::CConeProjectionGeometry3D(
-        geometry_.proj_count, geometry_.rows, geometry_.cols, 1.0f, 1.0f,
-        geometry_.angles.data(), geometry_.source_origin, geometry_.origin_det);
+    if (!geometry_.vec_geometry) {
+        auto proj_geom = astra::CConeProjectionGeometry3D(
+            geometry_.proj_count, geometry_.rows, geometry_.cols, 1.0f, 1.0f,
+            geometry_.angles.data(), geometry_.source_origin,
+            geometry_.origin_det);
 
-    proj_geom_ = slicerecon::util::proj_to_vec(&proj_geom);
-    proj_geom_small_ = slicerecon::util::proj_to_vec(&proj_geom);
+        proj_geom_ = slicerecon::util::proj_to_vec(&proj_geom);
+        proj_geom_small_ = slicerecon::util::proj_to_vec(&proj_geom);
+    } else {
+        auto cone_projs =
+            slicerecon::util::list_to_cone_projections(geometry_.angles);
+        proj_geom_ = std::make_unique<astra::CConeVecProjectionGeometry3D>(
+            geometry_.proj_count, geometry_.rows, geometry_.cols,
+            cone_projs.data());
+        proj_geom_small_ =
+            std::make_unique<astra::CConeVecProjectionGeometry3D>(
+                geometry_.proj_count, geometry_.rows, geometry_.cols,
+                cone_projs.data());
+    }
+
     vectors_ = std::vector<astra::SConeProjection>(
         proj_geom_->getProjectionVectors(),
         proj_geom_->getProjectionVectors() + geometry_.proj_count);
@@ -306,7 +330,7 @@ void reconstructor::initialize(acquisition::geometry geom) {
     filter_ = util::filter::ram_lak(geom_.cols);
 
     if (geom_.parallel) {
-        // make recosntruction object par
+        // make reconstruction object par
         alg_ =
             std::make_unique<detail::parallel_beam_solver>(parameters_, geom_);
     } else {

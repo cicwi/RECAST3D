@@ -2,6 +2,34 @@
 
 namespace slicerecon::util {
 
+std::vector<astra::SPar3DProjection>
+list_to_par_projections(const std::vector<float>& vectors) {
+    int proj_count = vectors.size() / 12;
+    auto result = std::vector<astra::SPar3DProjection>(proj_count);
+    for (int o = 0; o < proj_count; ++o) {
+        result[o] = {
+            vectors[o * 12 + 0], vectors[o * 12 + 1],  vectors[o * 12 + 2],
+            vectors[o * 12 + 3], vectors[o * 12 + 4],  vectors[o * 12 + 5],
+            vectors[o * 12 + 6], vectors[o * 12 + 7],  vectors[o * 12 + 8],
+            vectors[o * 12 + 9], vectors[o * 12 + 10], vectors[o * 12 + 11]};
+    }
+    return result;
+}
+
+std::vector<astra::SConeProjection>
+list_to_cone_projections(const std::vector<float>& vectors) {
+    int proj_count = vectors.size() / 12;
+    auto result = std::vector<astra::SConeProjection>(proj_count);
+    for (int o = 0; o < proj_count; ++o) {
+        result[o] = {
+            vectors[o * 12 + 0], vectors[o * 12 + 1],  vectors[o * 12 + 2],
+            vectors[o * 12 + 3], vectors[o * 12 + 4],  vectors[o * 12 + 5],
+            vectors[o * 12 + 6], vectors[o * 12 + 7],  vectors[o * 12 + 8],
+            vectors[o * 12 + 9], vectors[o * 12 + 10], vectors[o * 12 + 11]};
+    }
+    return result;
+}
+
 std::unique_ptr<astra::CParallelVecProjectionGeometry3D>
 proj_to_vec(astra::CParallelProjectionGeometry3D* parallel_geom) {
     auto projs = parallel_geom->getProjectionCount();

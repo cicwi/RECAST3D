@@ -15,6 +15,12 @@
 
 namespace slicerecon::util {
 
+std::vector<astra::SPar3DProjection>
+list_to_par_projections(const std::vector<float>& vectors);
+
+std::vector<astra::SConeProjection>
+list_to_cone_projections(const std::vector<float>& vectors);
+
 std::unique_ptr<astra::CParallelVecProjectionGeometry3D>
 proj_to_vec(astra::CParallelProjectionGeometry3D* parallel_geom);
 
