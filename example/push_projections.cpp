@@ -50,10 +50,9 @@ int main(int argc, char** argv) {
         auto v = tomo::volume<3_D, T>(
             {size, size, size}, {-0.5f * size, -0.5f * size, -0.5f * size},
             {size, size, size});
-
         auto g = tomo::geometry::parallel<3_D, T>(v, size);
         auto f = tomo::modified_shepp_logan_phantom<T>(v);
-        auto k = tomo::dim::closest<3_D, T>(v);
+        auto k = tomo::dim::joseph<3_D, T>(v);
         p = std::make_unique<tomo::projections<3_D, T>>(
             tomo::forward_projection<3_D, T>(f, g, k));
 
@@ -111,10 +110,10 @@ int main(int argc, char** argv) {
 
         // 1b) Simulate experiment
         auto v = tomo::volume<3_D, T>(
-            {size, size, size}, {-0.5f * size, -0.5f * size, -0.5f * size},
-            {size, size, size});
+            {size, size, size / 2}, {-0.5f * size, -0.5f * size, -0.25f * size},
+            {size, size, 0.5f * size});
         auto g = tomo::geometry::cone_beam<T>(
-            v, size, {1.5f * size, 1.5f * size}, {size, size}, dos, dod);
+            v, size, {1.5f * size, 0.75f * size}, {size, size / 2}, dos, dod);
         auto f = tomo::modified_shepp_logan_phantom<T>(v);
         auto k = tomo::dim::closest<3_D, T>(v);
         p = std::make_unique<tomo::projections<3_D, T>>(
@@ -133,15 +132,19 @@ int main(int argc, char** argv) {
             {max_pt[0], max_pt[1], max_pt[2]});
         pub.send(geometry_spec);
 
+        auto proto = g.get_projection(0);
         auto geometry_info = tomop::ConeBeamGeometryPacket(
-            0, size, size, size, dos, dod, {1.5f, 1.5f}, angles);
+            0, proto.detector_shape[0], proto.detector_shape[1],
+            g.projection_count(), dos, dod, {1.5f, 1.5f}, angles);
         pub.send(geometry_info);
 
         // 2) Send some projections
         tomo::ascii_plot(p->get_projection(size / 2));
-        auto shape = std::array<int, 2>{size, size};
+        auto shape = std::array<int, 2>{proto.detector_shape[0],
+                                        proto.detector_shape[1]};
 
-        auto data = std::vector<float>(size * size, 0.0f);
+        auto data = std::vector<float>(
+            proto.detector_shape[0] * proto.detector_shape[1], 0.0f);
         slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
                               << "Sending darks" << slicerecon::util::end_log;
 

@@ -98,6 +98,7 @@ class projection_server {
                                                         (char*)update.data());
                     auto packet =
                         std::make_unique<tomop::ParallelBeamGeometryPacket>();
+
                     packet->deserialize(std::move(mbuffer));
 
                     geom_.rows = packet->rows;

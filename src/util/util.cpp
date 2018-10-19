@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "slicerecon/util/util.hpp"
 
 namespace slicerecon::util {
@@ -17,15 +19,24 @@ list_to_par_projections(const std::vector<float>& vectors) {
 }
 
 std::vector<astra::SConeProjection>
-list_to_cone_projections(const std::vector<float>& vectors) {
+list_to_cone_projections(int rows, int cols,
+                         const std::vector<float>& vectors) {
     int proj_count = vectors.size() / 12;
     auto result = std::vector<astra::SConeProjection>(proj_count);
     for (int o = 0; o < proj_count; ++o) {
-        result[o] = {
-            vectors[o * 12 + 0], vectors[o * 12 + 1],  vectors[o * 12 + 2],
-            vectors[o * 12 + 3], vectors[o * 12 + 4],  vectors[o * 12 + 5],
-            vectors[o * 12 + 6], vectors[o * 12 + 7],  vectors[o * 12 + 8],
-            vectors[o * 12 + 9], vectors[o * 12 + 10], vectors[o * 12 + 11]};
+        auto src = Eigen::Vector3f{vectors[o * 12 + 0], vectors[o * 12 + 1],
+                                   vectors[o * 12 + 2]};
+        auto det = Eigen::Vector3f{vectors[o * 12 + 3], vectors[o * 12 + 4],
+                                   vectors[o * 12 + 5]};
+        auto vx = Eigen::Vector3f{vectors[o * 12 + 6], vectors[o * 12 + 7],
+                                  vectors[o * 12 + 8]};
+        auto vy = Eigen::Vector3f{vectors[o * 12 + 9], vectors[o * 12 + 10],
+                                  vectors[o * 12 + 11]};
+
+        det -= 0.5f * (rows * vy + cols * vx);
+
+        result[o] = {src[0], src[1], src[2], det[0], det[1], det[2],
+                     vx[0],  vx[1],  vx[2],  vy[0],  vy[1],  vy[2]};
     }
     return result;
 }
@@ -128,6 +139,35 @@ slice_transform(Eigen::Vector3f base, Eigen::Vector3f axis_1,
     rot = rotation_onto(rot * axis_2, {0.0f, 2.0f * k, 0.0f}) * rot;
 
     return {-delta, rot, {1.0f, 1.0f, 1.0f}};
+}
+
+std::string info(const astra::CConeVecProjectionGeometry3D& x) {
+    auto ss = std::stringstream("");
+
+    auto vectors = x.getProjectionVectors();
+
+    ss << "DetectorRowCount: " << x.getDetectorRowCount() << ", ";
+    ss << "DetectorColCount: " << x.getDetectorColCount() << ", ";
+    ss << "ProjectionCount: " << x.getProjectionCount() << ", ";
+    ss << "Vectors: [[" << vectors[0].fSrcX << ", " << vectors[0].fSrcY << ", "
+       << vectors[0].fSrcZ << " ... " << vectors[0].fDetVY << ", "
+       << vectors[0].fDetVZ << "], [" << vectors[1].fSrcX << ", "
+       << vectors[1].fSrcY << "...]...]";
+
+    return ss.str();
+}
+
+std::string info(const astra::CVolumeGeometry3D& x) {
+    auto ss = std::stringstream("");
+
+    ss << "Min: [" << x.getWindowMinX() << ", " << x.getWindowMinY() << ", "
+       << x.getWindowMinZ() << "], ";
+    ss << "Max: [" << x.getWindowMaxX() << ", " << x.getWindowMaxY() << ", "
+       << x.getWindowMaxZ() << "], ";
+    ss << "Shape: [" << x.getGridRowCount() << ", " << x.getGridColCount()
+       << ", " << x.getGridSliceCount() << "]";
+
+    return ss.str();
 }
 
 } // namespace slicerecon::util

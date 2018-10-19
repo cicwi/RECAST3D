@@ -10,8 +10,8 @@ solver::solver(settings parameters, acquisition::geometry geometry)
     : parameters_(parameters), geometry_(geometry) {
 
     float half_slab_height =
-        0.5f * (geometry_.volume_max_point[0] - geometry_.volume_min_point[0]) /
-        parameters_.slice_size;
+        0.5f * (geometry_.volume_max_point[2] - geometry_.volume_min_point[2]) /
+        parameters_.preview_size;
     float mid_z =
         0.5f * (geometry_.volume_max_point[2] + geometry_.volume_min_point[2]);
 
@@ -21,6 +21,10 @@ solver::solver(settings parameters, acquisition::geometry geometry)
         geometry_.volume_min_point[0], geometry_.volume_min_point[1],
         mid_z - half_slab_height, geometry_.volume_max_point[0],
         geometry_.volume_max_point[1], mid_z + half_slab_height);
+
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << "Slice vol: " << slicerecon::util::info(*vol_geom_)
+                          << slicerecon::util::end_log;
 
     // Volume data
     vol_handle_ = astraCUDA3d::allocateGPUMemory(parameters_.slice_size,
@@ -33,9 +37,14 @@ solver::solver(settings parameters, acquisition::geometry geometry)
     vol_geom_small_ = std::make_unique<astra::CVolumeGeometry3D>(
         parameters_.preview_size, parameters_.preview_size,
         parameters_.preview_size, geometry_.volume_min_point[0],
-        geometry_.volume_min_point[1], geometry_.volume_min_point[2],
+        geometry_.volume_min_point[1], geometry_.volume_min_point[1],
         geometry_.volume_max_point[0], geometry_.volume_max_point[1],
-        geometry_.volume_max_point[2]);
+        geometry_.volume_max_point[1]);
+
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << slicerecon::util::info(*vol_geom_small_)
+                          << slicerecon::util::end_log;
+
     vol_handle_small_ = astraCUDA3d::allocateGPUMemory(
         parameters_.preview_size, parameters_.preview_size,
         parameters_.preview_size, astraCUDA3d::INIT_ZERO);
@@ -54,7 +63,9 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
         auto proj_geom = astra::CParallelProjectionGeometry3D(
             geometry_.proj_count, geometry_.rows, geometry_.cols, 1.0f, 1.0f,
             geometry_.angles.data());
+
         proj_geom_ = slicerecon::util::proj_to_vec(&proj_geom);
+
         proj_geom_small_ = slicerecon::util::proj_to_vec(&proj_geom);
 
     } else {
@@ -182,11 +193,16 @@ cone_beam_solver::cone_beam_solver(settings parameters,
         proj_geom_ = slicerecon::util::proj_to_vec(&proj_geom);
         proj_geom_small_ = slicerecon::util::proj_to_vec(&proj_geom);
     } else {
-        auto cone_projs =
-            slicerecon::util::list_to_cone_projections(geometry_.angles);
+        auto cone_projs = slicerecon::util::list_to_cone_projections(
+            geometry_.rows, geometry_.cols, geometry_.angles);
         proj_geom_ = std::make_unique<astra::CConeVecProjectionGeometry3D>(
             geometry_.proj_count, geometry_.rows, geometry_.cols,
             cone_projs.data());
+
+        slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                              << slicerecon::util::info(*proj_geom_)
+                              << slicerecon::util::end_log;
+
         proj_geom_small_ =
             std::make_unique<astra::CConeVecProjectionGeometry3D>(
                 geometry_.proj_count, geometry_.rows, geometry_.cols,
@@ -277,14 +293,9 @@ void cone_beam_solver::reconstruct_preview(std::vector<float>& preview_buffer,
     algs_small_[buffer_idx]->run();
 
     unsigned int n = parameters_.preview_size;
-    float factor = (n / (float)geometry_.cols);
     auto pos = astraCUDA3d::SSubDimensions3D{n, n, n, n, n, n, n, 0, 0, 0};
     astraCUDA3d::copyFromGPUMemory(preview_buffer.data(), vol_handle_small_,
                                    pos);
-
-    for (auto& x : preview_buffer) {
-        x *= (factor * factor * factor);
-    }
 }
 
 std::vector<float> cone_beam_solver::fdk_weights() {
@@ -303,8 +314,7 @@ std::vector<float> cone_beam_solver::fdk_weights() {
         auto rho = (d - s).norm();
         for (int r = 0; r < geometry_.rows; ++r) {
             for (int c = 0; c < geometry_.cols; ++c) {
-                auto y = d + (r - 0.5f * geometry_.rows) * t2 +
-                         (c - 0.5f * geometry_.cols) * t1;
+                auto y = d + r * t2 + c * t1;
                 auto denum = (y - s).norm();
                 result[(i * geometry_.cols * geometry_.rows) +
                        (r * geometry_.cols) + c] = rho / denum;
@@ -400,6 +410,11 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
     astra::uploadMultipleProjections(alg_->proj_data(write_index_),
                                      sino_buffer_.data(), proj_id_min,
                                      proj_id_max, false);
+
+    // send message to observers that new data is available
+    for (auto l : listeners_) {
+        l->notify(*this);
+    }
 }
 
 void reconstructor::refresh_data_() {

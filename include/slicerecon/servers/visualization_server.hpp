@@ -3,6 +3,7 @@
 #include <array>
 #include <functional>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <thread>
 #include <utility>
@@ -23,19 +24,18 @@ class visualization_server : public listener {
         std::function<slice_data(std::array<float, 9>, int32_t)>;
 
     void notify(reconstructor& recon) override {
-      util::log << LOG_FILE << util::lvl::info
-                << "Sending volume preview....: "
-                << util::end_log;
+        util::log << LOG_FILE << util::lvl::info
+                  << "Sending volume preview....: " << util::end_log;
 
-      zmq::message_t reply;
-      int n = recon.parameters().preview_size;
+        zmq::message_t reply;
+        int n = recon.parameters().preview_size;
 
-      // this is from other thread... one socket per thread.. mutex..?
-      auto volprev = tomop::VolumeDataPacket(scene_id_, {n, n, n}, recon.preview_data());
-      send(volprev);
+        auto volprev =
+            tomop::VolumeDataPacket(scene_id_, {n, n, n}, recon.preview_data());
+        send(volprev);
 
-      auto grsp = tomop::GroupRequestSlicesPacket(scene_id_, 1);
-      send(grsp);
+        auto grsp = tomop::GroupRequestSlicesPacket(scene_id_, 1);
+        send(grsp);
     }
 
     visualization_server(
@@ -73,6 +73,11 @@ class visualization_server : public listener {
                   << subscribe_hostname << util::end_log;
     }
 
+    void register_plugin(std::string plugin_hostname) {
+        plugin_socket_ = zmq::socket_t(context_, ZMQ_REQ);
+        plugin_socket_.value().connect(plugin_hostname);
+    }
+
     ~visualization_server() {
         socket_.close();
         subscribe_socket_.close();
@@ -83,12 +88,19 @@ class visualization_server : public listener {
         }
     }
 
-    void send(const tomop::Packet& packet) {
+    void send(const tomop::Packet& packet, bool try_plugin = false) {
         std::lock_guard<std::mutex> guard(socket_mutex_);
 
-        packet.send(socket_);
         zmq::message_t reply;
-        socket_.recv(&reply);
+
+        if (try_plugin && plugin_socket_) {
+            packet.send(plugin_socket_.value());
+            plugin_socket_.value().recv(&reply);
+
+        } else {
+            packet.send(socket_);
+            socket_.recv(&reply);
+        }
     }
 
     void subscribe(std::string subscribe_host) {
@@ -117,7 +129,6 @@ class visualization_server : public listener {
     }
 
     void serve() {
-        // not only serve this, but also other..
         auto recast_thread = std::thread([&] {
             while (true) {
                 zmq::message_t update;
@@ -205,7 +216,7 @@ class visualization_server : public listener {
             auto data_packet =
                 tomop::SliceDataPacket(scene_id_, slice_id, result.first, false,
                                        std::move(result.second));
-            send(data_packet);
+            send(data_packet, true);
         }
     }
 
@@ -223,6 +234,9 @@ class visualization_server : public listener {
     // subscribe connection
     std::thread serve_thread_;
     zmq::socket_t subscribe_socket_;
+
+    // subscribe connection
+    std::optional<zmq::socket_t> plugin_socket_;
 
     int32_t scene_id_ = -1;
 
