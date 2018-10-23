@@ -112,11 +112,17 @@ endif()
 
 # --------------------------------------------------------------------------------------------
 # Eigen
-execute_process(COMMAND git submodule update --init -- ext/eigen
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/ext/eigen)
-set(Eigen3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/eigen/include)
+find_package (Eigen3 3.3 QUIET NO_MODULE)
+if (Eigen3_FOUND)
+  message("Eigen found" ${EIGEN3_INCLUDE_DIR})
+else()
+  message("Eigen not found, building from source")
+  execute_process(COMMAND git submodule update --init -- ext/eigen
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  add_subdirectory(${CMAKE_SOURCE_DIR}/ext/eigen)
+endif()
+
 
 # --------------------------------------------------------------------------------------------
 # cppzmq
@@ -191,13 +197,13 @@ set(
     "tomop"
     "assimp_"
     "glm"
+    "Eigen3::Eigen"
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})
 target_link_libraries(${EXEC_NAME} ${LIB_NAMES} ${OPENGL_gl_LIBRARY})
 
 target_compile_options(${EXEC_NAME} PRIVATE -std=c++17 -Wall -Wfatal-errors -Wextra -Werror -g -O3)
-target_compile_options(${EXEC_NAME} PRIVATE -isystem ../ext/eigen/)
 # This is to work around GLM issue#754 <https://github.com/g-truc/glm/issues/754>
 target_compile_definitions(${EXEC_NAME} PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT)
 
