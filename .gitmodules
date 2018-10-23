@@ -13,12 +13,6 @@
 [submodule "ext/tomopackets"]
 	path = ext/tomopackets
 	url = https://github.com/cicwi/tomopackets.git
-[submodule "example/ext/tomos"]
-	path = example/ext/tomos
-	url = https://github.com/jwbuurlage/tomos.git
-[submodule "ext/bulk"]
-	path = ext/bulk
-	url = https://github.com/jwbuurlage/bulk.git
 [submodule "ext/pybind11"]
 	path = ext/pybind11
 	url = https://github.com/pybind/pybind11.git
