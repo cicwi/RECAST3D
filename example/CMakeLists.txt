@@ -11,6 +11,7 @@ add_subdirectory("ext/flags")
 execute_process(COMMAND git submodule update --init -- ext/tomos
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+set(TOMOS_LIB_ONLY ON CACHE BOOL "build Tomos as a library" FORCE)
 add_subdirectory("ext/tomos")
 # --------------------------------------------------------------------------------------------
 
