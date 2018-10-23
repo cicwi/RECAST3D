@@ -6,6 +6,11 @@ set(TARGET_NAME "slicerecon")
 project(slicerecon)
 
 # --------------------------------------------------------------------------------------------
+# GLM
+
+find_package(glm REQUIRED)
+
+# --------------------------------------------------------------------------------------------
 # ASTRA
 # pkg_check_modules(ASTRA REQUIRED "astra")
 set(ASTRA_PATH = "../astra-scm")
@@ -87,6 +92,7 @@ set(
   "cppzmq"
   "tomop"
   "bulk_thread"
+  "glm"
 )
 
 add_library(${TARGET_NAME} ${SOURCES})
