@@ -12,15 +12,12 @@ find_package(glm REQUIRED)
 
 # --------------------------------------------------------------------------------------------
 # ASTRA
-# pkg_check_modules(ASTRA REQUIRED "astra")
-set(ASTRA_PATH = "../astra-scm")
-set(ASTRA_INCLUDE_DIRS "${ASTRA_PATH}/include" "${ASTRA_PATH}/cuda")
-link_directories("$ENV{HOME}/scratch/code/tomography/astra-scm/build/linux/.libs/")
+pkg_check_modules(ASTRA REQUIRED "libastra")
 
 add_library(astra-toolbox INTERFACE)
 target_include_directories(astra-toolbox SYSTEM INTERFACE ${ASTRA_INCLUDE_DIRS})
 target_compile_definitions(astra-toolbox INTERFACE "ASTRA_CUDA")
-target_link_libraries(astra-toolbox INTERFACE "astra")
+target_link_libraries(astra-toolbox INTERFACE ${ASTRA_LDFLAGS})
 # --------------------------------------------------------------------------------------------
 # Eigen
 find_package (Eigen3 3.3 QUIET NO_MODULE)
