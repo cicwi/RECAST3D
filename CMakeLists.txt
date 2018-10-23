@@ -27,7 +27,10 @@ find_package (Eigen3 3.3 QUIET NO_MODULE)
 if (Eigen3_FOUND)
   message("Eigen found" ${EIGEN3_INCLUDE_DIR})
 else()
-  message("Eigen not found")
+  message("Eigen not found, building from source")
+  execute_process(COMMAND git submodule update --init -- ext/eigen
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  add_subdirectory(${CMAKE_SOURCE_DIR}/ext/eigen)
 endif()
 # --------------------------------------------------------------------------------------------
 # ZeroMQ
