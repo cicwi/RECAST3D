@@ -217,6 +217,8 @@ void ReconstructionComponent::update_histogram(
 
     for (auto x : data) {
         auto bin = (int)(((x - min) / (max - min)) * (bins - 1));
+        if (bin < 0) { bin = 0; }
+        if (bin >= bins) { bin = bins - 1; }
         histogram_[bin] += 1.0f;
     }
 }
