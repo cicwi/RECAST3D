@@ -10,7 +10,9 @@ namespace slicerecon {
 
 class plugin {
   public:
-    using callback_type = std::function<slice_data(slice_data, int32_t)>;
+    using callback_type =
+        std::function<std::pair<std::array<int32_t, 2>, std::vector<float>>(
+            std::array<int32_t, 2>, std::vector<float>, int32_t)>;
 
     plugin(std::string hostname_in = "tcp://*:5650",
            std::string hostname_out = "tcp://localhost:5555")
@@ -54,7 +56,7 @@ class plugin {
                         }
 
                         auto callback_data = slice_data_callback_(
-                            {packet->slice_size, std::move(packet->data)},
+                            packet->slice_size, std::move(packet->data),
                             packet->slice_id);
 
                         packet->slice_size = std::get<0>(callback_data);
@@ -102,6 +104,11 @@ class plugin {
 
     void set_slice_callback(callback_type callback) {
         slice_data_callback_ = callback;
+    }
+
+    void listen() {
+        serve();
+        serve_thread_.join();
     }
 
   private:

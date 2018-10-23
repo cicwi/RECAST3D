@@ -30,6 +30,7 @@ int main(int argc, char** argv) {
     auto group_size = opts.arg_as_or<int32_t>("--group-size", 32);
     auto filter_cores = opts.arg_as_or<int32_t>("--filter-cores", 8);
     auto plugin = opts.passed("--plugin");
+    auto py_plugin = opts.passed("--pyplugin");
 
     auto params = slicerecon::settings{
         slice_size, preview_size, group_size, filter_cores, 1, 1};
@@ -62,10 +63,8 @@ int main(int argc, char** argv) {
     auto plugin_one =
         slicerecon::plugin("tcp://*:5650", "tcp://localhost:5651");
     plugin_one.set_slice_callback(
-        [](auto slice, auto index) -> slicerecon::slice_data {
-            auto& shape = std::get<0>(slice);
-            auto& data = std::get<1>(slice);
-
+        [](auto shape, auto data, auto index)
+            -> std::pair<std::array<int32_t, 2>, std::vector<float>> {
             for (auto& x : data) {
                 if (x <= 3) {
                     x = 0;
@@ -80,12 +79,10 @@ int main(int argc, char** argv) {
     auto plugin_two =
         slicerecon::plugin("tcp://*:5651", "tcp://localhost:5555");
     plugin_two.set_slice_callback(
-        [](auto slice, auto index) -> slicerecon::slice_data {
-            auto& shape = std::get<0>(slice);
-            auto& data = std::get<1>(slice);
-
+        [](auto shape, auto data, auto index)
+            -> std::pair<std::array<int32_t, 2>, std::vector<float>> {
             for (auto& x : data) {
-              (void)x;
+                (void)x;
             }
 
             return {shape, data};
@@ -95,6 +92,10 @@ int main(int argc, char** argv) {
         viz.register_plugin("tcp://localhost:5650");
         plugin_one.serve();
         plugin_two.serve();
+    }
+
+    if (py_plugin) {
+        viz.register_plugin("tcp://localhost:5652");
     }
 
     viz.serve();
