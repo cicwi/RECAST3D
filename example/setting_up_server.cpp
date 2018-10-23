@@ -77,15 +77,15 @@ int main(int argc, char** argv) {
             return {shape, data};
         });
 
-    auto plugin_two = slicerecon::plugin("tcp://*:5651", "tcp://localhost:5555");
+    auto plugin_two =
+        slicerecon::plugin("tcp://*:5651", "tcp://localhost:5555");
     plugin_two.set_slice_callback(
-        [](auto slice, auto index) -> slicerecon::slice_data { 
+        [](auto slice, auto index) -> slicerecon::slice_data {
             auto& shape = std::get<0>(slice);
             auto& data = std::get<1>(slice);
 
             for (auto& x : data) {
-              msdnet.fix_everything_with_some_machines_that_were_learned(x);
-                x = -x;
+              (void)x;
             }
 
             return {shape, data};
@@ -96,9 +96,6 @@ int main(int argc, char** argv) {
         plugin_one.serve();
         plugin_two.serve();
     }
-
-
-
 
     viz.serve();
 

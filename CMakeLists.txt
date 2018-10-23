@@ -94,4 +94,6 @@ target_include_directories(${TARGET_NAME} PUBLIC "include")
 target_link_libraries(${TARGET_NAME} ${LIB_NAMES})
 target_compile_options(${TARGET_NAME} PUBLIC "-Wfatal-errors" "-Werror" "-Wall" "-std=c++17")
 
-add_subdirectory(example)
+add_subdirectory("example")
+add_subdirectory("ext/pybind11")
+add_subdirectory("python")
