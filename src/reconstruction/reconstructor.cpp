@@ -409,7 +409,7 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
 
     astra::uploadMultipleProjections(alg_->proj_data(write_index_),
                                      sino_buffer_.data(), proj_id_min,
-                                     proj_id_max, false);
+                                     proj_id_max);
 
     // send message to observers that new data is available
     for (auto l : listeners_) {
