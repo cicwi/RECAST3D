@@ -99,7 +99,7 @@ find_package(glfw3 QUIET)
 if (glfw3_FOUND)
     add_library(glfw3 INTERFACE)
     target_include_directories(glfw3 INTERFACE ${glfw3_INCLUDE_DIR})
-    target_link_libraries(glfw3 INTERFACE ${glfw3_LIBRARY})
+    target_link_libraries(glfw3 INTERFACE ${glfw3_LIBRARY} glfw)
 else()
     message("'glfw3' not installed on the system, building from source...")
 
