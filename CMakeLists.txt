@@ -10,6 +10,8 @@ set(EXEC_NAME "recast3d")
 # multiple dependencies define 'uninstall' target
 set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS 1)
 
+find_package(glm REQUIRED)
+
 ## DEPENDENCIES
 # --------------------------------------------------------------------------------------------
 # ImGui
@@ -188,6 +190,7 @@ set(
     "eigen"
     "tomop"
     "assimp_"
+    "glm"
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})
@@ -200,6 +203,9 @@ target_compile_definitions(${EXEC_NAME} PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_
 
 target_include_directories(${EXEC_NAME} PRIVATE
     "include"
+)
+
+target_include_directories(${EXEC_NAME} SYSTEM PRIVATE
     ${ASSIMP_INCLUDE_DIRS}
     ${ZeroMQ_INCLUDE_DIR}
 )
