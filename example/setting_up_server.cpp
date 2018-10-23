@@ -7,6 +7,8 @@
 // include the 'slicerecon' library headers
 #include "slicerecon/slicerecon.hpp"
 
+using namespace std::string_literals;
+
 int main(int argc, char** argv) {
     auto opts = flags::flags{argc, argv};
     opts.info("setting_up_server",
@@ -31,6 +33,7 @@ int main(int argc, char** argv) {
     auto filter_cores = opts.arg_as_or<int32_t>("--filter-cores", 8);
     auto plugin = opts.passed("--plugin");
     auto py_plugin = opts.passed("--pyplugin");
+    auto recast_host = opts.arg_or("--recast-host", "localhost");
 
     auto params = slicerecon::settings{
         slice_size, preview_size, group_size, filter_cores, 1, 1};
@@ -52,9 +55,11 @@ int main(int argc, char** argv) {
     auto proj = slicerecon::projection_server(host, port, *recon, ZMQ_PULL);
     proj.serve();
 
+
     // 3. connect with (recast3d) visualization server
     auto viz = slicerecon::visualization_server(
-        "slicerecon test", "tcp://localhost:5555", "tcp://localhost:5556");
+        "slicerecon test", "tcp://"s + recast_host + ":5555"s,
+        "tcp://"s + recast_host + ":5556"s);
     viz.set_slice_callback(
         [&](auto x, auto idx) { return recon->reconstruct_slice(x); });
 
@@ -77,7 +82,7 @@ int main(int argc, char** argv) {
         });
 
     auto plugin_two =
-        slicerecon::plugin("tcp://*:5651", "tcp://localhost:5555");
+        slicerecon::plugin("tcp://*:5651", "tcp://"s + recast_host + ":5555"s);
     plugin_two.set_slice_callback(
         [](auto shape, auto data, auto index)
             -> std::pair<std::array<int32_t, 2>, std::vector<float>> {
