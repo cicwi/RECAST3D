@@ -123,16 +123,18 @@ else()
   add_subdirectory(${CMAKE_SOURCE_DIR}/ext/eigen)
 endif()
 
-
 # --------------------------------------------------------------------------------------------
 # cppzmq
 
-execute_process(COMMAND git submodule update --init -- ext/cppzmq
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+find_package(cppzmq QUIET)
+if (NOT cppzmq_FOUND)
+  execute_process(COMMAND git submodule update --init -- ext/cppzmq
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-add_library(cppzmq INTERFACE)
-target_include_directories(cppzmq INTERFACE ext/cppzmq)
-target_link_libraries(cppzmq INTERFACE zmq)
+  add_library(cppzmq INTERFACE)
+  target_include_directories(cppzmq INTERFACE ext/cppzmq)
+  target_link_libraries(cppzmq INTERFACE zmq)
+endif()
 
 # --------------------------------------------------------------------------------------------
 # tomopackets
