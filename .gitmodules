@@ -16,3 +16,11 @@
 [submodule "ext/pybind11"]
 	path = ext/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "ext/bulk"]
+	path = ext/bulk
+	url = https://www.github.com/jwbuurlage/Bulk.git
+	branch = develop
+[submodule "example/ext/tomos"]
+	path = example/ext/tomos
+	url = https://www.github.com/jwbuurlage/Tomos.git
+	branch = develop
