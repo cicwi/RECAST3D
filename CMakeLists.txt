@@ -193,7 +193,6 @@ set(
     "stdc++fs"
     "imgui"
     "zmq"
-    "eigen"
     "tomop"
     "assimp_"
     "glm"
