@@ -5,8 +5,6 @@ project(tomopackets)
 
 include_directories(
     "include"
-    "ext/cppzmq/"
-    "ext/libzmq/include"
 )
 
 
@@ -20,11 +18,13 @@ set(
     "test/test_server.cpp"
 )
 
-link_directories("ext/libzmq/build/lib/")
+find_package(ZeroMQ REQUIRED)
+find_package(cppzmq REQUIRED)
 
 set(
     LIB_NAMES
-    "zmq"
+    "libzmq"
+    "cppzmq"
     "pthread"
 )
 
