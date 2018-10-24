@@ -28,7 +28,7 @@ struct memory_span {
     memory_span(std::size_t, char* data_) : data(data_) { }
     memory_span() : data(nullptr) { }
 
-    char *data = nullptr;
+  char *data = nullptr;
     std::size_t index = 0;
 
     template <typename T>

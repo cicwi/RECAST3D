@@ -49,8 +49,7 @@ PYBIND11_MODULE(py_tomop, m) {
 
     py::class_<tomop::GeometrySpecificationPacket, tomop::Packet>(
         m, "geometry_specification_packet")
-        .def(py::init<int32_t, std::array<float, 3>,
-                      std::array<float, 3>>());
+        .def(py::init<int32_t, std::array<float, 3>, std::array<float, 3>>());
 
     py::class_<tomop::GroupRequestSlicesPacket, tomop::Packet>(
         m, "group_request_slices_packet")
@@ -72,5 +71,6 @@ PYBIND11_MODULE(py_tomop, m) {
 
     py::class_<tomop::publisher>(m, "publisher")
         .def(py::init<std::string, int32_t>())
+        .def(py::init<std::string, int32_t, int32_t>())
         .def("send", &tomop::publisher::send);
 }
