@@ -5,7 +5,7 @@ import slicerecon
 def callback(shape, xs, idx):
     xs = np.array(xs).reshape(shape)
 
-    print("callback called", size)
+    print("callback called", shape)
     xs[xs <= 3.0] = 0.0
     xs[xs > 3.0] = 10.0
 
