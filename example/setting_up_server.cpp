@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
     auto plugin = opts.passed("--plugin");
     auto py_plugin = opts.passed("--pyplugin");
     auto recast_host = opts.arg_or("--recast-host", "localhost");
+    auto use_reqrep = opts.passed("--reqrep");
 
     auto params = slicerecon::settings{
         slice_size, preview_size, group_size, filter_cores, 1, 1};
@@ -52,9 +53,9 @@ int main(int argc, char** argv) {
     // 2. listen to projection stream
     // projection callback, push to projection stream
     // all raw data
-    auto proj = slicerecon::projection_server(host, port, *recon, ZMQ_PULL);
+    auto proj = slicerecon::projection_server(host, port, *recon,
+                                              use_reqrep ? ZMQ_REP : ZMQ_PULL);
     proj.serve();
-
 
     // 3. connect with (recast3d) visualization server
     auto viz = slicerecon::visualization_server(

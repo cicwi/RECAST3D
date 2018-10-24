@@ -3,6 +3,7 @@ import flexdata as flex
 import numpy as np
 import scipy.misc
 import astra
+import zmq
 
 import sys
 
@@ -22,7 +23,7 @@ avg_flat = flat.mean(0)
 avg_dark = dark.mean(0)
 meta = flex.io.read_meta(path, 'flexray', sample=2)
 
-pub = tomop.publisher("localhost", 5558)
+pub = tomop.publisher("localhost", 5558, zmq.REQ)
 
 # send astra geometry
 # proj is [proj_id, row, col], we want [row, proj_id, col]
