@@ -10,6 +10,13 @@ parser.add_argument('path', metavar='path',
                     help='path to the data')
 parser.add_argument('--sample', type=int, default=1,
                     help='the binning to use on the detector, and how many projections to skip')
+parser.add_argument('--host', default="localhost",
+                    help='the projection server host')
+parser.add_argument('--port', type=int, default=5558,
+                    help='the projection server port')
+
+parser.add_argument('--skipgeometry', action='store_true',
+                    help='assume the geometry packet is already sent')
 args = parser.parse_args()
 
 sample = args.sample
@@ -26,7 +33,7 @@ avg_flat = flat.mean(0)
 avg_dark = dark.mean(0)
 meta = flex.io.read_meta(path, 'flexray', sample=sample)
 
-pub = tomop.publisher("localhost", 5558)
+pub = tomop.publisher(args.host, args.port)
 
 # send astra geometry
 # proj is [proj_id, row, col], we want [row, proj_id, col]
@@ -50,12 +57,14 @@ packet_vol_geom = tomop.geometry_specification_packet(0, [
     vol_geom['option']['WindowMaxX'], vol_geom['option']['WindowMaxY'],
     vol_geom['option']['WindowMaxZ']
 ])
-pub.send(packet_vol_geom)
+if not args.skipgeometry:
+    pub.send(packet_vol_geom)
 
 packet_geometry = tomop.cone_vec_packet(0, rows, cols, proj_count,
                                         proj_geom['Vectors'].flatten())
 
-pub.send(packet_geometry)
+if not args.skipgeometry:
+    pub.send(packet_geometry)
 
 # send darks (0), lights (1), projs (2)
 
