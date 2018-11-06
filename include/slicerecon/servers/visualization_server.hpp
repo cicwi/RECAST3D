@@ -79,13 +79,13 @@ class visualization_server : public listener {
     }
 
     ~visualization_server() {
-        socket_.close();
-        subscribe_socket_.close();
-        context_.close();
-
         if (serve_thread_.joinable()) {
             serve_thread_.join();
         }
+
+        socket_.close();
+        subscribe_socket_.close();
+        context_.close();
     }
 
     void send(const tomop::Packet& packet, bool try_plugin = false) {
@@ -129,7 +129,7 @@ class visualization_server : public listener {
     }
 
     void serve() {
-        auto recast_thread = std::thread([&] {
+        serve_thread_ = std::thread([&] {
             while (true) {
                 zmq::message_t update;
                 bool kill = false;
@@ -186,7 +186,7 @@ class visualization_server : public listener {
             }
         });
 
-        recast_thread.join();
+        serve_thread_.join();
     }
 
     void make_slice(int32_t slice_id, std::array<float, 9> orientation) {
