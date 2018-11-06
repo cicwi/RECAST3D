@@ -322,6 +322,8 @@ std::vector<float> cone_beam_solver::fdk_weights() {
         auto t2 = Eigen::Vector3f(pyx, pyy, pyz);
 
         // FIXME uncentered projections
+        // rho should be the distance between the source and the detector plane
+        // which is not equal to (d - s).norm() for uncentered projections
         auto rho = (d - s).norm();
         for (int r = 0; r < geometry_.rows; ++r) {
             for (int c = 0; c < geometry_.cols; ++c) {
