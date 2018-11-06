@@ -3,24 +3,28 @@ import flexdata as flex
 import numpy as np
 import scipy.misc
 import astra
+import argparse
 
-import sys
+parser = argparse.ArgumentParser(description='Push a FleX-ray data set to Slicerecon.')
+parser.add_argument('path', metavar='path',
+                    help='path to the data')
+parser.add_argument('--sample', type=int, default=1,
+                    help='the binning to use on the detector, and how many projections to skip')
+args = parser.parse_args()
 
-if len(sys.argv) < 2:
-    print("ERROR: No path given")
-    exit(-1)
+sample = args.sample
+print("sample", sample)
+path = args.path
 
-path = sys.argv[1]
-
-dark = flex.io.read_tiffs(path, 'di', sample=2)
-flat = flex.io.read_tiffs(path, 'io', sample=2)
-proj = flex.io.read_tiffs(path, 'scan_', sample=2, skip=2)
+dark = flex.io.read_tiffs(path, 'di', sample=sample)
+flat = flex.io.read_tiffs(path, 'io', sample=sample)
+proj = flex.io.read_tiffs(path, 'scan_', sample=sample, skip=sample)
 
 print(np.shape(dark), np.shape(flat), np.shape(proj))
 
 avg_flat = flat.mean(0)
 avg_dark = dark.mean(0)
-meta = flex.io.read_meta(path, 'flexray', sample=2)
+meta = flex.io.read_meta(path, 'flexray', sample=sample)
 
 pub = tomop.publisher("localhost", 5558)
 

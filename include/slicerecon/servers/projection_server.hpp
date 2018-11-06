@@ -6,6 +6,7 @@
 #include "tomop/tomop.hpp"
 
 #include "../util/data_types.hpp"
+#include "../util/exceptions.hpp"
 #include "../util/log.hpp"
 
 namespace slicerecon {
@@ -101,6 +102,18 @@ class projection_server {
 
                     packet->deserialize(std::move(mbuffer));
 
+                    if (packet->rows < 0 || packet->cols < 0) {
+                        throw server_error(
+                            "Invalid geometry specification received: negative "
+                            "rows or columns");
+                    }
+
+                    if (packet->proj_count != (int)packet->angles.size()) {
+                        throw server_error("Invalid geometry specification "
+                                           "received: projection count is not "
+                                           "equal to number of angles");
+                    }
+
                     geom_.rows = packet->rows;
                     geom_.cols = packet->cols;
                     geom_.proj_count = packet->proj_count;
@@ -119,6 +132,18 @@ class projection_server {
                         std::make_unique<tomop::ParallelVecGeometryPacket>();
                     packet->deserialize(std::move(mbuffer));
 
+                    if (packet->rows < 0 || packet->cols < 0) {
+                      throw server_error(
+                                         "Invalid geometry specification received: negative "
+                                         "rows or columns");
+                    }
+
+                    if (packet->proj_count != (int)(packet->vectors.size() / 12)) {
+                      throw server_error("Invalid geometry specification "
+                                         "received: projection count is not "
+                                         "equal to number of vectors");
+                    }
+
                     geom_.rows = packet->rows;
                     geom_.cols = packet->cols;
                     geom_.proj_count = packet->proj_count;
@@ -136,6 +161,18 @@ class projection_server {
                     auto packet =
                         std::make_unique<tomop::ConeBeamGeometryPacket>();
                     packet->deserialize(std::move(mbuffer));
+
+                    if (packet->rows < 0 || packet->cols < 0) {
+                      throw server_error(
+                                         "Invalid geometry specification received: negative "
+                                         "rows or columns");
+                    }
+
+                    if (packet->proj_count != (int)packet->angles.size()) {
+                      throw server_error("Invalid geometry specification "
+                                         "received: projection count is not "
+                                         "equal to number of angles");
+                    }
 
                     geom_.rows = packet->rows;
                     geom_.cols = packet->cols;
@@ -157,6 +194,18 @@ class projection_server {
                     auto packet =
                         std::make_unique<tomop::ConeVecGeometryPacket>();
                     packet->deserialize(std::move(mbuffer));
+
+                    if (packet->rows < 0 || packet->cols < 0) {
+                      throw server_error(
+                                         "Invalid geometry specification received: negative "
+                                         "rows or columns");
+                    }
+
+                    if (packet->proj_count != (int)(packet->vectors.size() / 12)) {
+                      throw server_error("Invalid geometry specification "
+                                         "received: projection count is not "
+                                         "equal to number of vectors");
+                    }
 
                     geom_.rows = packet->rows;
                     geom_.cols = packet->cols;

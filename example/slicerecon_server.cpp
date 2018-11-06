@@ -11,9 +11,8 @@ using namespace std::string_literals;
 
 int main(int argc, char** argv) {
     auto opts = flags::flags{argc, argv};
-    opts.info("setting_up_server",
-              "example of how to use `slicerecon` to host a "
-              "slice reconstruction server");
+    opts.info(argv[0], "example of how to use `slicerecon` to host a "
+                       "slice reconstruction server");
 
     // maybe at some point support receive details over the network on acq
     // geometry, darks, flats now we just force the user to give it here..
@@ -35,6 +34,12 @@ int main(int argc, char** argv) {
     auto py_plugin = opts.passed("--pyplugin");
     auto recast_host = opts.arg_or("--recast-host", "localhost");
     auto use_reqrep = opts.passed("--reqrep");
+
+    if (slice_size < 0 || preview_size < 0 || group_size < 0 || filter_cores < 0) {
+      std::cout << opts.usage();
+      std::cout << "ERROR: Negative parameter passed\n";
+      return -1;
+    }
 
     auto params = slicerecon::settings{
         slice_size, preview_size, group_size, filter_cores, 1, 1};

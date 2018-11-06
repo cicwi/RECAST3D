@@ -26,6 +26,7 @@
 #include "bulk/bulk.hpp"
 
 #include "../util/data_types.hpp"
+#include "../util/exceptions.hpp"
 #include "../util/log.hpp"
 #include "helpers.hpp"
 
@@ -150,10 +151,12 @@ class reconstructor {
 
         if (shape[0] * shape[1] != pixels_) {
             util::log << LOG_FILE << util::lvl::warning
-                      << "Ignoring projection of wrong shape [(" << shape[0]
+                      << "Received projection of wrong shape [(" << shape[0]
                       << " x " << shape[1] << ") != " << pixels_
                       << util::end_log;
-            return;
+            throw server_error(
+                "Received projection has a different shape than the one set by "
+                "the acquisition geometry");
         }
 
         switch (k) {

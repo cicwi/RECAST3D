@@ -13,8 +13,7 @@ using T = float;
 
 int main(int argc, char** argv) {
     auto opts = flags::flags{argc, argv};
-    opts.info("push_projections",
-              "example for pushing projections to slicerecon");
+    opts.info(argv[0], "example for pushing projections to slicerecon");
 
     auto size = opts.arg_as_or<int>("--size", 128);
     bool parallel = opts.passed("--parallel");

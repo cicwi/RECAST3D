@@ -15,8 +15,8 @@ set(TOMOS_LIB_ONLY ON CACHE BOOL "build Tomos as a library" FORCE)
 add_subdirectory("ext/tomos")
 # --------------------------------------------------------------------------------------------
 
-add_executable(setting_up_server "setting_up_server.cpp")
-target_link_libraries(setting_up_server slicerecon flags)
+add_executable(slicerecon_server "slicerecon_server.cpp")
+target_link_libraries(slicerecon_server slicerecon flags)
 
-add_executable(push_projections "push_projections.cpp")
-target_link_libraries(push_projections slicerecon flags tomos)
+add_executable(slicerecon_push_tomos "slicerecon_push_tomos.cpp")
+target_link_libraries(slicerecon_push_tomos slicerecon flags tomos)
