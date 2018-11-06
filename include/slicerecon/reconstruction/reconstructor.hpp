@@ -60,6 +60,7 @@ namespace detail {
 class solver {
   public:
     solver(settings parameters, acquisition::geometry geometry);
+    virtual ~solver();
 
     virtual slice_data reconstruct_slice(orientation x, int buffer_idx) = 0;
     virtual void reconstruct_preview(std::vector<float>& preview_buffer,

@@ -8,7 +8,6 @@ namespace detail {
 
 solver::solver(settings parameters, acquisition::geometry geometry)
     : parameters_(parameters), geometry_(geometry) {
-
     float half_slab_height =
         0.5f * (geometry_.volume_max_point[2] - geometry_.volume_min_point[2]) /
         parameters_.preview_size;
@@ -50,6 +49,18 @@ solver::solver(settings parameters, acquisition::geometry geometry)
         parameters_.preview_size, astraCUDA3d::INIT_ZERO);
     vol_data_small_ = std::make_unique<astra::CFloat32VolumeData3DGPU>(
         vol_geom_small_.get(), vol_handle_small_);
+}
+
+solver::~solver() {
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << "Deconstructing solver and freeing GPU memory"
+                          << slicerecon::util::end_log;
+
+    astraCUDA3d::freeGPUMemory(vol_handle_);
+    astraCUDA3d::freeGPUMemory(vol_handle_small_);
+    for (auto& proj_handle : proj_handles_) {
+        astraCUDA3d::freeGPUMemory(proj_handle);
+    }
 }
 
 parallel_beam_solver::parallel_beam_solver(settings parameters,

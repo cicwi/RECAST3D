@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     auto port = opts.arg_as_or<int>("--port", 5558);
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
-                          << "Pushing from: " << host << ":" << port
+                          << "Pushing to: " << host << ":" << port
                           << slicerecon::util::end_log;
 
     auto pub = tomop::publisher(host, port, ZMQ_PUSH);
