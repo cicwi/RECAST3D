@@ -140,7 +140,7 @@ class server {
 
                     switch (desc) {
                     case packet_desc::kill_scene: {
-                        auto packet = std::make_unique<KillScenePacket>();
+                      auto packet = std::make_unique<KillScenePacket>();
                         packet->deserialize(std::move(buffer));
 
                         if (packet->scene_id != scene_id_) {
@@ -218,9 +218,7 @@ class server {
                     // ignore all other packets
                     break;
                 }
-
             }
-
         });
 
         proj_server_thread.join();
@@ -252,8 +250,8 @@ class server {
 
         if (!result.first.empty()) {
             auto data_packet =
-                SliceDataPacket(scene_id_, slice_id, result.first, false,
-                                std::move(result.second));
+                SliceDataPacket(scene_id_, slice_id, result.first,
+                                std::move(result.second), false);
             send(data_packet);
         }
     }

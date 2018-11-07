@@ -7,13 +7,12 @@
 #include "descriptors.hpp"
 #include "serialize.hpp"
 
+#include <boost/hana.hpp>
+namespace hana = boost::hana;
+
 namespace tomop {
 
-class Packet {
-   public:
-    Packet(packet_desc desc_) : desc(desc_) {}
-    packet_desc desc;
-
+struct Packet {
     template <typename BufferT>
     struct omembuf {
         omembuf(BufferT& membuf_) : membuf(membuf_) {}
@@ -55,16 +54,17 @@ class Packet {
     virtual ~Packet() = default;
 };
 
+template <typename Derived, typename Buffer>
+void fill(Derived& base, Buffer& buffer) {
+    hana::for_each(base, [&](auto pair) { buffer | hana::second(pair); });
+}
+
 template <class Derived>
-class PacketBase : public Packet {
-   public:
-    PacketBase(packet_desc desc_) : Packet(desc_) {}
-
-
+struct PacketBase : public Packet {
     std::size_t size() const override {
         scale total;
-        total | this->desc;
-        ((Derived*)this)->fill(total);
+        total | Derived::desc;
+        fill(*(Derived*)this, total);
         return total.size;
     }
 
@@ -73,35 +73,33 @@ class PacketBase : public Packet {
             packet_size = size();
         }
         memory_buffer buffer(packet_size);
-        buffer << this->desc;
+        buffer << Derived::desc;
 
         auto im = imembuf<memory_buffer>(buffer);
-        ((Derived*)this)->fill(im);
+        fill(*(Derived*)this, im);
 
         return buffer;
     }
 
     void deserialize(memory_buffer buffer) override {
-        buffer >> this->desc;
         auto om = omembuf<memory_buffer>(buffer);
-        ((Derived*)this)->fill(om);
+        fill(*(Derived*)this, om);
     }
 
     void serialize(zmq::message_t& request) const override {
         memory_span buffer(request.size(), (char*)request.data());
-        buffer << this->desc;
+        buffer << Derived::desc;
 
         auto im = imembuf<memory_span>(buffer);
-        ((Derived*)this)->fill(im);
+        fill(*(Derived*)this, im);
     }
 
     void deserialize(zmq::message_t& request) override {
         memory_span buffer(request.size(), (char*)request.data());
-        buffer >> this->desc;
 
         auto om = omembuf<memory_span>(buffer);
-        ((Derived*)this)->fill(om);
+        fill(*(Derived*)this, om);
     }
 };
 
-}  // namespace tomop
+} // namespace tomop

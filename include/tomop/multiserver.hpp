@@ -249,8 +249,8 @@ class multiserver {
 
         if (!result.first.empty()) {
             auto data_packet =
-                SliceDataPacket(scene_ids_[server_idx], slice_id, result.first, false,
-                                std::move(result.second));
+                SliceDataPacket(scene_ids_[server_idx], slice_id, result.first,
+                                std::move(result.second), false);
             send(data_packet, server_idx);
         }
     }

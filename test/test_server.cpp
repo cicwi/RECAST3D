@@ -6,9 +6,10 @@ int main() {
 
     // 2. construct some fake packages
     auto data_packet =
-        tomop::SliceDataPacket(server.scene_id(), 0, {4, 4}, true,
+        tomop::SliceDataPacket(server.scene_id(), 0, {4, 4},
                                {0, 255, 128, 255, 255, 128, 255, 0, 255, 0, 128,
-                                255, 255, 128, 0, 255});
+                                255, 255, 128, 0, 255},
+                               false);
 
     // 3. send packages
     server.send(data_packet);

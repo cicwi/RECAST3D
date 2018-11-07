@@ -54,12 +54,15 @@ if (NOT cppzmq_FOUND)
 endif()
 
 # --------------------------------------------------------------------------------------------
-
+# Boost
+find_package(Boost 1.61 REQUIRED)
+# --------------------------------------------------------------------------------------------
 set(
     LIB_NAMES
     "zmq"
     "cppzmq"
     "pthread"
+    "Boost::boost"
 )
 
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})

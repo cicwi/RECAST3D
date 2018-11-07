@@ -14,8 +14,8 @@ PYBIND11_MODULE(py_tomop, m) {
         .def(py::init<int32_t, std::array<int32_t, 3>, std::vector<float>>());
 
     py::class_<tomop::SliceDataPacket, tomop::Packet>(m, "slice_data_packet")
-        .def(py::init<int32_t, int32_t, std::array<int32_t, 2>, bool,
-                      std::vector<float>>());
+        .def(py::init<int32_t, int32_t, std::array<int32_t, 2>,
+                      std::vector<float>, bool>());
 
     py::class_<tomop::ProjectionPacket, tomop::Packet>(m, "projection_packet")
         .def(py::init<int32_t, int32_t, std::array<int32_t, 2>,
