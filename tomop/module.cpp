@@ -55,7 +55,13 @@ PYBIND11_MODULE(py_tomop, m) {
         });
         using Init = typename decltype(
             hana::unpack(types, hana::template_<py::detail::init>))::type;
-        py::class_<P, tomop::Packet>(m, x[0_c].c_str()).def(Init());
+        auto& c = py::class_<P, tomop::Packet>(m, x[0_c].c_str()).def(Init());
+
+        //        auto keys = hana::keys(P{});
+        //        constexpr auto accessors = hana::accessors<P>();
+        //        hana::for_each(hana::zip(keys, accessors), [&c](auto ka) {
+        //            c.def(ka[0_c], ka[1_c]);
+        //        });
     });
 
     py::class_<tomop::server>(m, "server")
