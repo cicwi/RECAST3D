@@ -5,55 +5,58 @@ namespace py = pybind11;
 
 #include <tomop/tomop.hpp>
 
+#include <boost/hana.hpp>
+using namespace hana::literals;
+using namespace std::string_literals;
+
 PYBIND11_MODULE(py_tomop, m) {
+    using namespace tomop;
+
     m.doc() = "bindings for tomopackets";
 
     py::class_<tomop::Packet>(m, "packet");
 
-    py::class_<tomop::VolumeDataPacket, tomop::Packet>(m, "volume_data_packet")
-        .def(py::init<int32_t, std::array<int32_t, 3>, std::vector<float>>());
+    auto packets = hana::make_tuple(
+        hana::make_tuple("geometry_specification_packet"s,
+                         hana::type_c<GeometrySpecificationPacket>),
+        hana::make_tuple("parallel_beam_geometry_packet"s,
+                         hana::type_c<ParallelBeamGeometryPacket>),
+        hana::make_tuple("parallel_vec_geometry_packet"s,
+                         hana::type_c<ParallelVecGeometryPacket>),
+        hana::make_tuple("cone_beam_geometry_packet"s,
+                         hana::type_c<ConeBeamGeometryPacket>),
+        hana::make_tuple("cone_vec_geometry_packet"s,
+                         hana::type_c<ConeVecGeometryPacket>),
+        hana::make_tuple("projection_data_packet"s,
+                         hana::type_c<ProjectionDataPacket>),
+        hana::make_tuple("partial_projection_data_packet"s,
+                         hana::type_c<PartialProjectionDataPacket>),
+        hana::make_tuple("projection_packet"s, hana::type_c<ProjectionPacket>),
+        hana::make_tuple("set_part_packet"s, hana::type_c<SetPartPacket>),
+        hana::make_tuple("slice_data_packet"s, hana::type_c<SliceDataPacket>),
+        hana::make_tuple("partial_slice_data_packet"s,
+                         hana::type_c<PartialSliceDataPacket>),
+        hana::make_tuple("volume_data_packet"s, hana::type_c<VolumeDataPacket>),
+        hana::make_tuple("partial_volume_data_packet"s,
+                         hana::type_c<PartialVolumeDataPacket>),
+        hana::make_tuple("set_slice_packet"s, hana::type_c<SetSlicePacket>),
+        hana::make_tuple("remove_slice_packet"s,
+                         hana::type_c<RemoveSlicePacket>),
+        hana::make_tuple("group_request_slices_packet"s,
+                         hana::type_c<GroupRequestSlicesPacket>),
+        hana::make_tuple("make_scene_packet"s, hana::type_c<MakeScenePacket>),
+        hana::make_tuple("kill_scene_packet"s, hana::type_c<KillScenePacket>));
 
-    py::class_<tomop::SliceDataPacket, tomop::Packet>(m, "slice_data_packet")
-        .def(py::init<int32_t, int32_t, std::array<int32_t, 2>,
-                      std::vector<float>, bool>());
+    hana::for_each(packets, [&](auto x) {
+        using P = typename decltype(+(x[1_c]))::type;
 
-    py::class_<tomop::ProjectionPacket, tomop::Packet>(m, "projection_packet")
-        .def(py::init<int32_t, int32_t, std::array<int32_t, 2>,
-                      std::vector<float>>());
-
-    py::class_<tomop::ProjectionDataPacket, tomop::Packet>(
-        m, "projection_data_packet")
-        .def(py::init<int32_t, int32_t, std::array<float, 3>,
-                      std::array<float, 9>, std::array<int32_t, 2>,
-                      std::vector<float>>());
-
-    py::class_<tomop::ParallelBeamGeometryPacket, tomop::Packet>(
-        m, "parallel_beam_packet")
-        .def(
-            py::init<int32_t, int32_t, int32_t, int32_t, std::vector<float>>());
-
-    py::class_<tomop::ParallelVecGeometryPacket, tomop::Packet>(
-        m, "parallel_vec_packet")
-        .def(
-            py::init<int32_t, int32_t, int32_t, int32_t, std::vector<float>>());
-
-    py::class_<tomop::ConeBeamGeometryPacket, tomop::Packet>(m,
-                                                             "cone_beam_packet")
-        .def(py::init<int32_t, int32_t, int32_t, int32_t, float, float,
-                      std::array<float, 2>, std::vector<float>>());
-
-    py::class_<tomop::ConeVecGeometryPacket, tomop::Packet>(m,
-                                                            "cone_vec_packet")
-        .def(
-            py::init<int32_t, int32_t, int32_t, int32_t, std::vector<float>>());
-
-    py::class_<tomop::GeometrySpecificationPacket, tomop::Packet>(
-        m, "geometry_specification_packet")
-        .def(py::init<int32_t, std::array<float, 3>, std::array<float, 3>>());
-
-    py::class_<tomop::GroupRequestSlicesPacket, tomop::Packet>(
-        m, "group_request_slices_packet")
-        .def(py::init<int32_t, int32_t>());
+        auto types = hana::transform(hana::members(P{}), [](auto member) {
+            return hana::type_c<decltype(member)>;
+        });
+        using Init = typename decltype(
+            hana::unpack(types, hana::template_<py::detail::init>))::type;
+        py::class_<P, tomop::Packet>(m, x[0_c].c_str()).def(Init());
+    });
 
     py::class_<tomop::server>(m, "server")
         .def(py::init<std::string>())

@@ -140,7 +140,7 @@ class server {
 
                     switch (desc) {
                     case packet_desc::kill_scene: {
-                      auto packet = std::make_unique<KillScenePacket>();
+                        auto packet = std::make_unique<KillScenePacket>();
                         packet->deserialize(std::move(buffer));
 
                         if (packet->scene_id != scene_id_) {
