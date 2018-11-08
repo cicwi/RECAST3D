@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Conventions &mdash; tomopackets  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="Overview" href="overview.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> tomopackets
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Library</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">TomoPackets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#multi-dimensional-arrays">Multi-dimensional arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#slice-orientation">Slice orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acquisition-geometries">Acquisition geometries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tomop.html">tomop package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tomopackets</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Conventions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/conventions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="conventions">
+<h1>Conventions<a class="headerlink" href="#conventions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="multi-dimensional-arrays">
+<h2>Multi-dimensional arrays<a class="headerlink" href="#multi-dimensional-arrays" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Volume data is stored in x-y-z order (from major to minor).</li>
+<li>Projection data is stored in row-column order (from major to minor).</li>
+</ul>
+</div>
+<div class="section" id="slice-orientation">
+<h2>Slice orientation<a class="headerlink" href="#slice-orientation" title="Permalink to this headline">¶</a></h2>
+<p>We need a convention for representing the orientation of a slice. The
+orientation is inside <em>volume space</em> and is completely independent from the
+number of pixels (i.e. the ‘size’ of an individual pixel is implied by the
+bounding square of a slice). We represent the orientation as 9 real numbers
+<span class="math notranslate nohighlight">\((a, b, \ldots, i)\)</span> so that:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{equation}
+\begin{pmatrix}
+a &amp; d &amp; g \\
+b &amp; e &amp; h \\
+c &amp; f &amp; i \\
+0 &amp; 0 &amp; 1
+\end{pmatrix}
+\begin{pmatrix} x_s \\ y_s \\ 1 \end{pmatrix} =
+\begin{pmatrix} x_w \\ y_w \\ z_w \\ 1 \end{pmatrix}
+\end{equation}\end{split}\]</div>
+<p>Where the vector <span class="math notranslate nohighlight">\(\vec{x}_s = (x_s, y_s)\)</span> lives inside a slice (i.e. the
+<em>normalized</em> pixel coordinates of a slice, in the interval <span class="math notranslate nohighlight">\([0, 1]\)</span>), and where
+<span class="math notranslate nohighlight">\(\vec{x}_w = (x_w, y_w, z_w)\)</span> lives inside the volume geometry at the correct
+place. The pixel coordinates of a slice have the following convention:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{equation}
+\begin{pmatrix}
+(0, m) &amp; \cdots &amp; (n, m) \\
+\vdots &amp; \ddots &amp; \vdots \\
+(0, 0) &amp; \cdots &amp; (n, 0)
+\end{pmatrix}
+\end{equation}\end{split}\]</div>
+<p>i.e. we start counting from the bottom-left and use a standard cartesian
+<span class="math notranslate nohighlight">\(xy\)</span> convention.</p>
+<p>Using this convention, the vector <span class="math notranslate nohighlight">\(\vec{b} = (g, h, i)\)</span> is the base point
+of the slice in world space (i.e. the world coordinates of the bottom left point
+of a slice). <span class="math notranslate nohighlight">\(\vec{x} = (a,b,c)\)</span> is the direction in world space
+corresponding to the <span class="math notranslate nohighlight">\(x\)</span> direction of the slice, and <span class="math notranslate nohighlight">\(\vec{y} = (d,
+e, f)\)</span> corresponds to the <span class="math notranslate nohighlight">\(y\)</span> direction.</p>
+</div>
+<div class="section" id="acquisition-geometries">
+<h2>Acquisition geometries<a class="headerlink" href="#acquisition-geometries" title="Permalink to this headline">¶</a></h2>
+<p>The fields of the acquisition geometry packets:</p>
+<ul class="simple">
+<li><a class="reference internal" href="tomop.html#tomop.parallel_beam_geometry_packet" title="tomop.parallel_beam_geometry_packet"><code class="xref py py-class docutils literal notranslate"><span class="pre">tomop.parallel_beam_geometry_packet</span></code></a></li>
+<li><a class="reference internal" href="tomop.html#tomop.parallel_vec_geometry_packet" title="tomop.parallel_vec_geometry_packet"><code class="xref py py-class docutils literal notranslate"><span class="pre">tomop.parallel_vec_geometry_packet</span></code></a></li>
+<li><a class="reference internal" href="tomop.html#tomop.cone_beam_geometry_packet" title="tomop.cone_beam_geometry_packet"><code class="xref py py-class docutils literal notranslate"><span class="pre">tomop.cone_beam_geometry_packet</span></code></a></li>
+<li><a class="reference internal" href="tomop.html#tomop.cone_vec_geometry_packet" title="tomop.cone_vec_geometry_packet"><code class="xref py py-class docutils literal notranslate"><span class="pre">tomop.cone_vec_geometry_packet</span></code></a></li>
+</ul>
+<p>follow the conventions of the constructors of 3D Geometries of the ASTRA
+Toolbox. See <a class="reference external" href="http://www.astra-toolbox.com/docs/geom3d.html">http://www.astra-toolbox.com/docs/geom3d.html</a> for an overview.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="usage.html" class="btn btn-neutral float-right" title="Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="overview.html" class="btn btn-neutral" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Jan-Willem Buurlage.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

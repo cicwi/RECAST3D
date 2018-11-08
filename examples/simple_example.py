@@ -9,7 +9,7 @@ def callback(orientation, slice_id):
                              0, 0, 255, 255, 0, 0,
                              255], dtype='float32')
 
-serv = tomop.server("hi")
+serv = tomop.server("scene name")
 
 vdp = tomop.volume_data_packet(
     serv.scene_id(),

@@ -3,6 +3,7 @@ from py_tomop import *
 __all__ = (
   "server",
   "publisher",
+  "packet",
   "geometry_specification_packet",
   "parallel_beam_geometry_packet",
   "parallel_vec_geometry_packet",

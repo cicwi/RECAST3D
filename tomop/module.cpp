@@ -48,14 +48,26 @@ PYBIND11_MODULE(py_tomop, m) {
         hana::make_tuple("kill_scene_packet"s, hana::type_c<KillScenePacket>));
 
     hana::for_each(packets, [&](auto x) {
+        // 1) get C++ type
         using P = typename decltype(+(x[1_c]))::type;
 
+        // 2) get constructor args
         auto types = hana::transform(hana::members(P{}), [](auto member) {
             return hana::type_c<decltype(member)>;
         });
         using Init = typename decltype(hana::unpack(
             types, hana::template_<py::detail::initimpl::constructor>))::type;
-        py::class_<P, tomop::Packet>(m, x[0_c].c_str()).def(Init());
+
+        // 3) register class with Python
+        auto pack = py::class_<P, tomop::Packet>(m, x[0_c].c_str()).def(Init());
+        hana::fold(hana::accessors<P>(), std::ref(pack),
+                   [](py::class_<P, tomop::Packet>& c,
+                      auto ka) -> py::class_<P, tomop::Packet>& {
+                       return c.def(hana::first(ka).c_str(), [&ka](P& p) {
+                           return hana::second(ka)(p);
+                       });
+                   });
+
     });
 
     py::class_<tomop::server>(m, "server")

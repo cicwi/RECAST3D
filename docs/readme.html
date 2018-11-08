@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TomoPackets &mdash; tomopackets  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview" href="overview.html" />
+    <link rel="prev" title="Welcome to tomopackets’s documentation!" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> tomopackets
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Library</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TomoPackets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c">C++</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python">Python</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authors-and-contributors">Authors and contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#please-cite-us">Please Cite Us</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tomop.html">tomop package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tomopackets</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>TomoPackets</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/readme.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tomopackets">
+<span id="tomopackets"></span><h1>TomoPackets<a class="headerlink" href="#tomopackets" title="Permalink to this headline">¶</a></h1>
+<p>A library for real-time tomography pipelines based on ZeroMQ.</p>
+<p>This library defines a protocol for sending messages between the different
+components (scanners, reconstruction nodes, visualization workstations) for
+real-time tomographic reconstruction.</p>
+<div class="section" id="installation">
+<span id="installation"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dependencies">
+<span id="dependencies"></span><h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><em>pybind11</em>. Supplied as a git submodule. Run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">--init</span> <span class="pre">--remote</span> <span class="pre">--recursive</span></code> before following the language specific instructions below.</li>
+<li><em>ZeroMQ</em> (optional).</li>
+<li><em>cppzmq</em> (optional).</li>
+</ul>
+<p>If optional dependencies are not found using CMake <code class="docutils literal notranslate"><span class="pre">find_package</span></code>, they will be
+cloned as a git submodule and built from source.</p>
+</div>
+<div class="section" id="c">
+<span id="c"></span><h3>C++<a class="headerlink" href="#c" title="Permalink to this headline">¶</a></h3>
+<p>The easiest way to interface with tomopackets is using CMake. We define a
+<code class="docutils literal notranslate"><span class="pre">INTERFACE</span></code> target <code class="docutils literal notranslate"><span class="pre">tomop</span></code> that can be used as follows. We assume the
+TomoPackets repository is in <code class="docutils literal notranslate"><span class="pre">ext/tomop</span></code>. For example, by managing it as a Git
+submodule:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git submodule add https://www.github.com/cicwi/tomopackets ext/tomop
+git submodule update --init
+</pre></div>
+</div>
+<p>Next, add the repository as a subdirectory and link your targets against
+<code class="docutils literal notranslate"><span class="pre">tomop</span></code>.</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_subdirectory</span><span class="p">(</span><span class="s2">&quot;ext/tomop&quot;</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">your_program</span> <span class="s">tomop</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python">
+<span id="python"></span><h3>Python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
+<p>To install the library locally, simply run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e .
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="examples">
+<span id="examples"></span><h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>The following example sets up a reconstruction server for on-demand slice
+reconstruction:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tomop</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+
+<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">orientation</span><span class="p">,</span> <span class="n">slice_id</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;callback called&quot;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">orientation</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span>
+                             <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                             <span class="mi">255</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+
+<span class="n">serv</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">server</span><span class="p">(</span><span class="s2">&quot;hi&quot;</span><span class="p">)</span>
+
+<span class="n">vdp</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">volume_data_packet</span><span class="p">(</span>
+    <span class="n">serv</span><span class="o">.</span><span class="n">scene_id</span><span class="p">(),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;int32&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+
+<span class="n">serv</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">vdp</span><span class="p">)</span>
+
+<span class="n">serv</span><span class="o">.</span><span class="n">set_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<span class="n">serv</span><span class="o">.</span><span class="n">serve</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="authors-and-contributors">
+<span id="authors-and-contributors"></span><h2>Authors and contributors<a class="headerlink" href="#authors-and-contributors" title="Permalink to this headline">¶</a></h2>
+<p>Bulk is developed at Centrum Wiskunde &amp; Informatica (CWI) in Amsterdam by:</p>
+<ul class="simple">
+<li>Jan-Willem Buurlage (&#64;jwbuurlage)</li>
+</ul>
+<p>Also thanks to:</p>
+<ul class="simple">
+<li>Willem Jan Palenstijn (&#64;wjp)</li>
+</ul>
+</div>
+<div class="section" id="contributing">
+<span id="contributing"></span><h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<p>We welcome contributions. Please submit pull requests against the develop
+branch.</p>
+<p>If you have any issues, questions, or remarks, then please open an issue on
+GitHub.</p>
+</div>
+<div class="section" id="please-cite-us">
+<span id="please-cite-us"></span><h2>Please Cite Us<a class="headerlink" href="#please-cite-us" title="Permalink to this headline">¶</a></h2>
+<p>If you have used TomoPackets for a scientific publication, we would appreciate
+citations to the following paper:</p>
+<p><a class="reference external" href="https://doi.org/10.1088/1361-6501/aab754">Real-time quasi-3D tomographic reconstruction. JW Buurlage H Kohr WJ Palenstijn
+KJ Batenburg. Measurement Science and Technology
+(2018)</a></p>
+</div>
+<div class="section" id="license">
+<span id="license"></span><h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>This project is licensed under the GPL. See <code class="docutils literal notranslate"><span class="pre">LICENSE.md</span></code> for details.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to tomopackets’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Jan-Willem Buurlage.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
