@@ -26,6 +26,7 @@
 
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Conventions" href="conventions.html" />
@@ -56,6 +57,10 @@
 
           
             
+            
+              <div class="version">
+                1.0.0
+              </div>
             
           
 
@@ -188,7 +193,7 @@ then reconstruct these new slices.</p>
 <p>For real-time imaging experiments, there are many nodes at work at the same
 time. A rough overview of the topology that is recommended (but not required)
 for communication based on TomoPackets is as follows.</p>
-<img src="_images/graphviz-1e2edf5b364521577336e933062728e0b7ea4ef5.png" alt="digraph G {
+<div class="graphviz"><img src="_images/graphviz-ea230d983676c8e6524e6b3bdcdab88de67c8620.png" alt="digraph G {
   &quot;Scan Data&quot; -&gt; &quot;Adapter&quot;
   &quot;Adapter&quot; -&gt; &quot;Reconstructor&quot;
   &quot;Reconstructor&quot; -&gt; &quot;Visualizer&quot;
@@ -196,7 +201,7 @@ for communication based on TomoPackets is as follows.</p>
   &quot;Reconstructor&quot; -&gt; &quot;Plugin&quot;
   &quot;Plugin&quot; -&gt; &quot;...&quot;
   &quot;...&quot; -&gt; &quot;Visualizer&quot;
-}" />
+}" class="graphviz" /></div>
 <p>We have the following node types.</p>
 <ul class="simple">
 <li><strong>Scan Data</strong>. The entry point of the pipeline: data coming from the detector
@@ -289,7 +294,7 @@ plugin then sends it to the visualizer.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Jan-Willem Buurlage.
+        &copy; Copyright 2018, Jan-Willem Buurlage
 
     </p>
   </div>
@@ -308,21 +313,14 @@ plugin then sends it to the visualizer.</li>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'',
-            LANGUAGE:'en',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

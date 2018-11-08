@@ -18,6 +18,15 @@ struct GeometrySpecificationPacket
                              (std::array<float, 3>, volume_max_point));
 };
 
+struct ScanSettingsPacket : public PacketBase<ScanSettingsPacket> {
+    static const auto desc = packet_desc::scan_settings;
+    ScanSettingsPacket() = default;
+    ScanSettingsPacket(int32_t a, int32_t b, int32_t c)
+        : scene_id(a), darks(b), flats(c) {}
+    BOOST_HANA_DEFINE_STRUCT(ScanSettingsPacket, (int32_t, scene_id),
+                             (int32_t, darks), (int32_t, flats));
+};
+
 struct ParallelBeamGeometryPacket
     : public PacketBase<ParallelBeamGeometryPacket> {
     static const auto desc = packet_desc::parallel_beam_geometry;

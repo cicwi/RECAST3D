@@ -19,6 +19,8 @@ PYBIND11_MODULE(py_tomop, m) {
     auto packets = hana::make_tuple(
         hana::make_tuple("geometry_specification_packet"s,
                          hana::type_c<GeometrySpecificationPacket>),
+        hana::make_tuple("scan_settings_packet"s,
+                         hana::type_c<ScanSettingsPacket>),
         hana::make_tuple("parallel_beam_geometry_packet"s,
                          hana::type_c<ParallelBeamGeometryPacket>),
         hana::make_tuple("parallel_vec_geometry_packet"s,

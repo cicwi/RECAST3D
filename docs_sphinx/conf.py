@@ -24,7 +24,7 @@ copyright = '2018, Jan-Willem Buurlage'
 author = 'Jan-Willem Buurlage'
 
 # The short X.Y version
-version = ''
+version = '1.0.0'
 # The full version, including alpha/beta/rc tags
 release = ''
 
