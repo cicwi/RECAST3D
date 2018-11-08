@@ -14,6 +14,23 @@ find_package(glm REQUIRED)
 
 ## DEPENDENCIES
 # --------------------------------------------------------------------------------------------
+# GLFW
+find_package(glfw3 QUIET)
+if (glfw3_FOUND)
+    add_library(glfw3 INTERFACE)
+    target_include_directories(glfw3 INTERFACE ${glfw3_INCLUDE_DIR})
+    target_link_libraries(glfw3 INTERFACE ${glfw3_LIBRARY} glfw)
+else()
+    message("'glfw3' not installed on the system, building from source...")
+
+    execute_process(COMMAND git submodule update --init -- ext/glfw
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/glfw)
+    set(glfw3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/glfw/include)
+endif()
+
+# --------------------------------------------------------------------------------------------
 # ImGui
 execute_process(COMMAND git submodule update --init -- ext/imgui
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
@@ -35,6 +52,7 @@ set_source_files_properties(
 )
 
 add_library(imgui ${IMGUI_SOURCE_NAMES}) 
+target_link_libraries(imgui PUBLIC glfw)
 target_include_directories(imgui PUBLIC
     "ext/imgui"
     "ext/imgui/examples/libs/gl3w/"
@@ -92,23 +110,6 @@ endif()
 # --------------------------------------------------------------------------------------------
 # OpenGL
 find_package(OpenGL)
-
-# --------------------------------------------------------------------------------------------
-# GLFW
-find_package(glfw3 QUIET)
-if (glfw3_FOUND)
-    add_library(glfw3 INTERFACE)
-    target_include_directories(glfw3 INTERFACE ${glfw3_INCLUDE_DIR})
-    target_link_libraries(glfw3 INTERFACE ${glfw3_LIBRARY} glfw)
-else()
-    message("'glfw3' not installed on the system, building from source...")
-
-    execute_process(COMMAND git submodule update --init -- ext/glfw
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-
-    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/glfw)
-    set(glfw3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/glfw/include)
-endif()
 
 # --------------------------------------------------------------------------------------------
 # Eigen
