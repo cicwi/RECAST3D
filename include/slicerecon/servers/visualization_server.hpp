@@ -214,8 +214,8 @@ class visualization_server : public listener {
 
         if (!result.first.empty()) {
             auto data_packet =
-                tomop::SliceDataPacket(scene_id_, slice_id, result.first, false,
-                                       std::move(result.second));
+                tomop::SliceDataPacket(scene_id_, slice_id, result.first,
+                                       std::move(result.second), false);
             send(data_packet, true);
         }
     }
