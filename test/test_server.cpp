@@ -1,6 +1,16 @@
 #include "tomop/tomop.hpp"
 
 int main() {
+    // initial checks
+    auto p1 = tomop::MakeScenePacket("a", 3);
+    auto p2 = tomop::MakeScenePacket{};
+    auto buffer = p1.serialize();
+    buffer.index = 0;
+    p2.deserialize(std::move(buffer));
+
+    std::cout << p2.name << "\n";
+    assert(p2.dimension == 3);
+
     // 1. make server
     tomop::server server("test server");
 

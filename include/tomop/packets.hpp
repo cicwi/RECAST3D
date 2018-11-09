@@ -56,7 +56,8 @@ struct Packet {
 
 template <typename Derived, typename Buffer>
 void fill(Derived& base, Buffer& buffer) {
-    hana::for_each(base, [&](auto pair) { buffer | hana::second(pair); });
+    hana::for_each(hana::accessors<Derived>(),
+                   [&](auto pair) { buffer | hana::second(pair)(base); });
 }
 
 template <class Derived>
