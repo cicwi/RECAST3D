@@ -60,8 +60,8 @@ packet_vol_geom = tomop.geometry_specification_packet(0, [
 if not args.skipgeometry:
     pub.send(packet_vol_geom)
 
-packet_geometry = tomop.cone_vec_packet(0, rows, cols, proj_count,
-                                        proj_geom['Vectors'].flatten())
+packet_geometry = tomop.cone_vec_geometry_packet(0, rows, cols, proj_count,
+                                                 proj_geom['Vectors'].flatten())
 
 if not args.skipgeometry:
     pub.send(packet_geometry)
