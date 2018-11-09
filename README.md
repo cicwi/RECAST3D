@@ -10,8 +10,11 @@ real-time tomographic reconstruction.
 
 ### Dependencies
 
-- _pybind11_. Supplied as a git submodule. Run `git submodule --init --remote
-  --recursive` before following the language specific instructions below.
+- _Boost_ (required). We use Boost.Hana for struct introspection. CMake tries to
+  find Boost with `find_package`.
+- _pybind11_ (submodule). Supplied as a git submodule. Run `git submodule --init
+  --remote --recursive` before following the language specific instructions
+  below.
 - _ZeroMQ_ (optional).
 - _cppzmq_ (optional).
 
