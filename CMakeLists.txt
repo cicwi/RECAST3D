@@ -3,6 +3,8 @@ include(FindPkgConfig)
 
 project(tomopackets)
 
+option(TOMOP_LIB_ONLY "Do not build python bindings")
+
 include_directories(
     "include"
 )
@@ -67,6 +69,7 @@ set(
     "Boost::boost"
 )
 
+if (NOT TOMOP_LIB_ONLY)
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})
 target_link_libraries(${EXEC_NAME} ${LIB_NAMES})
 target_compile_options(${EXEC_NAME} PRIVATE ${CXX_FLAGS})
@@ -79,6 +82,7 @@ set(BINDING_SOURCES "tomop/module.cpp")
 pybind11_add_module(${BINDING_NAME} ${BINDING_SOURCES})
 target_link_libraries(${BINDING_NAME} PRIVATE ${LIB_NAMES})
 target_compile_options(${BINDING_NAME} PRIVATE ${CXX_FLAGS})
+endif()
 
 add_library(tomop INTERFACE)
 target_include_directories(tomop INTERFACE "include")
