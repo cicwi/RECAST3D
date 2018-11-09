@@ -14,9 +14,8 @@ namespace tomovis {
 
 using namespace tomop;
 
-Server::Server(SceneList& scenes) : scenes_(scenes),
-                      context_(),
-                      publisher_socket_(context_, ZMQ_PUB) {
+Server::Server(SceneList& scenes)
+    : scenes_(scenes), context_(), publisher_socket_(context_, ZMQ_PUB) {
     scenes_.add_listener(this);
 }
 
@@ -51,8 +50,8 @@ void Server::start() {
             }
 
             // forward the packet to the handler
-            packets_.push(std::move(
-                modules_[desc]->read_packet(desc, buffer, socket, scenes_)));
+            packets_.push({desc, std::move(modules_[desc]->read_packet(
+                                     desc, buffer, socket, scenes_))});
         }
     });
 
@@ -64,8 +63,9 @@ void Server::tick(float) {
         auto event_packet = std::move(packets_.front());
         packets_.pop();
 
-        modules_[event_packet->desc]->process(scenes_, std::move(event_packet));
+        modules_[event_packet.first]->process(scenes_, event_packet.first,
+                                              std::move(event_packet.second));
     }
 }
 
-}  // namespace tomovis
+} // namespace tomovis

@@ -63,9 +63,9 @@ class ReconstructionProtocol : public SceneModuleProtocol {
         }
     }
 
-    void process(SceneList& scenes,
+    void process(SceneList& scenes, packet_desc desc,
                  std::unique_ptr<Packet> event_packet) override {
-        switch (event_packet->desc) {
+        switch (desc) {
         case packet_desc::slice_data: {
             SliceDataPacket& packet = *(SliceDataPacket*)event_packet.get();
             auto scene = scenes.get_scene(packet.scene_id);

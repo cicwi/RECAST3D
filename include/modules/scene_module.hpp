@@ -21,7 +21,7 @@ class SceneModuleProtocol {
                                                 memory_buffer& buffer,
                                                 zmq::socket_t& socket,
                                                 SceneList& scenes_) = 0;
-    virtual void process(SceneList& scenes,
+    virtual void process(SceneList& scenes, packet_desc desc,
                          std::unique_ptr<Packet> event_packet) = 0;
 
     virtual std::vector<packet_desc> descriptors() = 0;

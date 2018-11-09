@@ -56,7 +56,7 @@ class Server : public Ticker, public PacketListener {
     std::thread server_thread;
 
     /** Filled by server thread, performed by 'OpenGL' tread */
-    std::queue<std::unique_ptr<Packet>> packets_;
+    std::queue<std::pair<packet_desc, std::unique_ptr<Packet>>> packets_;
 
     zmq::context_t context_;
     zmq::socket_t publisher_socket_;

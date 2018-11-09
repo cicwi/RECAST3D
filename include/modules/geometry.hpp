@@ -48,9 +48,9 @@ class GeometryProtocol : public SceneModuleProtocol {
         }
     }
 
-    void process(SceneList& scenes,
+    void process(SceneList& scenes, packet_desc desc,
                  std::unique_ptr<Packet> event_packet) override {
-        switch (event_packet->desc) {
+        switch (desc) {
         case packet_desc::geometry_specification: {
             GeometrySpecificationPacket& packet =
                 *(GeometrySpecificationPacket*)event_packet.get();

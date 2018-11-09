@@ -87,7 +87,7 @@ endif()
 # ZeroMQ
 find_package(ZeroMQ QUIET)
 
-if (ZeroMQ_FOUND)
+if (ZeroMQ_FOUND AND NOT TARGET zmq)
     add_library(zmq INTERFACE)
     target_include_directories(zmq INTERFACE ${ZeroMQ_INCLUDE_DIR})
     target_link_libraries(zmq INTERFACE ${ZeroMQ_LIBRARY})
