@@ -73,9 +73,9 @@ struct PacketBase : public Packet {
             packet_size = size();
         }
         memory_buffer buffer(packet_size);
-        buffer << Derived::desc;
 
         auto im = imembuf<memory_buffer>(buffer);
+        im | Derived::desc;
         fill(*(Derived*)this, im);
 
         return buffer;
@@ -91,6 +91,7 @@ struct PacketBase : public Packet {
     void serialize(zmq::message_t& request) const override {
         memory_span buffer(request.size(), (char*)request.data());
         auto im = imembuf<memory_span>(buffer);
+        im | Derived::desc;
         fill(*(Derived*)this, im);
     }
 
