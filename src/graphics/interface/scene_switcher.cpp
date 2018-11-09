@@ -50,9 +50,9 @@ void SceneSwitcher::describe() {
             if (ImGui::MenuItem("Next scene", "ctrl + n")) {
                 next_scene();
             }
-            if (ImGui::MenuItem("Add scene", "ctrl + a")) {
-                add_scene();
-            }
+//            if (ImGui::MenuItem("Add scene", "ctrl + a")) {
+//                add_scene();
+//            }
             if (ImGui::MenuItem("Add scene (3D)", "ctrl + b")) {
                 add_scene_3d();
             }
@@ -164,10 +164,10 @@ bool SceneSwitcher::handle_key(int key, bool down, int mods) {
         next_scene();
         return true;
     }
-    if (down && key == GLFW_KEY_A && (mods & GLFW_MOD_CONTROL)) {
-        add_scene();
-        return true;
-    }
+//    if (down && key == GLFW_KEY_A && (mods & GLFW_MOD_CONTROL)) {
+//        add_scene();
+//        return true;
+//    }
     if (down && key == GLFW_KEY_B && (mods & GLFW_MOD_CONTROL)) {
         add_scene_3d();
         return true;
@@ -200,9 +200,10 @@ void SceneSwitcher::next_scene() {
 }
 
 void SceneSwitcher::add_scene() {
-    std::stringstream ss;
-    ss << "Scene #" << scenes_.scenes().size() + 1;
-    scenes_.set_active_scene(scenes_.add_scene(ss.str()));
+    std::cout << "2D scenes are disabled\n";
+//    std::stringstream ss;
+//    ss << "Scene #" << scenes_.scenes().size() + 1;
+//    scenes_.set_active_scene(scenes_.add_scene(ss.str()));
 }
 
 void SceneSwitcher::add_scene_3d() {
