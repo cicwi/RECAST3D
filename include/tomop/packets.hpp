@@ -83,21 +83,22 @@ struct PacketBase : public Packet {
 
     void deserialize(memory_buffer buffer) override {
         auto om = omembuf<memory_buffer>(buffer);
+        packet_desc dummy;
+        om | dummy;
         fill(*(Derived*)this, om);
     }
 
     void serialize(zmq::message_t& request) const override {
         memory_span buffer(request.size(), (char*)request.data());
-        buffer << Derived::desc;
-
         auto im = imembuf<memory_span>(buffer);
         fill(*(Derived*)this, im);
     }
 
     void deserialize(zmq::message_t& request) override {
         memory_span buffer(request.size(), (char*)request.data());
-
         auto om = omembuf<memory_span>(buffer);
+        packet_desc dummy;
+        om | dummy;
         fill(*(Derived*)this, om);
     }
 };

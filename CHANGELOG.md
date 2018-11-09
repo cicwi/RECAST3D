@@ -11,6 +11,9 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - Add `ScanSettingsPacket` for setting number of darks/flats.
 
+### Fixed
+- Fix deserialization to include descriptor
+
 ## 1.0.0-rc1 - 2018-11-08
 
 Candidate for initial release. Changes are compared to previous development

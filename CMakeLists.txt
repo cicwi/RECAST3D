@@ -19,6 +19,7 @@ set(
 
 # --------------------------------------------------------------------------------------------
 # ZeroMQ
+if (NOT TARGET zmq)
 find_package(ZeroMQ QUIET)
 
 if (ZeroMQ_FOUND)
@@ -40,11 +41,12 @@ else()
     add_library(zmq INTERFACE)
     target_link_libraries(zmq INTERFACE libzmq)
 endif()
+endif()
 # --------------------------------------------------------------------------------------------
 # cppzmq
 
 find_package(cppzmq QUIET)
-if (NOT cppzmq_FOUND)
+if (NOT cppzmq_FOUND AND NOT TARGET cppzmq)
   execute_process(COMMAND git submodule update --init -- ext/cppzmq
       WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
