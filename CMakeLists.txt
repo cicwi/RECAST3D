@@ -143,10 +143,7 @@ endif()
 execute_process(COMMAND git submodule update --init -- ext/tomopackets
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-# TODO move to tomopackets
-add_library(tomop INTERFACE)
-target_include_directories(tomop INTERFACE ext/tomopackets/include)
-target_link_libraries(tomop INTERFACE cppzmq zmq)
+add_subdirectory(ext/tomopackets)
 
 # --------------------------------------------------------------------------------------------
 
