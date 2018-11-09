@@ -106,6 +106,7 @@ int main(int argc, char** argv) {
     }
 
     if (py_plugin) {
+        std::cout << "Registering plugin at 5652\n";
         viz.register_plugin("tcp://localhost:5652");
     }
 
