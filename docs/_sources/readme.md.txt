@@ -10,8 +10,11 @@ real-time tomographic reconstruction.
 
 ### Dependencies
 
-- _pybind11_. Supplied as a git submodule. Run `git submodule --init --remote
-  --recursive` before following the language specific instructions below.
+- _Boost_ (required). We use Boost.Hana for struct introspection. CMake tries to
+  find Boost with `find_package`.
+- _pybind11_ (submodule). Supplied as a git submodule. Run `git submodule --init
+  --remote --recursive` before following the language specific instructions
+  below.
 - _ZeroMQ_ (optional).
 - _cppzmq_ (optional).
 
@@ -78,7 +81,7 @@ serv.serve()
 
 ## Authors and contributors
 
-Bulk is developed at Centrum Wiskunde & Informatica (CWI) in Amsterdam by:
+TomoPackets is developed at Centrum Wiskunde & Informatica (CWI) in Amsterdam by:
 
 * Jan-Willem Buurlage (@jwbuurlage)
 
@@ -99,8 +102,8 @@ GitHub.
 If you have used TomoPackets for a scientific publication, we would appreciate
 citations to the following paper:
 
-[Real-time quasi-3D tomographic reconstruction. JW Buurlage H Kohr WJ Palenstijn
-KJ Batenburg. Measurement Science and Technology
+[Real-time quasi-3D tomographic reconstruction. JW Buurlage, H Kohr, WJ
+Palenstijn, KJ Batenburg. Measurement Science and Technology
 (2018)](https://doi.org/10.1088/1361-6501/aab754)
 
 ## License

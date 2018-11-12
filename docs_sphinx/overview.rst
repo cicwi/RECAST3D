@@ -34,15 +34,15 @@ for communication based on TomoPackets is as follows.
 
 .. graphviz::
 
-  digraph G {
-    "Scan Data" -> "Adapter"
-    "Adapter" -> "Reconstructor"
-    "Reconstructor" -> "Visualizer" 
-    "Visualizer" -> "Reconstructor" 
-    "Reconstructor" -> "Plugin"
-    "Plugin" -> "..."
-    "..." -> "Visualizer"
-  }
+    digraph G {
+      "Scan Data" -> "Adapter"
+      "Adapter" -> "Reconstructor"
+      "Reconstructor" -> "Visualizer" 
+      "Visualizer" -> "Reconstructor" 
+      "Reconstructor" -> "Plugin"
+      "Plugin" -> "..."
+      "..." -> "Visualizer"
+    }
 
 We have the following node types.
 
