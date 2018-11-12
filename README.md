@@ -81,7 +81,7 @@ serv.serve()
 
 ## Authors and contributors
 
-Bulk is developed at Centrum Wiskunde & Informatica (CWI) in Amsterdam by:
+TomoPackets is developed at Centrum Wiskunde & Informatica (CWI) in Amsterdam by:
 
 * Jan-Willem Buurlage (@jwbuurlage)
 
