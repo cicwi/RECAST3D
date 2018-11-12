@@ -198,6 +198,8 @@ class reconstructor {
             received_flats_++;
             break;
         }
+        default:
+            break;
         }
     }
 
@@ -213,6 +215,11 @@ class reconstructor {
     settings parameters() { return parameters_; }
     acquisition::geometry geometry() { return geom_; }
     bool initialized() const { return initialized_; }
+
+    void set_scan_settings(int darks, int flats) {
+        parameters_.darks = darks;
+        parameters_.flats = flats;
+    }
 
   private:
     std::vector<float> average_(std::vector<float> all) {

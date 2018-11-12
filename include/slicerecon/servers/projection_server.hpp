@@ -48,6 +48,16 @@ class projection_server {
                 auto buffer = (char*)update.data();
 
                 switch (desc) {
+                case tomop::packet_desc::scan_settings: {
+                  auto mbuffer = tomop::memory_buffer(update.size(),
+                                                      (char*)update.data());
+                  auto packet =
+                    std::make_unique<tomop::ScanSettingsPacket>();
+                  packet->deserialize(std::move(mbuffer));
+
+                  pool_.set_scan_settings(packet->darks, packet->flats);
+                  break;
+                }
                 case tomop::packet_desc::projection: {
                     auto index = sizeof(tomop::packet_desc);
 
