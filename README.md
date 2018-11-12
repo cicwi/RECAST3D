@@ -69,27 +69,27 @@ p.listen()
 Host a projection and visualization server:
 
 ```cpp
-    // ...
-    // 1. setup reconstructor
-    auto recon = std::make_unique<slicerecon::reconstructor>(params);
+// ...
+// 1. setup reconstructor
+auto recon = std::make_unique<slicerecon::reconstructor>(params);
 
-    // 2. listen to projection stream
-    // projection callback, push to projection stream
-    // all raw data
-    auto proj = slicerecon::projection_server(host, port, *recon,
-                                              use_reqrep ? ZMQ_REP : ZMQ_PULL);
-    proj.serve();
+// 2. listen to projection stream
+// projection callback, push to projection stream
+// all raw data
+auto proj = slicerecon::projection_server(host, port, *recon,
+                                          use_reqrep ? ZMQ_REP : ZMQ_PULL);
+proj.serve();
 
-    // 3. connect with (recast3d) visualization server
-    auto viz = slicerecon::visualization_server(
-        "slicerecon test", "tcp://"s + recast_host + ":5555"s,
-        "tcp://"s + recast_host + ":5556"s);
-    viz.set_slice_callback(
-        [&](auto x, auto idx) { return recon->reconstruct_slice(x); });
+// 3. connect with (recast3d) visualization server
+auto viz = slicerecon::visualization_server(
+    "slicerecon test", "tcp://"s + recast_host + ":5555"s,
+    "tcp://"s + recast_host + ":5556"s);
+viz.set_slice_callback(
+    [&](auto x, auto idx) { return recon->reconstruct_slice(x); });
 
-    recon->add_listener(&viz);
-    viz.serve();
-    // ...
+recon->add_listener(&viz);
+viz.serve();
+// ...
 ```
 
 ## Authors and contributors
@@ -109,7 +109,7 @@ If you have any issues, questions, or remarks, then please open an issue on GitH
 
 ## Please Cite Us
 
-If you have used TomoPackets for a scientific publication, we would appreciate
+If you have used SliceRecon for a scientific publication, we would appreciate
 citations to the following paper:
 
 [Real-time quasi-3D tomographic reconstruction. JW Buurlage H Kohr WJ Palenstijn
