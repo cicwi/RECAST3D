@@ -35,7 +35,7 @@ components of the live reconstruction software stack.
 
 !!! warning
     If you have trouble following this guide, please first see the documentation
-    of each individual packet for the most up-to-date installation instructions.
+    of each individual package for the most up-to-date installation instructions.
     If that still does not help, [please let us know](https://github.com/cicwi/RECAST3D/issues)!.
 
 ### 0. (optional) Setting up a fresh _Conda_ or _VirtualEnv_ environment
