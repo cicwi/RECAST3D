@@ -10,4 +10,4 @@
 
 - Initial release.
 
-[Unreleased]: https://github.com/cicwi/tomopackets/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/cicwi/RECAST3D/compare/v0.1.0...develop
