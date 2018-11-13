@@ -50,9 +50,9 @@ void SceneSwitcher::describe() {
             if (ImGui::MenuItem("Next scene", "ctrl + n")) {
                 next_scene();
             }
-//            if (ImGui::MenuItem("Add scene", "ctrl + a")) {
-//                add_scene();
-//            }
+            //            if (ImGui::MenuItem("Add scene", "ctrl + a")) {
+            //                add_scene();
+            //            }
             if (ImGui::MenuItem("Add scene (3D)", "ctrl + b")) {
                 add_scene_3d();
             }
@@ -60,10 +60,10 @@ void SceneSwitcher::describe() {
                 delete_scene();
             }
             if (ImGui::MenuItem("Add movie", "ctrl + m")) {
-                show_movie_modal();
+                // show_movie_modal();
             }
             if (ImGui::MenuItem("Load dataset", "ctrl + l")) {
-                show_dataset_modal();
+                // show_dataset_modal();
             }
 
             if (scenes_.active_scene()) {
@@ -137,9 +137,10 @@ void SceneSwitcher::describe() {
 
             ImGui::Separator();
 
-            const char* listbox_items[] = { "FleX-ray", "HDF5"};
+            const char* listbox_items[] = {"FleX-ray", "HDF5"};
             static int listbox_item_current = 0;
-            ImGui::ListBox("Dataset type", &listbox_item_current, listbox_items, IM_ARRAYSIZE(listbox_items));
+            ImGui::ListBox("Dataset type", &listbox_item_current, listbox_items,
+                           IM_ARRAYSIZE(listbox_items));
 
             if (ImGui::Button("OK")) {
                 add_dataset_scene(str0);
@@ -164,20 +165,20 @@ bool SceneSwitcher::handle_key(int key, bool down, int mods) {
         next_scene();
         return true;
     }
-//    if (down && key == GLFW_KEY_A && (mods & GLFW_MOD_CONTROL)) {
-//        add_scene();
-//        return true;
-//    }
+    //    if (down && key == GLFW_KEY_A && (mods & GLFW_MOD_CONTROL)) {
+    //        add_scene();
+    //        return true;
+    //    }
     if (down && key == GLFW_KEY_B && (mods & GLFW_MOD_CONTROL)) {
         add_scene_3d();
         return true;
     }
     if (down && key == GLFW_KEY_M && (mods & GLFW_MOD_CONTROL)) {
-        show_movie_modal();
+        // show_movie_modal();
         return true;
     }
     if (down && key == GLFW_KEY_L && (mods & GLFW_MOD_CONTROL)) {
-        show_dataset_modal();
+        // show_dataset_modal();
         return true;
     }
     if (down && key == GLFW_KEY_D && (mods & GLFW_MOD_CONTROL)) {
@@ -201,9 +202,9 @@ void SceneSwitcher::next_scene() {
 
 void SceneSwitcher::add_scene() {
     std::cout << "2D scenes are disabled\n";
-//    std::stringstream ss;
-//    ss << "Scene #" << scenes_.scenes().size() + 1;
-//    scenes_.set_active_scene(scenes_.add_scene(ss.str()));
+    //    std::stringstream ss;
+    //    ss << "Scene #" << scenes_.scenes().size() + 1;
+    //    scenes_.set_active_scene(scenes_.add_scene(ss.str()));
 }
 
 void SceneSwitcher::add_scene_3d() {
@@ -235,7 +236,8 @@ void SceneSwitcher::add_dataset_scene(std::string location) {
     // Q: multiple reconsruction scenes cannot be held in GPU memory.. make
     // reconstruction scene exclusive?
     // Q: how do we delete a scene if it already exists
-    // 1b. we want to kill the server when scene is deleted, add delete scene package
+    // 1b. we want to kill the server when scene is deleted, add delete scene
+    // package
     // 2. make a scene with recon component to the appropriate server
 }
 

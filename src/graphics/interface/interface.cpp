@@ -1,3 +1,4 @@
+#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -29,6 +30,7 @@ Interface::Interface(GLFWwindow* window) {
     if (infile.good()) {
         io.Fonts->AddFontFromFileTTF(other_font.c_str(), 20.0f);
     } else {
+        std::cout << "Can not find Iosevka font, resorting back to default\n";
         io.Fonts->AddFontDefault();
     }
     io.MouseDrawCursor = false;
