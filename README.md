@@ -3,7 +3,7 @@ RECAST3D
 
 REConstruction of Arbitrary Slices in Tomography
 
-![](docs/logo.png)
+![](docs/preview_usage.gif)
 
 Dependencies
 ============
