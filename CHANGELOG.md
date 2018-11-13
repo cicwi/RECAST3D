@@ -1,6 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.0-rc.1] - 2018-11-13
+### Added
+- Add documentation
+- Improved build scripts 
+- Use TomoPackets v1.0.0
+
 ### Removed
 - Disable 2D scenes
 - Disable movie scenes
@@ -10,4 +15,4 @@
 
 - Initial release.
 
-[Unreleased]: https://github.com/cicwi/RECAST3D/compare/v0.1.0...develop
+[1.0.0-rc.1]: https://github.com/cicwi/RECAST3D/compare/v0.1.0...v1.0.0-rc.1
