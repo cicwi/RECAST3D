@@ -5,6 +5,7 @@ __all__ = (
   "publisher",
   "packet",
   "geometry_specification_packet",
+  "scan_settings_packet",
   "parallel_beam_geometry_packet",
   "parallel_vec_geometry_packet",
   "cone_beam_geometry_packet",
