@@ -105,12 +105,12 @@ Next, we need to install the dependencies.
 
 !!! warning
     The software requires a development version of the ASTRA toolbox,
-    that was not yet available publically on 2018-11-13. These changes are
-    intended to be released in ASTRA v1.9.
+    available from [the ASTRA repository on github](https://github.com/astra-toolbox/astra-toolbox).
+    The required functionality will be released in ASTRA v1.9.
 
 First, we have to install the [ASTRA toolbox](http://www.astra-toolbox.com/). We
 need ASTRA with CUDA support, and install it in such a way so that `pkg-config`
-is able to find the library. See the ASTRA documentation for details.
+is able to find the library. See the ASTRA documentation for details on installing ASTRA as a C++ library.
 
 !!! note
     On CI CWI workstations, you can use the module system: `module load libastra/git`.
