@@ -112,8 +112,8 @@ If you have any issues, questions, or remarks, then please open an issue on GitH
 If you have used SliceRecon for a scientific publication, we would appreciate
 citations to the following paper:
 
-[Real-time quasi-3D tomographic reconstruction. JW Buurlage, H Kohr, WJ
-Palenstijn, KJ Batenburg. Measurement Science and Technology
+[Real-time quasi-3D tomographic reconstruction. JW Buurlage H Kohr WJ Palenstijn
+KJ Batenburg. Measurement Science and Technology
 (2018)](https://doi.org/10.1088/1361-6501/aab754)
 
 ## License
