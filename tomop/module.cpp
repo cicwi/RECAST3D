@@ -60,8 +60,17 @@ PYBIND11_MODULE(py_tomop, m) {
         using Init = typename decltype(hana::unpack(
             types, hana::template_<py::detail::initimpl::constructor>))::type;
 
+        // We also want to add named arguments to the constructor
+        auto names = hana::transform(
+            hana::keys(P{}), [](auto key) { return py::arg(key.c_str()); });
+        auto indirection = [&](auto... args) {
+            auto pack = py::class_<P, tomop::Packet>(m, x[0_c].c_str())
+                            .def(Init(), args...);
+            return pack;
+        };
+
         // 3) register class with Python
-        auto pack = py::class_<P, tomop::Packet>(m, x[0_c].c_str()).def(Init());
+        auto pack = hana::unpack(names, indirection);
         hana::fold(hana::accessors<P>(), std::ref(pack),
                    [](py::class_<P, tomop::Packet>& c,
                       auto ka) -> py::class_<P, tomop::Packet>& {
@@ -69,7 +78,6 @@ PYBIND11_MODULE(py_tomop, m) {
                            return hana::second(ka)(p);
                        });
                    });
-
     });
 
     py::class_<tomop::server>(m, "server")

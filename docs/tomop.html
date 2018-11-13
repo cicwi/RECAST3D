@@ -231,7 +231,7 @@
 
 <dl class="class">
 <dt id="tomop.geometry_specification_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">geometry_specification_packet</code><span class="sig-paren">(</span><em>self: py_tomop.geometry_specification_packet, arg0: int, arg1: List[float[3]], arg2: List[float[3]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.geometry_specification_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">geometry_specification_packet</code><span class="sig-paren">(</span><em>self: py_tomop.geometry_specification_packet, scene_id: int, volume_min_point: List[float[3]], volume_max_point: List[float[3]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.geometry_specification_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.geometry_specification_packet.scene_id">
@@ -252,7 +252,7 @@
 
 <dl class="class">
 <dt id="tomop.scan_settings_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">scan_settings_packet</code><span class="sig-paren">(</span><em>self: py_tomop.scan_settings_packet</em>, <em>arg0: int</em>, <em>arg1: int</em>, <em>arg2: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.scan_settings_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">scan_settings_packet</code><span class="sig-paren">(</span><em>self: py_tomop.scan_settings_packet</em>, <em>scene_id: int</em>, <em>darks: int</em>, <em>flats: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.scan_settings_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.scan_settings_packet.darks">
@@ -273,7 +273,7 @@
 
 <dl class="class">
 <dt id="tomop.parallel_beam_geometry_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">parallel_beam_geometry_packet</code><span class="sig-paren">(</span><em>self: py_tomop.parallel_beam_geometry_packet, arg0: int, arg1: int, arg2: int, arg3: int, arg4: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.parallel_beam_geometry_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">parallel_beam_geometry_packet</code><span class="sig-paren">(</span><em>self: py_tomop.parallel_beam_geometry_packet, scene_id: int, rows: int, cols: int, proj_count: int, angles: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.parallel_beam_geometry_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.parallel_beam_geometry_packet.angles">
@@ -304,7 +304,7 @@
 
 <dl class="class">
 <dt id="tomop.parallel_vec_geometry_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">parallel_vec_geometry_packet</code><span class="sig-paren">(</span><em>self: py_tomop.parallel_vec_geometry_packet, arg0: int, arg1: int, arg2: int, arg3: int, arg4: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.parallel_vec_geometry_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">parallel_vec_geometry_packet</code><span class="sig-paren">(</span><em>self: py_tomop.parallel_vec_geometry_packet, scene_id: int, rows: int, cols: int, proj_count: int, vectors: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.parallel_vec_geometry_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.parallel_vec_geometry_packet.cols">
@@ -335,7 +335,7 @@
 
 <dl class="class">
 <dt id="tomop.cone_beam_geometry_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">cone_beam_geometry_packet</code><span class="sig-paren">(</span><em>self: py_tomop.cone_beam_geometry_packet, arg0: int, arg1: int, arg2: int, arg3: int, arg4: float, arg5: float, arg6: List[float[2]], arg7: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.cone_beam_geometry_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">cone_beam_geometry_packet</code><span class="sig-paren">(</span><em>self: py_tomop.cone_beam_geometry_packet, scene_id: int, rows: int, cols: int, proj_count: int, source_origin: float, origin_det: float, detector_size: List[float[2]], angles: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.cone_beam_geometry_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.cone_beam_geometry_packet.angles">
@@ -381,7 +381,7 @@
 
 <dl class="class">
 <dt id="tomop.cone_vec_geometry_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">cone_vec_geometry_packet</code><span class="sig-paren">(</span><em>self: py_tomop.cone_vec_geometry_packet, arg0: int, arg1: int, arg2: int, arg3: int, arg4: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.cone_vec_geometry_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">cone_vec_geometry_packet</code><span class="sig-paren">(</span><em>self: py_tomop.cone_vec_geometry_packet, scene_id: int, rows: int, cols: int, proj_count: int, vectors: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.cone_vec_geometry_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.cone_vec_geometry_packet.cols">
@@ -412,7 +412,7 @@
 
 <dl class="class">
 <dt id="tomop.projection_data_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">projection_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.projection_data_packet, arg0: int, arg1: int, arg2: List[float[3]], arg3: List[float[9]], arg4: List[int[2]], arg5: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.projection_data_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">projection_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.projection_data_packet, scene_id: int, projection_id: int, source_position: List[float[3]], detector_orientation: List[float[9]], detector_pixels: List[int[2]], data: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.projection_data_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.projection_data_packet.data">
@@ -448,7 +448,7 @@
 
 <dl class="class">
 <dt id="tomop.partial_projection_data_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">partial_projection_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.partial_projection_data_packet, arg0: int, arg1: int, arg2: List[float[3]], arg3: List[float[9]], arg4: List[int[2]], arg5: List[int[2]], arg6: List[int[2]], arg7: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.partial_projection_data_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">partial_projection_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.partial_projection_data_packet, scene_id: int, projection_id: int, source_position: List[float[3]], detector_orientation: List[float[9]], detector_pixels: List[int[2]], partial_offset: List[int[2]], partial_size: List[int[2]], data: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.partial_projection_data_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.partial_projection_data_packet.data">
@@ -494,7 +494,7 @@
 
 <dl class="class">
 <dt id="tomop.projection_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">projection_packet</code><span class="sig-paren">(</span><em>self: py_tomop.projection_packet, arg0: int, arg1: int, arg2: List[int[2]], arg3: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.projection_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">projection_packet</code><span class="sig-paren">(</span><em>self: py_tomop.projection_packet, type: int, projection_id: int, shape: List[int[2]], data: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.projection_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.projection_packet.data">
@@ -520,7 +520,7 @@
 
 <dl class="class">
 <dt id="tomop.set_part_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">set_part_packet</code><span class="sig-paren">(</span><em>self: py_tomop.set_part_packet, arg0: int, arg1: int, arg2: List[float[3]], arg3: List[float[3]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.set_part_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">set_part_packet</code><span class="sig-paren">(</span><em>self: py_tomop.set_part_packet, scene_id: int, part_id: int, min_pt: List[float[3]], max_pt: List[float[3]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.set_part_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.set_part_packet.max_pt">
@@ -546,7 +546,7 @@
 
 <dl class="class">
 <dt id="tomop.slice_data_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">slice_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.slice_data_packet, arg0: int, arg1: int, arg2: List[int[2]], arg3: List[float], arg4: bool</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.slice_data_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">slice_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.slice_data_packet, scene_id: int, slice_id: int, slice_size: List[int[2]], data: List[float], additive: bool</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.slice_data_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.slice_data_packet.additive">
@@ -577,7 +577,7 @@
 
 <dl class="class">
 <dt id="tomop.partial_slice_data_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">partial_slice_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.partial_slice_data_packet, arg0: int, arg1: int, arg2: List[int[2]], arg3: List[int[2]], arg4: List[int[2]], arg5: bool, arg6: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.partial_slice_data_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">partial_slice_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.partial_slice_data_packet, scene_id: int, slice_id: int, slice_offset: List[int[2]], slice_size: List[int[2]], global_slice_size: List[int[2]], additive: bool, data: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.partial_slice_data_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.partial_slice_data_packet.additive">
@@ -618,7 +618,7 @@
 
 <dl class="class">
 <dt id="tomop.volume_data_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">volume_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.volume_data_packet, arg0: int, arg1: List[int[3]], arg2: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.volume_data_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">volume_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.volume_data_packet, scene_id: int, volume_size: List[int[3]], data: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.volume_data_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.volume_data_packet.data">
@@ -639,7 +639,7 @@
 
 <dl class="class">
 <dt id="tomop.partial_volume_data_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">partial_volume_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.partial_volume_data_packet, arg0: int, arg1: List[int[3]], arg2: List[int[3]], arg3: List[int[3]], arg4: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.partial_volume_data_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">partial_volume_data_packet</code><span class="sig-paren">(</span><em>self: py_tomop.partial_volume_data_packet, scene_id: int, volume_offset: List[int[3]], volume_size: List[int[3]], global_volume_size: List[int[3]], data: List[float]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.partial_volume_data_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.partial_volume_data_packet.data">
@@ -670,7 +670,7 @@
 
 <dl class="class">
 <dt id="tomop.set_slice_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">set_slice_packet</code><span class="sig-paren">(</span><em>self: py_tomop.set_slice_packet, arg0: int, arg1: int, arg2: List[float[9]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.set_slice_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">set_slice_packet</code><span class="sig-paren">(</span><em>self: py_tomop.set_slice_packet, scene_id: int, slice_id: int, orientation: List[float[9]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.set_slice_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.set_slice_packet.orientation">
@@ -691,7 +691,7 @@
 
 <dl class="class">
 <dt id="tomop.remove_slice_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">remove_slice_packet</code><span class="sig-paren">(</span><em>self: py_tomop.remove_slice_packet</em>, <em>arg0: int</em>, <em>arg1: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.remove_slice_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">remove_slice_packet</code><span class="sig-paren">(</span><em>self: py_tomop.remove_slice_packet</em>, <em>scene_id: int</em>, <em>slice_id: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.remove_slice_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.remove_slice_packet.scene_id">
@@ -707,7 +707,7 @@
 
 <dl class="class">
 <dt id="tomop.group_request_slices_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">group_request_slices_packet</code><span class="sig-paren">(</span><em>self: py_tomop.group_request_slices_packet</em>, <em>arg0: int</em>, <em>arg1: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.group_request_slices_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">group_request_slices_packet</code><span class="sig-paren">(</span><em>self: py_tomop.group_request_slices_packet</em>, <em>scene_id: int</em>, <em>group_size: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.group_request_slices_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.group_request_slices_packet.group_size">
@@ -723,7 +723,7 @@
 
 <dl class="class">
 <dt id="tomop.make_scene_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">make_scene_packet</code><span class="sig-paren">(</span><em>self: py_tomop.make_scene_packet</em>, <em>arg0: str</em>, <em>arg1: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.make_scene_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">make_scene_packet</code><span class="sig-paren">(</span><em>self: py_tomop.make_scene_packet</em>, <em>name: str</em>, <em>dimension: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.make_scene_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.make_scene_packet.dimension">
@@ -739,7 +739,7 @@
 
 <dl class="class">
 <dt id="tomop.kill_scene_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">kill_scene_packet</code><span class="sig-paren">(</span><em>self: py_tomop.kill_scene_packet</em>, <em>arg0: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.kill_scene_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">kill_scene_packet</code><span class="sig-paren">(</span><em>self: py_tomop.kill_scene_packet</em>, <em>scene_id: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.kill_scene_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
 <dl class="method">
 <dt id="tomop.kill_scene_packet.scene_id">
