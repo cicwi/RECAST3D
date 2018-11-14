@@ -22,8 +22,8 @@ Further reading:
 
 - [TomoPackets#Pipeline](https://cicwi.github.io/TomoPackets/overview.html#pipeline)
   for an overview of the pipeline.
-- [SliceRecon#Usage](https://cicwi.github.io/SliceRecon/usage.html) see
-  SliceRecon for examples of adapters.
+- [TomoPackets#Usage](https://cicwi.github.io/TomoPackets/usage.html#writing-an-adapter)
+  for documentation on writing an adapter.
 
 [TomoPackets]: https://www.github.com/cicwi/TomoPackets
 [SliceRecon]: https://www.github.com/cicwi/SliceRecon
@@ -155,10 +155,10 @@ To test if the SliceRecon software is installed correctly, try the following ste
    interesting, because it has received no data yet. To push some example data
    into SliceRecon, run the following (from the same folder as before):
 
-        ./example/slicerecon_push_tomos --parallel This will send very poor
-   quality and low-resolution projection data of a Shepp--Logan phantom to the
-   server, but you should be able to see some reconstructions in the RECAST3D
-   software.
+        ./example/slicerecon_push_tomos --parallel
+   This will send very poor quality and low-resolution projection data of a
+   Shepp--Logan phantom to the server, but you should be able to see some
+   reconstructions in the RECAST3D software.
 
 ### 3. (optional) Installing TomoPackets
 
