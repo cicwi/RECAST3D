@@ -21,10 +21,11 @@ struct GeometrySpecificationPacket
 struct ScanSettingsPacket : public PacketBase<ScanSettingsPacket> {
     static const auto desc = packet_desc::scan_settings;
     ScanSettingsPacket() = default;
-    ScanSettingsPacket(int32_t a, int32_t b, int32_t c)
-        : scene_id(a), darks(b), flats(c) {}
+    ScanSettingsPacket(int32_t a, int32_t b, int32_t c, bool d)
+        : scene_id(a), darks(b), flats(c), already_linear(d) {}
     BOOST_HANA_DEFINE_STRUCT(ScanSettingsPacket, (int32_t, scene_id),
-                             (int32_t, darks), (int32_t, flats));
+                             (int32_t, darks), (int32_t, flats),
+                             (bool, already_linear));
 };
 
 struct ParallelBeamGeometryPacket
