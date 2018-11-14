@@ -35,14 +35,15 @@ int main(int argc, char** argv) {
     auto recast_host = opts.arg_or("--recast-host", "localhost");
     auto use_reqrep = opts.passed("--reqrep");
 
-    if (slice_size < 0 || preview_size < 0 || group_size < 0 || filter_cores < 0) {
-      std::cout << opts.usage();
-      std::cout << "ERROR: Negative parameter passed\n";
-      return -1;
+    if (slice_size < 0 || preview_size < 0 || group_size < 0 ||
+        filter_cores < 0) {
+        std::cout << opts.usage();
+        std::cout << "ERROR: Negative parameter passed\n";
+        return -1;
     }
 
     auto params = slicerecon::settings{
-        slice_size, preview_size, group_size, filter_cores, 1, 1};
+        slice_size, preview_size, group_size, filter_cores, 1, 1, false};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);

@@ -49,14 +49,14 @@ class projection_server {
 
                 switch (desc) {
                 case tomop::packet_desc::scan_settings: {
-                  auto mbuffer = tomop::memory_buffer(update.size(),
-                                                      (char*)update.data());
-                  auto packet =
-                    std::make_unique<tomop::ScanSettingsPacket>();
-                  packet->deserialize(std::move(mbuffer));
+                    auto mbuffer = tomop::memory_buffer(update.size(),
+                                                        (char*)update.data());
+                    auto packet = std::make_unique<tomop::ScanSettingsPacket>();
+                    packet->deserialize(std::move(mbuffer));
 
-                  pool_.set_scan_settings(packet->darks, packet->flats);
-                  break;
+                    pool_.set_scan_settings(packet->darks, packet->flats,
+                                            packet->already_linear);
+                    break;
                 }
                 case tomop::packet_desc::projection: {
                     auto index = sizeof(tomop::packet_desc);
@@ -143,15 +143,16 @@ class projection_server {
                     packet->deserialize(std::move(mbuffer));
 
                     if (packet->rows < 0 || packet->cols < 0) {
-                      throw server_error(
-                                         "Invalid geometry specification received: negative "
-                                         "rows or columns");
+                        throw server_error(
+                            "Invalid geometry specification received: negative "
+                            "rows or columns");
                     }
 
-                    if (packet->proj_count != (int)(packet->vectors.size() / 12)) {
-                      throw server_error("Invalid geometry specification "
-                                         "received: projection count is not "
-                                         "equal to number of vectors");
+                    if (packet->proj_count !=
+                        (int)(packet->vectors.size() / 12)) {
+                        throw server_error("Invalid geometry specification "
+                                           "received: projection count is not "
+                                           "equal to number of vectors");
                     }
 
                     geom_.rows = packet->rows;
@@ -173,15 +174,15 @@ class projection_server {
                     packet->deserialize(std::move(mbuffer));
 
                     if (packet->rows < 0 || packet->cols < 0) {
-                      throw server_error(
-                                         "Invalid geometry specification received: negative "
-                                         "rows or columns");
+                        throw server_error(
+                            "Invalid geometry specification received: negative "
+                            "rows or columns");
                     }
 
                     if (packet->proj_count != (int)packet->angles.size()) {
-                      throw server_error("Invalid geometry specification "
-                                         "received: projection count is not "
-                                         "equal to number of angles");
+                        throw server_error("Invalid geometry specification "
+                                           "received: projection count is not "
+                                           "equal to number of angles");
                     }
 
                     geom_.rows = packet->rows;
@@ -206,15 +207,16 @@ class projection_server {
                     packet->deserialize(std::move(mbuffer));
 
                     if (packet->rows < 0 || packet->cols < 0) {
-                      throw server_error(
-                                         "Invalid geometry specification received: negative "
-                                         "rows or columns");
+                        throw server_error(
+                            "Invalid geometry specification received: negative "
+                            "rows or columns");
                     }
 
-                    if (packet->proj_count != (int)(packet->vectors.size() / 12)) {
-                      throw server_error("Invalid geometry specification "
-                                         "received: projection count is not "
-                                         "equal to number of vectors");
+                    if (packet->proj_count !=
+                        (int)(packet->vectors.size() / 12)) {
+                        throw server_error("Invalid geometry specification "
+                                           "received: projection count is not "
+                                           "equal to number of vectors");
                     }
 
                     geom_.rows = packet->rows;

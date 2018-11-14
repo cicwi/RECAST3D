@@ -41,6 +41,7 @@ struct settings {
     int32_t filter_cores;
     int32_t darks;
     int32_t flats;
+    bool already_linear;
 };
 
 class listener {
@@ -162,7 +163,8 @@ class reconstructor {
         switch (k) {
         case proj_kind::standard: {
             // check if we received a (new) batch of darks/flats
-            if (received_flats_ >= parameters_.darks + parameters_.flats) {
+            if (received_flats_ >= parameters_.darks + parameters_.flats &&
+                parameters_.darks > 0 && parameters_.flats > 0) {
                 compute_flatfielding_();
                 received_flats_ = 0;
             }
@@ -216,9 +218,10 @@ class reconstructor {
     acquisition::geometry geometry() { return geom_; }
     bool initialized() const { return initialized_; }
 
-    void set_scan_settings(int darks, int flats) {
+    void set_scan_settings(int darks, int flats, bool already_linear) {
         parameters_.darks = darks;
         parameters_.flats = flats;
+        parameters_.already_linear = already_linear;
     }
 
   private:

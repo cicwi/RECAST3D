@@ -65,6 +65,10 @@ class plugin {
                         send(*packet);
                         break;
                     }
+                    case tomop::packet_desc::remove_slice: {
+                      std::cout << "Plugin: removing slice TODO pass along to Python interface callback\n";
+                      break;
+                    }
                     case tomop::packet_desc::kill_scene: {
                         auto packet =
                             std::make_unique<tomop::KillScenePacket>();

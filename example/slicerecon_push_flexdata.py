@@ -67,7 +67,7 @@ if not args.skipgeometry:
     pub.send(packet_vol_geom)
 
 packet_scan_settings = tomop.scan_settings_packet(0, dark.shape[0],
-                                                  flat.shape[0])
+                                                  flat.shape[0], False)
 if not args.skipgeometry:
     pub.send(packet_scan_settings)
 

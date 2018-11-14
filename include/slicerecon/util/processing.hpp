@@ -18,7 +18,7 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
                         const float* dark, const float* reciproc,
                         const std::vector<float>& filter, int proj_id_min,
                         int proj_id_max, bool weigh,
-                        const std::vector<float>& fdk_weights);
+                        const std::vector<float>& fdk_weights, bool neglog);
 
 namespace filter {
 

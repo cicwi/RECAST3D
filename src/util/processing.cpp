@@ -13,7 +13,7 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
                         const float* dark, const float* reciproc,
                         const std::vector<float>& filter, int proj_id_min,
                         int proj_id_max, bool weigh,
-                        const std::vector<float>& fdk_weights) {
+                        const std::vector<float>& fdk_weights, bool neglog) {
     // initialize fft
     auto fft = Eigen::FFT<float>();
     auto freq_buffer = std::vector<std::complex<float>>(cols, 0);
@@ -32,16 +32,18 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
         for (auto r = first_row; r < final_row; ++r) {
             int index = r * cols;
             for (auto c = 0; c < cols; ++c) {
-                data[offset + index] =
-                    (data[offset + index] - dark[index]) * reciproc[index];
-                data[offset + index] = data[offset + index] <= 0.0f
-                                           ? 0.0f
-                                           : -std::log(data[offset + index]);
+                if (neglog) {
+                    data[offset + index] =
+                        (data[offset + index] - dark[index]) * reciproc[index];
+                    data[offset + index] =
+                        data[offset + index] <= 0.0f
+                            ? 0.0f
+                            : -std::log(data[offset + index]);
+                }
+                if (weigh) {
+                    data[offset + index] *= fdk_weights[offset + index];
+                }
                 index++;
-            }
-
-            if (weigh) {
-                data[offset + index] *= fdk_weights[offset + index];
             }
 
             // filter the row

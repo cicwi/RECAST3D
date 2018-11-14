@@ -414,7 +414,8 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
         util::process_projection(world, geom_.rows, geom_.cols,
                                  buffer_[write_index_].data(), dark_.data(),
                                  flat_fielder_.data(), filter_, proj_id_min,
-                                 proj_id_max, !geom_.parallel, fdk_weights_);
+                                 proj_id_max, !geom_.parallel, fdk_weights_,
+                                 !parameters_.already_linear);
     });
 
     transpose_sino_(buffer_[write_index_], sino_buffer_,

@@ -172,6 +172,11 @@ class visualization_server : public listener {
                                 return x.first == packet->slice_id;
                             });
                         slices_.erase(to_erase);
+
+                        if (plugin_socket_) {
+                            packet->send(plugin_socket_.value());
+                        }
+
                         break;
                     }
                     default:
