@@ -56,6 +56,7 @@ Also thanks to:
 
 - Holger Kohr
 - Willem Jan Palenstijn
+- Allard Hendriksen
 
 ## Contributing
 
@@ -85,4 +86,3 @@ This project is licensed under the GPL. See `LICENSE.md` for details.
 
 - [Iosevka font](https://github.com/be5invis/Iosevka). Copyright (c) 2015-2017
   Belleve Invis (belleve@typeof.net).
-

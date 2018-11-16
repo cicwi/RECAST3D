@@ -56,7 +56,7 @@ rest of these instructions.
 
 ### 1. Installing RECAST3D
 
-First, we will install the RECAST3D visualization software. 
+First, we will install the RECAST3D visualization software.
 
 ```bash
 # make a directory to store the packages
@@ -86,8 +86,8 @@ Finally, test if you can run RECAST3D:
 ```bash
 ./recast3d
 ```
-
-if you run into any issues, [please let us know](https://github.com/cicwi/RECAST3D/issues)!
+This should open an empty white window with a menubar.
+If you run into any issues, [please let us know](https://github.com/cicwi/RECAST3D/issues)!
 
 ### 2. Installing SliceRecon
 
@@ -127,7 +127,7 @@ make -j8
 
 #### Installing the SliceRecon Python bindings
 
-Next, we install the Python bindings. 
+Next, we install the Python bindings.
 
 ```bash
 cd ../python/ # relative to the build directory
@@ -150,15 +150,16 @@ To test if the SliceRecon software is installed correctly, try the following ste
         ./example/slicerecon_server --slice-size 512 --preview-size 256
    Switching windows to the RECAST3D software, you should see a new scene with
    black slices.
-  
+
 3. _Pushing data into SliceRecon_. The server is unable to reconstruct anything
    interesting, because it has received no data yet. To push some example data
    into SliceRecon, run the following (from the same folder as before):
 
         ./example/slicerecon_push_tomos --parallel
-   This will send very poor quality and low-resolution projection data of a
-   Shepp--Logan phantom to the server, but you should be able to see some
-   reconstructions in the RECAST3D software.
+   This will send very poor quality and low-resolution projection data
+   of a Shepp--Logan phantom to the server, but you should be able to
+   see some reconstructions in the RECAST3D software. Expect to wait a
+   while before seeing anything on screen.
 
 ### 3. (optional) Installing TomoPackets
 
