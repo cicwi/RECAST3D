@@ -28,9 +28,6 @@ class plugin {
     ~plugin() { serve_thread_.join(); }
 
     void serve() {
-        util::log << LOG_FILE << util::lvl::info << "Plugin starts listening"
-                  << util::end_log;
-
         serve_thread_ = std::thread([&] {
             listen();
         });
@@ -56,6 +53,9 @@ class plugin {
     }
 
     void listen() {
+        util::log << LOG_FILE << util::lvl::info << "Plugin starts listening"
+                  << util::end_log;
+
         while (true) {
             zmq::message_t update;
             bool kill = false;
