@@ -77,17 +77,37 @@ std::vector<float> shepp_logan(int cols) {
     auto mid = (cols + 1) / 2;
 
     auto filter_weight = [=](auto i) {
-        return std::sin(M_PI * (i / (float)mid)) / (M_PI * (i / (float)mid));
+        auto norm_freq = (i / (float)mid);
+        return norm_freq * std::sin(M_PI * norm_freq) / (M_PI * norm_freq);
     };
 
     for (int i = 1; i < mid; ++i) {
-        result[i] *= filter_weight(i);
+        result[i] = filter_weight(i);
     }
     for (int j = mid; j < cols; ++j) {
         result[j] = filter_weight(2 * mid - j);
     }
     return result;
 }
+
+std::vector<float> gaussian(int cols, float sigma) {
+    auto result = std::vector<float>(cols);
+    auto mid = (cols + 1) / 2;
+
+    auto filter_weight = [=](auto i) {
+        auto norm_freq = (i / (float)mid);
+        return std::exp(-(norm_freq * norm_freq) / (2.0f * sigma * sigma));
+    };
+
+    for (int i = 1; i < mid; ++i) {
+        result[i] = filter_weight(i);
+    }
+    for (int j = mid; j < cols; ++j) {
+        result[j] = filter_weight(2 * mid - j);
+    }
+    return result;
+}
+
 } // namespace filter
 
 } // namespace slicerecon::util

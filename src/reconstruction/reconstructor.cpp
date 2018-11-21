@@ -364,8 +364,13 @@ void reconstructor::initialize(acquisition::geometry geom) {
                                 parameters_.preview_size *
                                 parameters_.preview_size);
 
-    // initialize filter. TODO make choice
-    filter_ = util::filter::ram_lak(geom_.cols);
+    // initialize filter
+    filter_ = util::filter::shepp_logan(geom_.cols);
+    // TODO allow making a choice, optional low pass like below
+    //auto filter_lowpass = util::filter::gaussian(geom_.cols, 0.02f);
+    //for (int i = 0; i < geom_.cols; ++i) {
+    //    filter_[i] *= filter_lowpass[i];
+    //}
 
     if (geom_.parallel) {
         // make reconstruction object par

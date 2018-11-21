@@ -24,6 +24,7 @@ namespace filter {
 
 std::vector<float> ram_lak(int cols);
 std::vector<float> shepp_logan(int cols);
+std::vector<float> gaussian(int cols, float sigma);
 
 } // namespace filter
 
