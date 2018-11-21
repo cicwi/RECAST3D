@@ -15,6 +15,8 @@ enum class packet_desc : int {
     set_slice = 0x205,
     remove_slice = 0x206,
     group_request_slices = 0x207,
+    register_parameter = 0x208,
+    parameter_changed = 0x209,
 
     // GEOMETRY
     geometry_specification = 0x301,

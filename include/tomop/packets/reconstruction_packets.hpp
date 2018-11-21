@@ -86,4 +86,24 @@ struct GroupRequestSlicesPacket : public PacketBase<GroupRequestSlicesPacket> {
                              (int32_t, group_size));
 };
 
+struct RegisterParameterPacket : public PacketBase<RegisterParameterPacket> {
+    static const auto desc = packet_desc::register_parameter;
+    RegisterParameterPacket() = default;
+    RegisterParameterPacket(int32_t a, std::string b, float c)
+        : scene_id(a), parameter_name(b), initial_value(c) {}
+    BOOST_HANA_DEFINE_STRUCT(RegisterParameterPacket, (int32_t, scene_id),
+                             (std::string, parameter_name),
+                             (float, initial_value));
+};
+
+struct ParameterChangedPacket : public PacketBase<ParameterChangedPacket> {
+    static const auto desc = packet_desc::parameter_changed;
+    ParameterChangedPacket() = default;
+    ParameterChangedPacket(int32_t a, std::string b, float c)
+        : scene_id(a), parameter_name(b), value(c) {}
+    BOOST_HANA_DEFINE_STRUCT(ParameterChangedPacket, (int32_t, scene_id),
+                             (std::string, parameter_name),
+                             (float, value));
+};
+
 } // namespace tomop
