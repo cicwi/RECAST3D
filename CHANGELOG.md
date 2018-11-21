@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- For the plugin, make listen() nonthreaded 
 - Add `already_linear` flag, for already linearized data.
 - Add support for skipping flat fielding step.
 
