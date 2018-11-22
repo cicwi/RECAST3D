@@ -8,13 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- For the plugin, make listen() nonthreaded 
 - Add `already_linear` flag, for already linearized data.
 - Add support for skipping flat fielding step.
 - Add Gaussian filter for optional noise suppression
 
+### Changed
+- Change `plugin::listen` to run on the main thread
+
 ### Fixed
-- Properly apply FDK weighting.
+- Fix application of FDK weighting.
 
 ## 1.0.0-rc.1
 
