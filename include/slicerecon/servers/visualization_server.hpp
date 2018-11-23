@@ -96,7 +96,6 @@ class visualization_server : public listener {
         if (try_plugin && plugin_socket_) {
             packet.send(plugin_socket_.value());
             plugin_socket_.value().recv(&reply);
-
         } else {
             packet.send(socket_);
             socket_.recv(&reply);
@@ -174,7 +173,7 @@ class visualization_server : public listener {
                         slices_.erase(to_erase);
 
                         if (plugin_socket_) {
-                            packet->send(plugin_socket_.value());
+                            send(*packet, true);
                         }
 
                         break;
