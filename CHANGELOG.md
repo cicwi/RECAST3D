@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Change `plugin::listen` to run on the main thread
+- Change default value for flat field to `1`, darks and flats are now optional (#6).
 
 ### Fixed
 - Fix application of FDK weighting.
