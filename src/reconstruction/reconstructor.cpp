@@ -356,10 +356,11 @@ void reconstructor::initialize(acquisition::geometry geom) {
     all_flats_.resize(pixels_ * parameters_.flats);
     all_darks_.resize(pixels_ * parameters_.darks);
     dark_.resize(pixels_);
-    flat_fielder_.resize(pixels_);
+    flat_fielder_.resize(pixels_, 1);
+
     buffer_[0].resize(parameters_.group_size * pixels_);
     buffer_[1].resize(parameters_.group_size * pixels_);
-    sino_buffer_.resize(geom_.rows * geom_.cols * parameters_.group_size);
+    sino_buffer_.resize((long) geom_.rows * (long) geom_.cols * (long) parameters_.group_size);
     small_volume_buffer_.resize(parameters_.preview_size *
                                 parameters_.preview_size *
                                 parameters_.preview_size);
