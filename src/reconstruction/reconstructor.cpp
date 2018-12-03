@@ -360,7 +360,7 @@ void reconstructor::initialize(acquisition::geometry geom) {
 
     buffer_[0].resize(parameters_.group_size * pixels_);
     buffer_[1].resize(parameters_.group_size * pixels_);
-    sino_buffer_.resize((long) geom_.rows * (long) geom_.cols * (long) parameters_.group_size);
+    sino_buffer_.resize((size_t) geom_.rows * (size_t) geom_.cols * (size_t) parameters_.group_size);
     small_volume_buffer_.resize(parameters_.preview_size *
                                 parameters_.preview_size *
                                 parameters_.preview_size);
