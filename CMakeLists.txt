@@ -76,7 +76,7 @@ add_subdirectory(ext/tomopackets)
 add_subdirectory(${CMAKE_SOURCE_DIR}/ext/bulk)
 # --------------------------------------------------------------------------------------------
 # FFTW3
-find_package(FFTW REQUIRED)
+#find_package(FFTW REQUIRED)
 # --------------------------------------------------------------------------------------------
 
 set(

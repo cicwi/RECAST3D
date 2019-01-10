@@ -7,6 +7,15 @@
 
 namespace slicerecon {
 
+/**
+ * The mode that the reconstructor is in. Continuous corresponds to a sliding-
+ * window. Alternating is the default.
+ * @see https://github.com/cicwi/SliceRecon/issues/4
+ */
+enum mode {
+    alternating, continuous
+};
+
 struct paganin_settings {
     float pixel_size;
     float lambda;
@@ -22,6 +31,8 @@ struct settings {
     int32_t filter_cores;
     int32_t darks;
     int32_t flats;
+    int32_t update_every;
+    mode reconstruction_mode;
     bool already_linear;
     bool retrieve_phase;
     paganin_settings paganin;

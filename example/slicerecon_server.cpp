@@ -52,9 +52,25 @@ int main(int argc, char** argv) {
     auto paganin =
         slicerecon::paganin_settings{pixel_size, lambda, delta, beta, distance};
 
+    auto continuous_mode = opts.passed("--continuous");
+    auto update_every = opts.arg_as_or<int32_t>("--update-every", group_size);
+
+    if (update_every < 1) {
+        std::cout << opts.usage();
+        std::cout << "ERROR: Invalid value for update_every \n";
+        return -1;
+    }
+
+    if (update_every < group_size) { std::cout << opts.usage();
+        std::cout << "ERROR: update_every < group_size. The reconstruction cannot be updated more frequently than the group size "
+                     "of the processing buffer.\n";
+        return -1;
+    }
+
+    auto mode = continuous_mode ? slicerecon::mode::continuous : slicerecon::mode::alternating;
     auto params = slicerecon::settings{
-        slice_size, preview_size, group_size,     filter_cores, 1,
-        1,          false,        retrieve_phase, paganin};
+        slice_size, preview_size, group_size,    filter_cores, 1,
+        1,          update_every, mode, false,        retrieve_phase, paganin};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);
@@ -80,11 +96,9 @@ int main(int argc, char** argv) {
         "tcp://"s + recast_host + ":5556"s);
     viz.set_slice_callback(
         [&](auto x, auto idx) { return recon->reconstruct_slice(x); });
-
     recon->add_listener(&viz);
 
-    auto plugin_one =
-        slicerecon::plugin("tcp://*:5650", "tcp://localhost:5651");
+    auto plugin_one = slicerecon::plugin("tcp://*:5650", "tcp://localhost:5651");
     plugin_one.set_slice_callback(
         [](auto shape, auto data, auto index)
             -> std::pair<std::array<int32_t, 2>, std::vector<float>> {

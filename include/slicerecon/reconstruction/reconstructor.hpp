@@ -130,9 +130,19 @@ class reconstructor {
 
     void add_listener(listener* l) { listeners_.push_back(l); }
 
-    // push a projection
-    void push_projection(proj_kind k, int32_t idx, std::array<int32_t, 2> shape,
-                         char* data) {
+    /**
+     * Push a projection into the reconstruction server.
+     *
+     * @param k
+     * @param proj_idx Projection index
+     * @param shape
+     * @param data
+     */
+    void push_projection(proj_kind k, int32_t proj_idx, std::array<int32_t, 2> shape,
+            char* data) {
+        auto p = parameters_;
+        bool is_alt = p.reconstruction_mode == alternating;
+
         if (!initialized_) {
             slicerecon::util::log
                 << LOG_FILE << slicerecon::util::lvl::error
@@ -140,9 +150,6 @@ class reconstructor {
                 << slicerecon::util::end_log;
             return;
         }
-
-        auto buf = std::vector<float>(pixels_);
-        memcpy(&buf[0], data, sizeof(float) * pixels_);
 
         if (shape[0] * shape[1] != pixels_) {
             util::log << LOG_FILE << util::lvl::warning
@@ -155,56 +162,86 @@ class reconstructor {
         }
 
         switch (k) {
-        case proj_kind::standard: {
-            // check if we received a (new) batch of darks/flats
-            if (received_flats_ >= parameters_.darks + parameters_.flats &&
-                parameters_.darks > 0 && parameters_.flats > 0) {
-                compute_flatfielding_();
-                received_flats_ = 0;
-            }
-
-            auto start_idx = start_index_(idx);
-            memcpy(&buffer_[write_index_][start_idx], data,
-                   sizeof(float) * pixels_);
-
-            if (idx % parameters_.group_size == parameters_.group_size - 1 ||
-                idx == geom_.proj_count - 1) {
-                // upload and switch writing idx
-                upload_(
-                    current_group_ * parameters_.group_size,
-                    std::min((current_group_ + 1) * parameters_.group_size - 1,
-                             geom_.proj_count - 1));
-                current_group_ = (current_group_ + 1) % group_count_;
-
-                if (current_group_ == 0) {
-                    refresh_data_();
-                    write_index_ = 1 - write_index_;
+            case proj_kind::standard: {
+                // check if we received a (new) batch of darks/flats
+                if (received_flats_ >= p.darks + p.flats &&
+                    p.darks > 0 && p.flats > 0) {
+                    compute_flatfielding_();
+                    received_flats_ = 0;
                 }
-            }
 
-            break;
-        }
-        case proj_kind::dark: {
-            memcpy(&all_darks_[idx * pixels_], data, sizeof(float) * pixels_);
-            received_flats_++;
-            break;
-        }
-        case proj_kind::light: {
-            memcpy(&all_flats_[idx * pixels_], data, sizeof(float) * pixels_);
-            received_flats_++;
-            break;
-        }
-        default:
-            break;
+                // alternating:
+                //  - full group OR full geom. => process AND upload the buffer
+                //  - full geom. => swap buffers
+                //
+                // continuous:
+                //  - full group => process
+                //  - update_every reached => upload (while locking)
+                auto rel_proj_idx = proj_idx % (is_alt ? p.group_size : p.update_every);
+                bool full_group =  rel_proj_idx % p.group_size == p.group_size - 1;
+                int buffer_size = is_alt ? geom_.proj_count : parameters_.update_every;
+                bool buffer_end_reached = proj_idx % buffer_size == buffer_size - 1;
+
+                // 1. buffer incoming
+                memcpy(&buffer_[write_index_][rel_proj_idx * pixels_], data, sizeof(float) * pixels_);
+
+                if (full_group || buffer_end_reached) {
+                    auto begin_in_buffer = current_group_ * p.group_size;
+                    auto end_in_buffer = std::min((current_group_ + 1) * p.group_size - 1, buffer_size - 1);
+
+                    process_(begin_in_buffer, end_in_buffer);
+
+
+                    if (buffer_end_reached) {
+                        bool use_gpu_lock = !is_alt;
+
+                        auto update_size = is_alt ? p.group_size : p.update_every;
+                        auto begin_wrt_geom = (update_count_ * update_size) % geom_.proj_count;
+                        auto end_wrt_geom = (begin_wrt_geom + end_in_buffer) % geom_.proj_count;
+
+                        if (end_wrt_geom > begin_wrt_geom) {
+                            upload_sino_buffer_(begin_wrt_geom, end_wrt_geom, 0, use_gpu_lock);
+                        } else {
+                            // we have gone around in the geometry
+                            upload_sino_buffer_(begin_wrt_geom, geom_.proj_count - 1, 0, use_gpu_lock);
+                            upload_sino_buffer_(0, end_wrt_geom, geom_.proj_count - begin_wrt_geom - 1, use_gpu_lock);
+                        }
+
+                        if (is_alt) write_index_ = 1 - write_index_; // swap buffers
+                        refresh_data_();
+
+                        update_count_++;
+                    }
+
+                    current_group_ = (current_group_ + 1) % group_count_;
+                }
+
+                break;
+            }
+            case proj_kind::dark: {
+                memcpy(&all_darks_[proj_idx * pixels_], data, sizeof(float) * pixels_);
+                received_flats_++;
+                break;
+            }
+            case proj_kind::light: {
+                memcpy(&all_flats_[proj_idx * pixels_], data, sizeof(float) * pixels_);
+                received_flats_++;
+                break;
+            }
+            default:
+                break;
         }
     }
 
     slice_data reconstruct_slice(orientation x) {
+        // the lock is supposed to be always open if reconstruction mode == alternating
+        std::lock_guard<std::mutex> guard(gpu_mutex_);
+
         if (!initialized_) {
             return {{1, 1}, {0.0f}};
         }
 
-        return alg_->reconstruct_slice(x, 1 - write_index_);
+        return alg_->reconstruct_slice(x, write_index_);
     }
 
     std::vector<float>& preview_data() { return small_volume_buffer_; }
@@ -254,14 +291,11 @@ class reconstructor {
         dark_ = dark;
     }
 
-    void upload_(int proj_id_min, int proj_id_max);
+    void process_(int proj_id_begin, int proj_id_end);
 
-    int32_t start_index_(int32_t idx) {
-        return (idx % parameters_.group_size) * pixels_;
-    }
+    void upload_sino_buffer_(int proj_id_begin, int proj_id_end, int buffer_begin, bool lock_gpu = false);
 
-    void transpose_sino_(std::vector<float>& projection_group,
-                         std::vector<float>& sino_buffer, int group_size);
+    void transpose_sino_(float* projection_group, float* sino_buffer, int proj_offset, int group_size, size_t buffer_size);
 
     void refresh_data_();
 
@@ -270,7 +304,12 @@ class reconstructor {
     std::vector<float> dark_;
     std::vector<float> flat_fielder_;
 
+    /**
+     * Local buffer of size group_size if in alternating mode,
+     * otherwise it has size update_every.
+     */
     std::array<std::vector<float>, 2> buffer_;
+
     int write_index_ = 0;
     int32_t pixels_ = -1;
     int32_t received_flats_ = 0;
@@ -281,6 +320,7 @@ class reconstructor {
     settings parameters_;
 
     int current_group_;
+    int update_count_ = 0;
     int group_count_;
     std::vector<float> small_volume_buffer_;
 
@@ -290,6 +330,14 @@ class reconstructor {
     bool initialized_ = false;
 
     std::unique_ptr<util::ProjectionProcessor> projection_processor_;
+    fftwf_plan fft_plan_;
+    fftwf_plan ffti_plan_;
+    fftwf_plan fft2d_plan_;
+    std::vector<std::vector<std::complex<float>>> freq_buffer_;
+    std::vector<float> filter_;
+    std::vector<float> paganin_filter_;
+
+    std::mutex gpu_mutex_;
 };
 
 } // namespace slicerecon
