@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
-#include <unsupported/Eigen/FFT>
 
 #include "slicerecon/util/processing.hpp"
 
@@ -13,11 +12,8 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
                         const float* dark, const float* reciproc,
                         const std::vector<float>& filter, int proj_id_min,
                         int proj_id_max, bool weigh,
-                        const std::vector<float>& fdk_weights, bool neglog) {
-    // initialize fft
-    auto fft = Eigen::FFT<float>();
-    auto freq_buffer = std::vector<std::complex<float>>(cols, 0);
-
+                        const std::vector<float>& fdk_weights, bool neglog,
+                        fftwf_plan plan) {
     // divide work by rows
     int s = world.rank();
     int p = world.active_processors();
@@ -47,11 +43,15 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
             }
 
             // filter the row
-            fft.fwd(freq_buffer.data(), &data[offset + r * cols], cols);
+            fftwf_execute_r2r(plan, &data[offset + r * cols],
+                              &data[offset + r * cols]);
+
             for (int i = 0; i < cols; ++i) {
-                freq_buffer[i] *= filter[i];
+                data[offset + r * cols + i] *= filter[i];
             }
-            fft.inv(&data[offset + r * cols], freq_buffer.data(), cols);
+
+            fftwf_execute_r2r(plan, &data[offset + r * cols],
+                              &data[offset + r * cols]);
         }
     }
 

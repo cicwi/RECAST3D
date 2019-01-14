@@ -5,7 +5,9 @@
 #include <memory>
 #include <vector>
 
+extern "C" {
 #include <fftw3.h>
+}
 
 #ifndef ASTRA_CUDA
 #define ASTRA_CUDA
@@ -298,6 +300,8 @@ class reconstructor {
 
     std::vector<listener*> listeners_;
     bool initialized_ = false;
+
+    fftwf_plan fft_plan_;
 };
 
 } // namespace slicerecon

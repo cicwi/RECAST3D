@@ -360,7 +360,8 @@ void reconstructor::initialize(acquisition::geometry geom) {
 
     buffer_[0].resize(parameters_.group_size * pixels_);
     buffer_[1].resize(parameters_.group_size * pixels_);
-    sino_buffer_.resize((size_t) geom_.rows * (size_t) geom_.cols * (size_t) parameters_.group_size);
+    sino_buffer_.resize((size_t)geom_.rows * (size_t)geom_.cols *
+                        (size_t)parameters_.group_size);
     small_volume_buffer_.resize(parameters_.preview_size *
                                 parameters_.preview_size *
                                 parameters_.preview_size);
@@ -368,8 +369,8 @@ void reconstructor::initialize(acquisition::geometry geom) {
     // initialize filter
     filter_ = util::filter::shepp_logan(geom_.cols);
     // TODO allow making a choice, optional low pass like below
-    //auto filter_lowpass = util::filter::gaussian(geom_.cols, 0.02f);
-    //for (int i = 0; i < geom_.cols; ++i) {
+    // auto filter_lowpass = util::filter::gaussian(geom_.cols, 0.02f);
+    // for (int i = 0; i < geom_.cols; ++i) {
     //    filter_[i] *= filter_lowpass[i];
     //}
 
@@ -386,6 +387,11 @@ void reconstructor::initialize(acquisition::geometry geom) {
     }
 
     initialized_ = true;
+
+    // initialize FFTW plan
+    fft_plan_ = fftwf_plan_r2r_1d(geom_.cols, &buffer_[0][0], &buffer_[0][0],
+                                 FFTW_REDFT00, FFTW_ESTIMATE);
+
 } // namespace slicerecon
 
 void reconstructor::transpose_sino_(std::vector<float>& projection_group,
@@ -421,7 +427,7 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
                                  buffer_[write_index_].data(), dark_.data(),
                                  flat_fielder_.data(), filter_, proj_id_min,
                                  proj_id_max, !geom_.parallel, fdk_weights_,
-                                 !parameters_.already_linear);
+                                 !parameters_.already_linear, fft_plan_);
     });
 
     transpose_sino_(buffer_[write_index_], sino_buffer_,

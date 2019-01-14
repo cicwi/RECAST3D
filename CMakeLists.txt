@@ -5,6 +5,8 @@ include(FindPkgConfig)
 set(TARGET_NAME "slicerecon")
 project(slicerecon)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # --------------------------------------------------------------------------------------------
 # GLM
 
@@ -73,6 +75,9 @@ add_subdirectory(ext/tomopackets)
 # Bulk
 add_subdirectory(${CMAKE_SOURCE_DIR}/ext/bulk)
 # --------------------------------------------------------------------------------------------
+# FFTW3
+find_package(FFTW REQUIRED)
+# --------------------------------------------------------------------------------------------
 
 set(
     SOURCES
@@ -93,6 +98,7 @@ set(
   "tomop"
   "bulk_thread"
   "glm"
+  "fftw3f"
 )
 
 add_library(${TARGET_NAME} ${SOURCES})
