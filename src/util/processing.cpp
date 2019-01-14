@@ -13,7 +13,10 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
                         const std::vector<float>& filter, int proj_id_min,
                         int proj_id_max, bool weigh,
                         const std::vector<float>& fdk_weights, bool neglog,
-                        fftwf_plan plan) {
+                        fftwf_plan plan, fftwf_plan iplan,
+                        std::vector<std::complex<float>>& freq_buffer,
+                        bool retrieve_phase, const std::vector<float>&,
+                        fftwf_plan plan2d) {
     // divide work by rows
     int s = world.rank();
     int p = world.active_processors();
@@ -43,15 +46,17 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
             }
 
             // filter the row
-            fftwf_execute_r2r(plan, &data[offset + r * cols],
-                              &data[offset + r * cols]);
+            fftwf_execute_dft_r2c(
+                plan, &data[offset + r * cols],
+                reinterpret_cast<fftwf_complex*>(&freq_buffer[0]));
 
             for (int i = 0; i < cols; ++i) {
-                data[offset + r * cols + i] *= filter[i];
+                freq_buffer[i] *= filter[i];
             }
 
-            fftwf_execute_r2r(plan, &data[offset + r * cols],
-                              &data[offset + r * cols]);
+            fftwf_execute_dft_c2r(
+                iplan, reinterpret_cast<fftwf_complex*>(&freq_buffer[0]),
+                &data[offset + r * cols]);
         }
     }
 
@@ -106,6 +111,30 @@ std::vector<float> gaussian(int cols, float sigma) {
         result[j] = filter_weight(2 * mid - j);
     }
     return result;
+}
+
+std::vector<float> paganin(int rows, int cols, float pixel_size, float lambda,
+                           float delta, float beta, float distance) {
+    (void)pixel_size;
+    (void)lambda;
+    (void)delta;
+    (void)beta;
+    (void)distance;
+    //     delta_x = pixelSize/(2*numpy.pi); delta_y = delta_x #quadratic
+    //     pixels, pixelSize in meter
+    // #delta_x, delta_y remain after padding (fix pixelsize), fftOfImage.shape
+    // takes care of additional (padded) pixels #The fftfreq(....) is necessary
+    // to give the proper k space units (meter^{-1}), since lamda and distance
+    // are as well in meters, #otherwise the term
+    // 'distance*lamda*delta*k_squared' would have inconsistent units. (The k
+    // units would be pixelsize^{-1}) k_x =
+    // numpy.fft.fftfreq(fftOfImage.shape[1], d=delta_x); k_y =
+    // numpy.fft.fftfreq(fftOfImage.shape[0], d=delta_y) k_x_grid, k_y_grid =
+    // numpy.meshgrid(k_x, k_y) k_squared = k_x_grid**2 + k_y_grid**2
+    // kSpaceFilter = 1.0/(1.0 +
+    // distance*lamda*delta*k_squared/(4*numpy.pi*beta))
+
+    return std::vector<float>(rows * cols);
 }
 
 } // namespace filter

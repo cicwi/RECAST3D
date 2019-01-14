@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
     auto py_plugin = opts.passed("--pyplugin");
     auto recast_host = opts.arg_or("--recast-host", "localhost");
     auto use_reqrep = opts.passed("--reqrep");
+    auto retrieve_phase = opts.passed("--phase");
 
     if (slice_size < 0 || preview_size < 0 || group_size < 0 ||
         filter_cores < 0) {
@@ -43,7 +44,8 @@ int main(int argc, char** argv) {
     }
 
     auto params = slicerecon::settings{
-        slice_size, preview_size, group_size, filter_cores, 1, 1, false};
+        slice_size, preview_size, group_size,    filter_cores, 1,
+        1,          false,        retrieve_phase};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);

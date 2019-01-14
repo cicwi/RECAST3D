@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -44,6 +45,7 @@ struct settings {
     int32_t darks;
     int32_t flats;
     bool already_linear;
+    bool retrieve_phase;
 };
 
 class listener {
@@ -292,7 +294,6 @@ class reconstructor {
     int group_count_;
     std::vector<float> small_volume_buffer_;
 
-    std::vector<float> filter_;
     std::vector<float> sino_buffer_;
     std::vector<float> fdk_weights_;
 
@@ -302,6 +303,11 @@ class reconstructor {
     bool initialized_ = false;
 
     fftwf_plan fft_plan_;
+    fftwf_plan ffti_plan_;
+    fftwf_plan fft2d_plan_;
+    std::vector<std::vector<std::complex<float>>> freq_buffer_;
+    std::vector<float> filter_;
+    std::vector<float> paganin_filter_;
 };
 
 } // namespace slicerecon

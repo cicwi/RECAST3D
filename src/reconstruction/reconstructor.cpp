@@ -1,3 +1,5 @@
+#include <complex>
+
 #include "slicerecon/reconstruction/reconstructor.hpp"
 #include "slicerecon/util/processing.hpp"
 #include "slicerecon/util/util.hpp"
@@ -389,9 +391,22 @@ void reconstructor::initialize(acquisition::geometry geom) {
     initialized_ = true;
 
     // initialize FFTW plan
-    fft_plan_ = fftwf_plan_r2r_1d(geom_.cols, &buffer_[0][0], &buffer_[0][0],
-                                 FFTW_REDFT00, FFTW_ESTIMATE);
+    freq_buffer_ = std::vector<std::vector<std::complex<float>>>(
+        parameters_.filter_cores, std::vector<std::complex<float>>(geom_.cols));
+    fft_plan_ = fftwf_plan_dft_r2c_1d(
+        geom_.cols, &buffer_[0][0],
+        reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]), FFTW_ESTIMATE);
+    ffti_plan_ = fftwf_plan_dft_c2r_1d(
+        geom_.cols, reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]),
+        &buffer_[0][0], FFTW_ESTIMATE);
+    if (parameters_.retrieve_phase) {
+        fft2d_plan_ = fftwf_plan_r2r_2d(geom_.cols, geom_.rows, &buffer_[0][0],
+                                        &buffer_[0][0], FFTW_REDFT00,
+                                        FFTW_REDFT00, FFTW_ESTIMATE);
 
+        paganin_filter_ = util::filter::paganin(geom_.rows, geom_.cols, 0.0f,
+                                                0.0f, 0.0f, 0.0f, 0.0f);
+    }
 } // namespace slicerecon
 
 void reconstructor::transpose_sino_(std::vector<float>& projection_group,
@@ -423,11 +438,13 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
                           << slicerecon::util::end_log;
 
     environment_.spawn(parameters_.filter_cores, [&](auto& world) {
-        util::process_projection(world, geom_.rows, geom_.cols,
-                                 buffer_[write_index_].data(), dark_.data(),
-                                 flat_fielder_.data(), filter_, proj_id_min,
-                                 proj_id_max, !geom_.parallel, fdk_weights_,
-                                 !parameters_.already_linear, fft_plan_);
+        util::process_projection(
+            world, geom_.rows, geom_.cols, buffer_[write_index_].data(),
+            dark_.data(), flat_fielder_.data(), filter_, proj_id_min,
+            proj_id_max, !geom_.parallel, fdk_weights_,
+            !parameters_.already_linear, fft_plan_, ffti_plan_,
+            freq_buffer_[world.rank()], parameters_.retrieve_phase,
+            paganin_filter_, fft2d_plan_);
     });
 
     transpose_sino_(buffer_[write_index_], sino_buffer_,
