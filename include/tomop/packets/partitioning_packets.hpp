@@ -7,7 +7,7 @@
 namespace tomop {
 
 struct SetPartPacket : public PacketBase<SetPartPacket> {
-    static const auto desc = packet_desc::set_part;
+    static constexpr auto desc = packet_desc::set_part;
     SetPartPacket() = default;
     SetPartPacket(int32_t a, int32_t b, std::array<float, 3> c,
                   std::array<float, 3> d)

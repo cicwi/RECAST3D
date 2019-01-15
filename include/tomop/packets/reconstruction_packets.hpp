@@ -7,7 +7,7 @@
 namespace tomop {
 
 struct SliceDataPacket : public PacketBase<SliceDataPacket> {
-    static const auto desc = packet_desc::slice_data;
+    static constexpr auto desc = packet_desc::slice_data;
     SliceDataPacket() = default;
     SliceDataPacket(int32_t a, int32_t b, std::array<int32_t, 2> c,
                     std::vector<float> d, bool e)
@@ -19,7 +19,7 @@ struct SliceDataPacket : public PacketBase<SliceDataPacket> {
 };
 
 struct PartialSliceDataPacket : public PacketBase<PartialSliceDataPacket> {
-    static const auto desc = packet_desc::partial_slice_data;
+    static constexpr auto desc = packet_desc::partial_slice_data;
     PartialSliceDataPacket() = default;
     PartialSliceDataPacket(int32_t a, int32_t b, std::array<int32_t, 2> c,
                            std::array<int32_t, 2> d, std::array<int32_t, 2> e,
@@ -35,7 +35,7 @@ struct PartialSliceDataPacket : public PacketBase<PartialSliceDataPacket> {
 };
 
 struct VolumeDataPacket : public PacketBase<VolumeDataPacket> {
-    static const auto desc = packet_desc::volume_data;
+    static constexpr auto desc = packet_desc::volume_data;
     VolumeDataPacket() = default;
     VolumeDataPacket(int32_t a, std::array<int32_t, 3> b, std::vector<float> c)
         : scene_id(a), volume_size(b), data(c) {}
@@ -45,7 +45,7 @@ struct VolumeDataPacket : public PacketBase<VolumeDataPacket> {
 };
 
 struct PartialVolumeDataPacket : public PacketBase<PartialVolumeDataPacket> {
-    static const auto desc = packet_desc::partial_volume_data;
+    static constexpr auto desc = packet_desc::partial_volume_data;
     PartialVolumeDataPacket() = default;
     PartialVolumeDataPacket(int32_t a, std::array<int32_t, 3> b,
                             std::array<int32_t, 3> c, std::array<int32_t, 3> d,
@@ -60,7 +60,7 @@ struct PartialVolumeDataPacket : public PacketBase<PartialVolumeDataPacket> {
 };
 
 struct SetSlicePacket : public PacketBase<SetSlicePacket> {
-    static const auto desc = packet_desc::set_slice;
+    static constexpr auto desc = packet_desc::set_slice;
     SetSlicePacket() = default;
     SetSlicePacket(int32_t a, int32_t b, std::array<float, 9> c)
         : scene_id(a), slice_id(b), orientation(c) {}
@@ -70,7 +70,7 @@ struct SetSlicePacket : public PacketBase<SetSlicePacket> {
 };
 
 struct RemoveSlicePacket : public PacketBase<RemoveSlicePacket> {
-    static const auto desc = packet_desc::remove_slice;
+    static constexpr auto desc = packet_desc::remove_slice;
     RemoveSlicePacket() = default;
     RemoveSlicePacket(int32_t a, int32_t b) : scene_id(a), slice_id(b) {}
     BOOST_HANA_DEFINE_STRUCT(RemoveSlicePacket, (int32_t, scene_id),
@@ -78,7 +78,7 @@ struct RemoveSlicePacket : public PacketBase<RemoveSlicePacket> {
 };
 
 struct GroupRequestSlicesPacket : public PacketBase<GroupRequestSlicesPacket> {
-    static const auto desc = packet_desc::group_request_slices;
+    static constexpr auto desc = packet_desc::group_request_slices;
     GroupRequestSlicesPacket() = default;
     GroupRequestSlicesPacket(int32_t a, int32_t b)
         : scene_id(a), group_size(b) {}
@@ -87,7 +87,7 @@ struct GroupRequestSlicesPacket : public PacketBase<GroupRequestSlicesPacket> {
 };
 
 struct RegisterParameterPacket : public PacketBase<RegisterParameterPacket> {
-    static const auto desc = packet_desc::register_parameter;
+    static constexpr auto desc = packet_desc::register_parameter;
     RegisterParameterPacket() = default;
     RegisterParameterPacket(int32_t a, std::string b, float c)
         : scene_id(a), parameter_name(b), initial_value(c) {}
@@ -97,7 +97,7 @@ struct RegisterParameterPacket : public PacketBase<RegisterParameterPacket> {
 };
 
 struct ParameterChangedPacket : public PacketBase<ParameterChangedPacket> {
-    static const auto desc = packet_desc::parameter_changed;
+    static constexpr auto desc = packet_desc::parameter_changed;
     ParameterChangedPacket() = default;
     ParameterChangedPacket(int32_t a, std::string b, float c)
         : scene_id(a), parameter_name(b), value(c) {}

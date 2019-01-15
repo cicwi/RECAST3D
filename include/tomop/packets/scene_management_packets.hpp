@@ -8,7 +8,7 @@
 namespace tomop {
 
 struct MakeScenePacket : public PacketBase<MakeScenePacket> {
-    static const auto desc = packet_desc::make_scene;
+    static constexpr auto desc = packet_desc::make_scene;
     MakeScenePacket() = default;
     MakeScenePacket(std::string a, int32_t b) : name(a), dimension(b) {}
     BOOST_HANA_DEFINE_STRUCT(MakeScenePacket, (std::string, name),
@@ -16,7 +16,7 @@ struct MakeScenePacket : public PacketBase<MakeScenePacket> {
 };
 
 struct KillScenePacket : public PacketBase<KillScenePacket> {
-    static const auto desc = packet_desc::kill_scene;
+    static constexpr auto desc = packet_desc::kill_scene;
     KillScenePacket() = default;
     KillScenePacket(int32_t a) : scene_id(a) {}
     BOOST_HANA_DEFINE_STRUCT(KillScenePacket, (int32_t, scene_id));

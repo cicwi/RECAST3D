@@ -8,7 +8,7 @@ namespace tomop {
 
 struct GeometrySpecificationPacket
     : public PacketBase<GeometrySpecificationPacket> {
-    static const auto desc = packet_desc::geometry_specification;
+    static constexpr auto desc = packet_desc::geometry_specification;
     GeometrySpecificationPacket() = default;
     GeometrySpecificationPacket(int32_t a, std::array<float, 3> b,
                                 std::array<float, 3> c)
@@ -19,7 +19,7 @@ struct GeometrySpecificationPacket
 };
 
 struct ScanSettingsPacket : public PacketBase<ScanSettingsPacket> {
-    static const auto desc = packet_desc::scan_settings;
+    static constexpr auto desc = packet_desc::scan_settings;
     ScanSettingsPacket() = default;
     ScanSettingsPacket(int32_t a, int32_t b, int32_t c, bool d)
         : scene_id(a), darks(b), flats(c), already_linear(d) {}
@@ -30,7 +30,7 @@ struct ScanSettingsPacket : public PacketBase<ScanSettingsPacket> {
 
 struct ParallelBeamGeometryPacket
     : public PacketBase<ParallelBeamGeometryPacket> {
-    static const auto desc = packet_desc::parallel_beam_geometry;
+    static constexpr auto desc = packet_desc::parallel_beam_geometry;
     ParallelBeamGeometryPacket() = default;
     ParallelBeamGeometryPacket(int32_t a, int32_t b, int32_t c, int32_t d,
                                std::vector<float> e)
@@ -43,7 +43,7 @@ struct ParallelBeamGeometryPacket
 
 struct ParallelVecGeometryPacket
     : public PacketBase<ParallelVecGeometryPacket> {
-    static const auto desc = packet_desc::parallel_vec_geometry;
+    static constexpr auto desc = packet_desc::parallel_vec_geometry;
     ParallelVecGeometryPacket() = default;
     ParallelVecGeometryPacket(int32_t a, int32_t b, int32_t c, int32_t d,
                               std::vector<float> e)
@@ -55,7 +55,7 @@ struct ParallelVecGeometryPacket
 };
 
 struct ConeBeamGeometryPacket : public PacketBase<ConeBeamGeometryPacket> {
-    static const auto desc = packet_desc::cone_beam_geometry;
+    static constexpr auto desc = packet_desc::cone_beam_geometry;
     ConeBeamGeometryPacket() = default;
     ConeBeamGeometryPacket(int32_t a, int32_t b, int32_t c, int32_t d, float e,
                            float f, std::array<float, 2> g,
@@ -71,7 +71,7 @@ struct ConeBeamGeometryPacket : public PacketBase<ConeBeamGeometryPacket> {
 };
 
 struct ConeVecGeometryPacket : public PacketBase<ConeVecGeometryPacket> {
-    static const auto desc = packet_desc::cone_vec_geometry;
+    static constexpr auto desc = packet_desc::cone_vec_geometry;
     ConeVecGeometryPacket() = default;
     ConeVecGeometryPacket(int32_t a, int32_t b, int32_t c, int32_t d,
                           std::vector<float> e)
@@ -83,7 +83,7 @@ struct ConeVecGeometryPacket : public PacketBase<ConeVecGeometryPacket> {
 };
 
 struct ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
-    static const auto desc = packet_desc::projection_data;
+    static constexpr auto desc = packet_desc::projection_data;
     ProjectionDataPacket() = default;
     ProjectionDataPacket(int32_t a, int32_t b, std::array<float, 3> c,
                          std::array<float, 9> d, std::array<int32_t, 2> e,
@@ -100,7 +100,7 @@ struct ProjectionDataPacket : public PacketBase<ProjectionDataPacket> {
 
 struct PartialProjectionDataPacket
     : public PacketBase<PartialProjectionDataPacket> {
-    static const auto desc = packet_desc::partial_projection_data;
+    static constexpr auto desc = packet_desc::partial_projection_data;
     PartialProjectionDataPacket() = default;
     PartialProjectionDataPacket(int32_t a, int32_t b, std::array<float, 3> c,
                                 std::array<float, 9> d,
@@ -121,7 +121,7 @@ struct PartialProjectionDataPacket
 };
 
 struct ProjectionPacket : public PacketBase<ProjectionPacket> {
-    static const auto desc = packet_desc::projection;
+    static constexpr auto desc = packet_desc::projection;
     ProjectionPacket() = default;
     ProjectionPacket(int32_t type_, int32_t projection_id_,
                      std::array<int32_t, 2> shape_, std::vector<float> data_)
