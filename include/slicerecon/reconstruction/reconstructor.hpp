@@ -122,7 +122,6 @@ class cone_beam_solver : public solver {
 
 } // namespace detail
 
-// the stream-independent pool of data, and slice reconstructor
 class reconstructor {
   public:
     reconstructor(settings parameters);
@@ -142,6 +141,8 @@ class reconstructor {
             char* data) {
         auto p = parameters_;
         bool is_alt = p.reconstruction_mode == alternating;
+        int ue = p.update_every;
+        int gs = p.group_size;
 
         if (!initialized_) {
             slicerecon::util::log
@@ -170,50 +171,46 @@ class reconstructor {
                     received_flats_ = 0;
                 }
 
-                // alternating:
-                //  - full group OR full geom. => process AND upload the buffer
-                //  - full geom. => swap buffers
-                //
-                // continuous:
-                //  - full group => process
-                //  - update_every reached => upload (while locking)
-                auto rel_proj_idx = proj_idx % (is_alt ? p.group_size : p.update_every);
-                bool full_group =  rel_proj_idx % p.group_size == p.group_size - 1;
-                int buffer_size = is_alt ? geom_.proj_count : parameters_.update_every;
-                bool buffer_end_reached = proj_idx % buffer_size == buffer_size - 1;
+                auto rel_proj_idx = proj_idx % ue;
+                bool full_group =  rel_proj_idx % gs == gs - 1;
+                bool buffer_end_reached = proj_idx % ue == ue - 1;
 
-                // 1. buffer incoming
-                memcpy(&buffer_[write_index_][rel_proj_idx * pixels_], data, sizeof(float) * pixels_);
+                // buffer incoming
+                memcpy(&buffer_[rel_proj_idx * pixels_], data, sizeof(float) * pixels_);
 
+                // see if some processing/uploading needs to be done
                 if (full_group || buffer_end_reached) {
-                    auto begin_in_buffer = current_group_ * p.group_size;
-                    auto end_in_buffer = std::min((current_group_ + 1) * p.group_size - 1, buffer_size - 1);
 
-                    process_(begin_in_buffer, end_in_buffer);
+                    // find processing range in the data buffer
+                    auto begin_in_buffer = rel_proj_idx - (rel_proj_idx % gs); // start idx of this group
 
+                    // start of threaded processing
+                    process_(begin_in_buffer, rel_proj_idx);
 
                     if (buffer_end_reached) {
-                        bool use_gpu_lock = !is_alt;
+                        // copy data from buffer into sino_buffer
+                        transpose_into_sino_(0, ue - 1);
 
-                        auto update_size = is_alt ? p.group_size : p.update_every;
-                        auto begin_wrt_geom = (update_count_ * update_size) % geom_.proj_count;
-                        auto end_wrt_geom = (begin_wrt_geom + end_in_buffer) % geom_.proj_count;
+                        auto begin_wrt_geom = (update_count_ * ue) % geom_.proj_count;
+                        auto end_wrt_geom = (begin_wrt_geom + ue - 1) % geom_.proj_count;
+                        bool use_gpu_lock = !is_alt;
+                        int gpu_buffer_idx = is_alt ? 1 - active_gpu_buffer : 0;
 
                         if (end_wrt_geom > begin_wrt_geom) {
-                            upload_sino_buffer_(begin_wrt_geom, end_wrt_geom, 0, use_gpu_lock);
+                            upload_sino_buffer_(begin_wrt_geom, end_wrt_geom, 0, gpu_buffer_idx, use_gpu_lock);
                         } else {
                             // we have gone around in the geometry
-                            upload_sino_buffer_(begin_wrt_geom, geom_.proj_count - 1, 0, use_gpu_lock);
-                            upload_sino_buffer_(0, end_wrt_geom, geom_.proj_count - begin_wrt_geom - 1, use_gpu_lock);
+                            upload_sino_buffer_(begin_wrt_geom, geom_.proj_count - 1, 0, gpu_buffer_idx, use_gpu_lock);
+                            upload_sino_buffer_(0, end_wrt_geom, geom_.proj_count - begin_wrt_geom - 1,
+                                                gpu_buffer_idx, use_gpu_lock);
                         }
 
-                        if (is_alt) write_index_ = 1 - write_index_; // swap buffers
-                        refresh_data_();
+                        // let the reconstructor know that now the (other) GPU buffer is ready for reconstruction
+                        active_gpu_buffer = gpu_buffer_idx;
 
+                        refresh_data_();
                         update_count_++;
                     }
-
-                    current_group_ = (current_group_ + 1) % group_count_;
                 }
 
                 break;
@@ -241,7 +238,7 @@ class reconstructor {
             return {{1, 1}, {0.0f}};
         }
 
-        return alg_->reconstruct_slice(x, write_index_);
+        return alg_->reconstruct_slice(x, active_gpu_buffer);
     }
 
     std::vector<float>& preview_data() { return small_volume_buffer_; }
@@ -293,9 +290,9 @@ class reconstructor {
 
     void process_(int proj_id_begin, int proj_id_end);
 
-    void upload_sino_buffer_(int proj_id_begin, int proj_id_end, int buffer_begin, bool lock_gpu = false);
+    void upload_sino_buffer_(int proj_id_begin, int proj_id_end, int buffer_begin, int buffer_idx, bool lock_gpu = false);
 
-    void transpose_sino_(float* projection_group, float* sino_buffer, int proj_offset, int group_size, size_t buffer_size);
+    void transpose_into_sino_(int proj_offset, int group_size);
 
     void refresh_data_();
 
@@ -303,14 +300,10 @@ class reconstructor {
     std::vector<float> all_flats_;
     std::vector<float> dark_;
     std::vector<float> flat_fielder_;
+    std::vector<float> buffer_;
 
-    /**
-     * Local buffer of size group_size if in alternating mode,
-     * otherwise it has size update_every.
-     */
-    std::array<std::vector<float>, 2> buffer_;
+    int active_gpu_buffer = 0;
 
-    int write_index_ = 0;
     int32_t pixels_ = -1;
     int32_t received_flats_ = 0;
 
@@ -319,9 +312,7 @@ class reconstructor {
     acquisition::geometry geom_;
     settings parameters_;
 
-    int current_group_;
     int update_count_ = 0;
-    int group_count_;
     std::vector<float> small_volume_buffer_;
 
     std::vector<float> sino_buffer_;

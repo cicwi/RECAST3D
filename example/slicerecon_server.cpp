@@ -68,6 +68,12 @@ int main(int argc, char** argv) {
     }
 
     auto mode = continuous_mode ? slicerecon::mode::continuous : slicerecon::mode::alternating;
+
+    if (mode == slicerecon::mode::alternating && update_every != group_size) {
+        std::cout << "ERROR:  In default (alternating) mode the --update-every has to equal the --group-size";
+        return -1;
+    }
+
     auto params = slicerecon::settings{
         slice_size, preview_size, group_size,    filter_cores, 1,
         1,          update_every, mode, false,        retrieve_phase, paganin};
