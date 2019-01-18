@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
-#include <unsupported/Eigen/FFT>
 #include <iostream>
 
 #include "slicerecon/util/bench.hpp"

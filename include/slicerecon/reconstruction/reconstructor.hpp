@@ -194,7 +194,7 @@ class reconstructor {
                         auto begin_wrt_geom = (update_count_ * ue) % geom_.proj_count;
                         auto end_wrt_geom = (begin_wrt_geom + ue - 1) % geom_.proj_count;
                         bool use_gpu_lock = !is_alt;
-                        int gpu_buffer_idx = is_alt ? 1 - active_gpu_buffer : 0;
+                        int gpu_buffer_idx = is_alt ? 1 - active_gpu_buffer_index_ : 0;
 
                         if (end_wrt_geom > begin_wrt_geom) {
                             upload_sino_buffer_(begin_wrt_geom, end_wrt_geom, 0, gpu_buffer_idx, use_gpu_lock);
@@ -206,7 +206,7 @@ class reconstructor {
                         }
 
                         // let the reconstructor know that now the (other) GPU buffer is ready for reconstruction
-                        active_gpu_buffer = gpu_buffer_idx;
+                        active_gpu_buffer_index_ = gpu_buffer_idx;
 
                         refresh_data_();
                         update_count_++;
@@ -238,7 +238,7 @@ class reconstructor {
             return {{1, 1}, {0.0f}};
         }
 
-        return alg_->reconstruct_slice(x, active_gpu_buffer);
+        return alg_->reconstruct_slice(x, active_gpu_buffer_index_);
     }
 
     std::vector<float>& preview_data() { return small_volume_buffer_; }
@@ -302,7 +302,7 @@ class reconstructor {
     std::vector<float> flat_fielder_;
     std::vector<float> buffer_;
 
-    int active_gpu_buffer = 0;
+    int active_gpu_buffer_index_ = 0;
 
     int32_t pixels_ = -1;
     int32_t received_flats_ = 0;
