@@ -8,15 +8,15 @@
 
 namespace slicerecon::util {
 
-void process_projection(bulk::world& world, int rows, int cols, float* data,
-                        const float* dark, const float* reciproc,
-                        const std::vector<float>& filter, int proj_id_min,
-                        int proj_id_max, bool weigh,
-                        const std::vector<float>& fdk_weights, bool neglog,
-                        fftwf_plan plan, fftwf_plan iplan,
-                        std::vector<std::complex<float>>& freq_buffer,
-                        bool retrieve_phase, const std::vector<float>&,
-                        fftwf_plan plan2d) {
+void process_projection(
+    bulk::world& world, int rows, int cols, float* data, const float* dark,
+    const float* reciproc, const std::vector<float>& filter, int proj_id_min,
+    int proj_id_max, bool weigh, const std::vector<float>& fdk_weights,
+    bool neglog, fftwf_plan plan, fftwf_plan iplan,
+    std::vector<std::complex<float>>& freq_buffer, bool retrieve_phase,
+    const std::vector<float>& proj_filter, fftwf_plan plan2d,
+    fftwf_plan plan2di, std::vector<std::complex<float>>& proj_freq_buffer,
+    float lambda, float beta) {
     // divide work by rows
     int s = world.rank();
     int p = world.active_processors();
@@ -25,6 +25,28 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
     int final_row = std::min((s + 1) * block_size, rows);
 
     int count = proj_id_max - proj_id_min + 1;
+
+    // distribute over the projections now
+    if (retrieve_phase) {
+        for (int proj = s; proj < count; proj += p) {
+            // take fft of proj
+            fftwf_execute_dft_r2c(
+                plan2d, &data[proj * rows * cols],
+                reinterpret_cast<fftwf_complex*>(&proj_freq_buffer[0]));
+
+            // filter the proj in 2D
+            for (int i = 0; i < rows * cols; ++i) {
+                proj_freq_buffer[i] *= proj_filter[i];
+            }
+
+            // ifft the proj
+            fftwf_execute_dft_c2r(
+                plan2di, reinterpret_cast<fftwf_complex*>(&proj_freq_buffer[0]),
+                &data[proj * rows * cols]);
+
+            // ... scaling and neglog done below
+        }
+    }
 
     for (int proj = 0; proj < count; ++proj) {
         auto offset = proj * rows * cols;
@@ -38,6 +60,9 @@ void process_projection(bulk::world& world, int rows, int cols, float* data,
                         data[offset + index] <= 0.0f
                             ? 0.0f
                             : -std::log(data[offset + index]);
+                    if (retrieve_phase) {
+                        data[offset + index] *= lambda / (4.0 * M_PI * beta);
+                    }
                 }
                 if (weigh) {
                     data[offset + index] *= fdk_weights[offset + index];
@@ -115,26 +140,26 @@ std::vector<float> gaussian(int cols, float sigma) {
 
 std::vector<float> paganin(int rows, int cols, float pixel_size, float lambda,
                            float delta, float beta, float distance) {
-    (void)pixel_size;
-    (void)lambda;
-    (void)delta;
-    (void)beta;
-    (void)distance;
-    //     delta_x = pixelSize/(2*numpy.pi); delta_y = delta_x #quadratic
-    //     pixels, pixelSize in meter
-    // #delta_x, delta_y remain after padding (fix pixelsize), fftOfImage.shape
-    // takes care of additional (padded) pixels #The fftfreq(....) is necessary
-    // to give the proper k space units (meter^{-1}), since lamda and distance
-    // are as well in meters, #otherwise the term
-    // 'distance*lamda*delta*k_squared' would have inconsistent units. (The k
-    // units would be pixelsize^{-1}) k_x =
-    // numpy.fft.fftfreq(fftOfImage.shape[1], d=delta_x); k_y =
-    // numpy.fft.fftfreq(fftOfImage.shape[0], d=delta_y) k_x_grid, k_y_grid =
-    // numpy.meshgrid(k_x, k_y) k_squared = k_x_grid**2 + k_y_grid**2
-    // kSpaceFilter = 1.0/(1.0 +
-    // distance*lamda*delta*k_squared/(4*numpy.pi*beta))
+    auto filter = std::vector<float>(rows * cols);
 
-    return std::vector<float>(rows * cols);
+    auto dx = pixel_size / (2.0f * M_PI);
+    auto dy = dx;
+    auto mid_x = (cols + 1) / 2;
+    auto mid_y = (rows + 1) / 2;
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            // TODO Is this is FFTW convention compared to numpy?
+            auto x = i < mid_x ? i : (2 * mid_x - i);
+            auto y = j < mid_y ? j : (2 * mid_y - j);
+            auto k_x = x * dx;
+            auto k_y = y * dy;
+            auto k_squared = k_x * k_x + k_y * k_y;
+            filter[i * cols + j] = (4.0f * beta * M_PI) / 1.0f +
+                                   distance * lambda * delta * k_squared;
+        }
+    }
+    return filter;
 }
 
 } // namespace filter

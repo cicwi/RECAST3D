@@ -37,6 +37,14 @@ namespace slicerecon {
 
 class reconstructor;
 
+struct paganin_settings {
+    float pixel_size;
+    float lambda;
+    float delta;
+    float beta;
+    float distance;
+};
+
 struct settings {
     int32_t slice_size;
     int32_t preview_size;
@@ -46,6 +54,7 @@ struct settings {
     int32_t flats;
     bool already_linear;
     bool retrieve_phase;
+    paganin_settings paganin;
 };
 
 class listener {
@@ -305,7 +314,9 @@ class reconstructor {
     fftwf_plan fft_plan_;
     fftwf_plan ffti_plan_;
     fftwf_plan fft2d_plan_;
+    fftwf_plan ffti2d_plan_;
     std::vector<std::vector<std::complex<float>>> freq_buffer_;
+    std::vector<std::vector<std::complex<float>>> proj_freq_buffer_;
     std::vector<float> filter_;
     std::vector<float> paganin_filter_;
 };

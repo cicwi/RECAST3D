@@ -16,15 +16,15 @@ class world;
 
 namespace slicerecon::util {
 
-void process_projection(bulk::world& world, int rows, int cols, float* data,
-                        const float* dark, const float* reciproc,
-                        const std::vector<float>& filter, int proj_id_min,
-                        int proj_id_max, bool weigh,
-                        const std::vector<float>& fdk_weights, bool neglog,
-                        fftwf_plan plan, fftwf_plan iplan,
-                        std::vector<std::complex<float>>& freq_buffer,
-                        bool retrieve_phase, const std::vector<float>&,
-                        fftwf_plan plan2d);
+void process_projection(
+    bulk::world& world, int rows, int cols, float* data, const float* dark,
+    const float* reciproc, const std::vector<float>& filter, int proj_id_min,
+    int proj_id_max, bool weigh, const std::vector<float>& fdk_weights,
+    bool neglog, fftwf_plan plan, fftwf_plan iplan,
+    std::vector<std::complex<float>>& freq_buffer, bool retrieve_phase,
+    const std::vector<float>& proj_filter, fftwf_plan plan2d,
+    fftwf_plan plan2di, std::vector<std::complex<float>>& proj_freq_buffer,
+    float lambda, float beta);
 
 namespace filter {
 

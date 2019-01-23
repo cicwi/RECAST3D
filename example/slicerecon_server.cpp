@@ -36,6 +36,12 @@ int main(int argc, char** argv) {
     auto use_reqrep = opts.passed("--reqrep");
     auto retrieve_phase = opts.passed("--phase");
 
+    auto pixel_size = opts.arg_as_or<float>("--pixelsize", 1.0f);
+    auto lambda = opts.arg_as_or<float>("--lambda", 1.23984193e-9);
+    auto delta = opts.arg_as_or<float>("--delta", 1e-8);
+    auto beta = opts.arg_as_or<float>("--beta", 1e-10);
+    auto distance = opts.arg_as_or<float>("--distance", 40.0f);
+
     if (slice_size < 0 || preview_size < 0 || group_size < 0 ||
         filter_cores < 0) {
         std::cout << opts.usage();
@@ -43,9 +49,12 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    auto paganin =
+        slicerecon::paganin_settings{pixel_size, lambda, delta, beta, distance};
+
     auto params = slicerecon::settings{
-        slice_size, preview_size, group_size,    filter_cores, 1,
-        1,          false,        retrieve_phase};
+        slice_size, preview_size, group_size,     filter_cores, 1,
+        1,          false,        retrieve_phase, paganin};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);
