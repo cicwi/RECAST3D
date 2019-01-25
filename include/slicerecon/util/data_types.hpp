@@ -7,6 +7,26 @@
 
 namespace slicerecon {
 
+struct paganin_settings {
+    float pixel_size;
+    float lambda;
+    float delta;
+    float beta;
+    float distance;
+};
+
+struct settings {
+    int32_t slice_size;
+    int32_t preview_size;
+    int32_t group_size;
+    int32_t filter_cores;
+    int32_t darks;
+    int32_t flats;
+    bool already_linear;
+    bool retrieve_phase;
+    paganin_settings paganin;
+};
+
 namespace acquisition {
 
 /**

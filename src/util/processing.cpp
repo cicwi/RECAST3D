@@ -8,86 +8,6 @@
 
 namespace slicerecon::util {
 
-void process_projection(
-    bulk::world& world, int rows, int cols, float* data, const float* dark,
-    const float* reciproc, const std::vector<float>& filter, int proj_id_min,
-    int proj_id_max, bool weigh, const std::vector<float>& fdk_weights,
-    bool neglog, fftwf_plan plan, fftwf_plan iplan,
-    std::vector<std::complex<float>>& freq_buffer, bool retrieve_phase,
-    const std::vector<float>& proj_filter, fftwf_plan plan2d,
-    fftwf_plan plan2di, std::vector<std::complex<float>>& proj_freq_buffer,
-    float lambda, float beta) {
-    // divide work by rows
-    int s = world.rank();
-    int p = world.active_processors();
-    int block_size = ((rows - 1) / p) + 1;
-    int first_row = s * block_size;
-    int final_row = std::min((s + 1) * block_size, rows);
-
-    int count = proj_id_max - proj_id_min + 1;
-
-    // distribute over the projections now
-    if (retrieve_phase) {
-        for (int proj = s; proj < count; proj += p) {
-            // take fft of proj
-            fftwf_execute_dft_r2c(
-                plan2d, &data[proj * rows * cols],
-                reinterpret_cast<fftwf_complex*>(&proj_freq_buffer[0]));
-
-            // filter the proj in 2D
-            for (int i = 0; i < rows * cols; ++i) {
-                proj_freq_buffer[i] *= proj_filter[i];
-            }
-
-            // ifft the proj
-            fftwf_execute_dft_c2r(
-                plan2di, reinterpret_cast<fftwf_complex*>(&proj_freq_buffer[0]),
-                &data[proj * rows * cols]);
-
-            // ... scaling and neglog done below
-        }
-    }
-
-    for (int proj = 0; proj < count; ++proj) {
-        auto offset = proj * rows * cols;
-        for (auto r = first_row; r < final_row; ++r) {
-            int index = r * cols;
-            for (auto c = 0; c < cols; ++c) {
-                if (neglog) {
-                    data[offset + index] =
-                        (data[offset + index] - dark[index]) * reciproc[index];
-                    data[offset + index] =
-                        data[offset + index] <= 0.0f
-                            ? 0.0f
-                            : -std::log(data[offset + index]);
-                    if (retrieve_phase) {
-                        data[offset + index] *= lambda / (4.0 * M_PI * beta);
-                    }
-                }
-                if (weigh) {
-                    data[offset + index] *= fdk_weights[offset + index];
-                }
-                index++;
-            }
-
-            // filter the row
-            fftwf_execute_dft_r2c(
-                plan, &data[offset + r * cols],
-                reinterpret_cast<fftwf_complex*>(&freq_buffer[0]));
-
-            for (int i = 0; i < cols; ++i) {
-                freq_buffer[i] *= filter[i];
-            }
-
-            fftwf_execute_dft_c2r(
-                iplan, reinterpret_cast<fftwf_complex*>(&freq_buffer[0]),
-                &data[offset + r * cols]);
-        }
-    }
-
-    world.barrier();
-}
-
 namespace filter {
 
 std::vector<float> ram_lak(int cols) {
@@ -163,5 +83,101 @@ std::vector<float> paganin(int rows, int cols, float pixel_size, float lambda,
 }
 
 } // namespace filter
+
+namespace detail {
+
+void Flatfielder::apply(Projection proj) const {
+    for (int i = 0; i < proj.rows * proj.cols; ++i) {
+        proj.data[i] = (proj.data[i] - dark.data[i]) * reciproc.data[i];
+    }
+}
+
+void Neglogger::apply(Projection proj) const {
+    for (int i = 0; i < proj.rows * proj.cols; ++i) {
+        proj.data[i] = proj.data[i] <= 0.0f ? 0.0f : -std::log(proj.data[i]);
+    }
+}
+
+void FDKScaler::apply(Projection proj, int proj_idx) const {
+    auto offset = proj_idx * proj.cols * proj.rows;
+    for (int i = 0; i < proj.rows * proj.cols; ++i) {
+        proj.data[i] *= weights[offset + i];
+    }
+}
+
+Paganin::Paganin(settings parameters, acquisition::geometry geom, float* data) {
+    proj_freq_buffer_ = std::vector<std::vector<std::complex<float>>>(
+        parameters.filter_cores,
+        std::vector<std::complex<float>>(geom.cols * geom.rows));
+    fft2d_plan_ = fftwf_plan_dft_r2c_2d(
+        geom.cols, geom.rows, data,
+        reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[0][0]),
+        FFTW_ESTIMATE);
+    ffti2d_plan_ = fftwf_plan_dft_c2r_2d(
+        geom.cols, geom.rows,
+        reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[0][0]), data,
+        FFTW_ESTIMATE);
+    paganin_filter_ = util::filter::paganin(
+        geom.rows, geom.cols, parameters.paganin.pixel_size,
+        parameters.paganin.lambda, parameters.paganin.delta,
+        parameters.paganin.beta, parameters.paganin.distance);
+
+    paganin_ = parameters.paganin;
+}
+
+void Paganin::apply(Projection proj, int s) {
+    // take fft of proj
+    fftwf_execute_dft_r2c(
+        fft2d_plan_, proj.data,
+        reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[s][0]));
+
+    // filter the proj in 2D
+    for (int i = 0; i < proj.rows * proj.cols; ++i) {
+        proj_freq_buffer_[s][i] *= paganin_filter_[i];
+    }
+
+    // ifft the proj
+    fftwf_execute_dft_c2r(
+        ffti2d_plan_,
+        reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[s][0]), proj.data);
+
+    // log and scale
+    for (int i = 0; i < proj.rows * proj.cols; ++i) {
+        proj.data[i] = proj.data[i] <= 0.0f ? 0.0f : -std::log(proj.data[i]);
+        proj.data[i] *= paganin_.lambda / (4.0 * M_PI * paganin_.beta);
+    }
+}
+
+Filterer::Filterer(settings parameters, acquisition::geometry geom,
+                   float* data) {
+    freq_buffer_ = std::vector<std::vector<std::complex<float>>>(
+        parameters.filter_cores, std::vector<std::complex<float>>(geom.cols));
+    fft_plan_ = fftwf_plan_dft_r2c_1d(
+        geom.cols, data, reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]),
+        FFTW_ESTIMATE);
+    ffti_plan_ = fftwf_plan_dft_c2r_1d(
+        geom.cols, reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]), data,
+        FFTW_ESTIMATE);
+    filter_ = util::filter::shepp_logan(geom.cols);
+}
+
+void Filterer::apply(Projection proj, int s) {
+    // filter the rows
+    for (int row = 0; row < proj.rows; ++row) {
+        fftwf_execute_dft_r2c(
+            fft_plan_, &proj.data[row * proj.cols],
+            reinterpret_cast<fftwf_complex*>(&freq_buffer_[s][0]));
+
+        for (int i = 0; i < proj.cols; ++i) {
+            freq_buffer_[s][i] *= filter_[i];
+        }
+
+        fftwf_execute_dft_c2r(
+            ffti_plan_, reinterpret_cast<fftwf_complex*>(&freq_buffer_[s][0]),
+            &proj.data[row * proj.cols]);
+    }
+}
+
+} // namespace detail
 
 } // namespace slicerecon::util

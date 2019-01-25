@@ -368,14 +368,6 @@ void reconstructor::initialize(acquisition::geometry geom) {
                                 parameters_.preview_size *
                                 parameters_.preview_size);
 
-    // initialize filter
-    filter_ = util::filter::shepp_logan(geom_.cols);
-    // TODO allow making a choice, optional low pass like below
-    // auto filter_lowpass = util::filter::gaussian(geom_.cols, 0.02f);
-    // for (int i = 0; i < geom_.cols; ++i) {
-    //    filter_[i] *= filter_lowpass[i];
-    //}
-
     if (geom_.parallel) {
         // make reconstruction object par
         alg_ =
@@ -383,41 +375,47 @@ void reconstructor::initialize(acquisition::geometry geom) {
     } else {
         // make reconstruction object cb
         alg_ = std::make_unique<detail::cone_beam_solver>(parameters_, geom_);
-
-        // initialize FDK weights
-        fdk_weights_ = ((detail::cone_beam_solver*)(alg_.get()))->fdk_weights();
     }
 
     initialized_ = true;
 
-    // initialize FFTW plan
-    freq_buffer_ = std::vector<std::vector<std::complex<float>>>(
-        parameters_.filter_cores, std::vector<std::complex<float>>(geom_.cols));
-    proj_freq_buffer_ = std::vector<std::vector<std::complex<float>>>(
-        parameters_.filter_cores,
-        std::vector<std::complex<float>>(geom_.cols * geom_.rows));
+    projection_processor_ =
+        std::make_unique<util::ProjectionProcessor>(parameters_, geom_);
 
-    fft_plan_ = fftwf_plan_dft_r2c_1d(
-        geom_.cols, &buffer_[0][0],
-        reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]), FFTW_ESTIMATE);
-    ffti_plan_ = fftwf_plan_dft_c2r_1d(
-        geom_.cols, reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]),
-        &buffer_[0][0], FFTW_ESTIMATE);
-    if (parameters_.retrieve_phase) {
-        fft2d_plan_ = fftwf_plan_dft_r2c_2d(
-            geom_.cols, geom_.rows, &buffer_[0][0],
-            reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[0][0]),
-            FFTW_ESTIMATE);
-        ffti2d_plan_ = fftwf_plan_dft_c2r_2d(
-            geom_.cols, geom_.rows,
-            reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[0][0]),
-            &buffer_[0][0], FFTW_ESTIMATE);
-        paganin_filter_ = util::filter::paganin(
-            geom_.rows, geom_.cols, parameters_.paganin.pixel_size,
-            parameters_.paganin.lambda, parameters_.paganin.delta,
-            parameters_.paganin.beta, parameters_.paganin.distance);
+    // add flat fielder
+    projection_processor_->flatfielder =
+        std::make_unique<util::detail::Flatfielder>(util::detail::Flatfielder{
+            {dark_.data(), geom_.rows, geom_.cols},
+            {flat_fielder_.data(), geom_.rows, geom_.cols}});
+
+    // add neg log
+    if (!parameters_.already_linear && !parameters_.retrieve_phase) {
+        projection_processor_->neglog =
+            std::make_unique<util::detail::Neglogger>(
+                util::detail::Neglogger{});
     }
-} // namespace slicerecon
+
+    projection_processor_->filterer = std::make_unique<util::detail::Filterer>(
+        util::detail::Filterer{parameters_, geom_, &buffer_[0][0]});
+
+    // TODO allow making a choice, optional low pass like below
+    // auto filter_lowpass = util::filter::gaussian(geom_.cols, 0.02f);
+    // for (int i = 0; i < geom_.cols; ++i) {
+    //    filter_[i] *= filter_lowpass[i];
+    //}
+
+    if (!geom_.parallel) {
+        projection_processor_->fdk_scale =
+            std::make_unique<util::detail::FDKScaler>(util::detail::FDKScaler{
+                ((detail::cone_beam_solver*)(alg_.get()))->fdk_weights()});
+    }
+
+    if (parameters_.retrieve_phase) {
+        projection_processor_->paganin =
+            std::make_unique<util::detail::Paganin>(
+                util::detail::Paganin{parameters_, geom_, &buffer_[0][0]});
+    }
+}
 
 void reconstructor::transpose_sino_(std::vector<float>& projection_group,
                                     std::vector<float>& sino_buffer,
@@ -447,19 +445,8 @@ void reconstructor::upload_(int proj_id_min, int proj_id_max) {
                           << ") between " << proj_id_min << "/" << proj_id_max
                           << slicerecon::util::end_log;
 
-    // TODO Make this mess more modular
-    environment_.spawn(parameters_.filter_cores, [&](auto& world) {
-        util::process_projection(
-            world, geom_.rows, geom_.cols, buffer_[write_index_].data(),
-            dark_.data(), flat_fielder_.data(), filter_, proj_id_min,
-            proj_id_max, !geom_.parallel, fdk_weights_,
-            !parameters_.already_linear, fft_plan_, ffti_plan_,
-            freq_buffer_[world.rank()], parameters_.retrieve_phase,
-            paganin_filter_, fft2d_plan_, ffti2d_plan_,
-            proj_freq_buffer_[world.rank()], parameters_.paganin.lambda,
-            parameters_.paganin.beta);
-    });
-
+    projection_processor_->process(buffer_[write_index_].data(),
+                                   proj_id_max - proj_id_min + 1);
     transpose_sino_(buffer_[write_index_], sino_buffer_,
                     proj_id_max - proj_id_min + 1);
 
