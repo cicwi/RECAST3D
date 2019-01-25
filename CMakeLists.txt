@@ -83,6 +83,7 @@ set(
     SOURCES
     "src/util/util.cpp"
     "src/util/log.cpp"
+    "src/util/bench.cpp"
     "src/util/processing.cpp"
     "src/reconstruction/reconstructor.cpp"
     "src/reconstruction/helpers.cpp"

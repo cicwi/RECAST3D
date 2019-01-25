@@ -4,6 +4,7 @@
 #include <cmath>
 #include <complex>
 
+#include "slicerecon/util/bench.hpp"
 #include "slicerecon/util/processing.hpp"
 
 namespace slicerecon::util {
@@ -179,5 +180,38 @@ void Filterer::apply(Projection proj, int s) {
 }
 
 } // namespace detail
+
+void ProjectionProcessor::process(float* data, int proj_count) {
+    auto dt = bulk::util::timer();
+    env_.spawn(param_.filter_cores, [&](auto& world) {
+        auto s = world.rank();
+        auto p = world.active_processors();
+        auto pixels = geom_.rows * geom_.cols;
+
+        // we parallelize over projections, and apply the necessary
+        // transformations
+        for (auto proj_idx = s; proj_idx < proj_count; proj_idx += p) {
+            auto proj = detail::Projection{&data[proj_idx * pixels], geom_.rows,
+                                           geom_.cols};
+            if (flatfielder) {
+                flatfielder->apply(proj);
+            }
+            if (paganin) {
+                paganin->apply(proj, world.rank());
+            } else if (neglog) {
+                neglog->apply(proj);
+            }
+            if (filterer) {
+                filterer->apply(proj, world.rank());
+            }
+            if (fdk_scale) {
+                fdk_scale->apply(proj, proj_idx);
+            }
+        }
+
+        world.barrier();
+    });
+    bench.insert("process per proj", dt.get() / proj_count);
+}
 
 } // namespace slicerecon::util

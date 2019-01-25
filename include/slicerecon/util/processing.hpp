@@ -82,36 +82,7 @@ class ProjectionProcessor {
     ProjectionProcessor(settings param, acquisition::geometry geom)
         : param_(param), geom_(geom) {}
 
-    void process(float* data, int proj_count) {
-        env_.spawn(param_.filter_cores, [&](auto& world) {
-            auto s = world.rank();
-            auto p = world.active_processors();
-            auto pixels = geom_.rows * geom_.cols;
-
-            // we parallelize over projections, and apply the necessary
-            // transformations
-            for (auto proj_idx = s; proj_idx < proj_count; proj_idx += p) {
-                auto proj = detail::Projection{&data[proj_idx * pixels],
-                                               geom_.rows, geom_.cols};
-                if (flatfielder) {
-                    flatfielder->apply(proj);
-                }
-                if (paganin) {
-                    paganin->apply(proj, world.rank());
-                } else if (neglog) {
-                    neglog->apply(proj);
-                }
-                if (filterer) {
-                    filterer->apply(proj, world.rank());
-                }
-                if (fdk_scale) {
-                    fdk_scale->apply(proj, proj_idx);
-                }
-            }
-
-            world.barrier();
-        });
-    }
+    void process(float* data, int proj_count);
 
     std::unique_ptr<detail::Flatfielder> flatfielder;
     std::unique_ptr<detail::Neglogger> neglog;
