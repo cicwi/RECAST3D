@@ -292,7 +292,7 @@ class reconstructor {
 
     void upload_sino_buffer_(int proj_id_begin, int proj_id_end, int buffer_begin, int buffer_idx, bool lock_gpu = false);
 
-    void transpose_into_sino_(int proj_offset, int group_size);
+    void transpose_into_sino_(int proj_offset, int proj_end);
 
     void refresh_data_();
 

@@ -396,7 +396,7 @@ void reconstructor::initialize(acquisition::geometry geom) {
     }
 
     projection_processor_->filterer = std::make_unique<util::detail::Filterer>(
-        util::detail::Filterer{parameters_, geom_, &buffer_[0][0]});
+        util::detail::Filterer{parameters_, geom_, &buffer_[0]});
 
     // TODO allow making a choice, optional low pass like below
     // auto filter_lowpass = util::filter::gaussian(geom_.cols, 0.02f);
@@ -413,7 +413,7 @@ void reconstructor::initialize(acquisition::geometry geom) {
     if (parameters_.retrieve_phase) {
         projection_processor_->paganin =
             std::make_unique<util::detail::Paganin>(
-                util::detail::Paganin{parameters_, geom_, &buffer_[0][0]});
+                util::detail::Paganin{parameters_, geom_, &buffer_[0]});
     }
 }
 
@@ -456,13 +456,9 @@ void reconstructor::process_(int proj_id_begin, int proj_id_end) {
                           << " between " << proj_id_begin << "/" << proj_id_end
                           << slicerecon::util::end_log;
 
-    projection_processor_->process(buffer_[active_gpu_buffer].data()[proj_id_begin],
-                                   proj_id_end - proj_id_begin + 1);
+    auto data = &buffer_[proj_id_begin];
 
-    transpose_sino_(buffer_[active_gpu_buffer].data(), &sino_buffer_[0],
-        proj_id_begin,
-        proj_id_end,
-        buffer_[0].size()/pixels_);
+    projection_processor_->process(data, proj_id_end - proj_id_begin + 1);
 }
 
 /**
@@ -480,11 +476,11 @@ void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int 
     }
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
-                          << "Uploading to buffer (" << active_gpu_buffer
+                          << "Uploading to buffer (" << active_gpu_buffer_index_
                           << ") between " << proj_id_begin << "/" << proj_id_end
                           << slicerecon::util::end_log;
 
-    auto data = &sino_buffer_.data()[buffer_begin * pixels_];
+    auto data = &sino_buffer_[buffer_begin * pixels_];
 
     // in continuous mode, there is only one data buffer and it needs to be protected
     // since the reconstruction server has access to it too
@@ -495,7 +491,7 @@ void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int 
                                          data, proj_id_begin,
                                          proj_id_end);
     } else {
-         astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
+        astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
                                          data, proj_id_begin,
                                          proj_id_end);
     }
@@ -513,12 +509,12 @@ void reconstructor::refresh_data_() {
 
     { // lock guard scope
         std::lock_guard<std::mutex> guard(gpu_mutex_);
-        alg_->reconstruct_preview(small_volume_buffer_, active_gpu_buffer);
+        alg_->reconstruct_preview(small_volume_buffer_, active_gpu_buffer_index_);
     } // end lock guard scope
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
                           << "Reconstructed low-res preview ("
-                          << active_gpu_buffer << ")"
+                          << active_gpu_buffer_index_ << ")"
                           << slicerecon::util::end_log;
 
     // send message to observers that new data is available
