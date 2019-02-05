@@ -168,7 +168,7 @@ def main(arg):
         data = dxreader.read_hdf5(fname, tomo_grp, slc=((int(i),int(i)+1), sino))
 
         # Flat-field correction of raw data.
-        # data = tomopy.normalize(data, flat, dark)
+        data = tomopy.normalize(data, flat, dark)
 
         # Remove stripes (not so suitable for realtime really!)
         # data = tomopy.remove_stripe_fw(data, level=7, wname='sym16', sigma=1, pad=True)
