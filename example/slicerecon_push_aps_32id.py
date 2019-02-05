@@ -95,7 +95,7 @@ def main(arg):
     binning = int(args.binning)
     subsampling = int(args.sample)  # taking 1 per (subsampling) instead of all the frames
 
-    nproj = 400  # number of projections per 180 degrees interval, this is coded
+    nproj = 300  # number of projections per 180 degrees interval, this is coded
     scene_id = 0
 
     assert((nproj / subsampling).is_integer())
@@ -113,8 +113,8 @@ def main(arg):
     sino = (int(sino_start), int(sino_end))
 
     # Read APS 32-BM raw data, for the sake of darks and flats
-    print("Reading flats, darks, angles...")
-    proj, flat, dark, theta = dxchange.read_aps_32id(fname, proj=1)
+    print("Reading flats, darks ...")
+    proj, flat, dark, _ = dxchange.read_aps_32id(fname, proj=1, sino=sino) # angles give nonsense values
 
     # Phase retrieval for tomobank id 00080
     # sample_detector_distance = 25
@@ -149,8 +149,8 @@ def main(arg):
         # We're not sending flats and darks to the SliceRecon server (see below) because (i) buffer may not be large
         # enough and (ii) we will want to do preprocessing of the projection data here anyway
         
-        already_linear_flatdarks = False
-        pub.send(tp.scan_settings_packet(scene_id, dark.shape[0], flat.shape[0], already_linear_flatdarks))
+        # already_linear_flatdarks = False
+        # pub.send(tp.scan_settings_packet(scene_id, dark.shape[0], flat.shape[0], already_linear_flatdarks))
         # for i in np.arange(0, 2):
         #     pub.send(tp.projection_packet(0, i, [rows, cols], np.ascontiguousarray(dark[i, :, :].flatten())))
         #
@@ -165,10 +165,10 @@ def main(arg):
     j = 0
     for i in np.arange(1, data_size[0], subsampling):
         print("Pushing ", i, " of ", data_size[0])
-        data = dxreader.read_hdf5(fname, tomo_grp, slc=((int(i),int(i)+1), None))
+        data = dxreader.read_hdf5(fname, tomo_grp, slc=((int(i),int(i)+1), sino))
 
         # Flat-field correction of raw data.
-        data = tomopy.normalize(data, flat, dark)
+        # data = tomopy.normalize(data, flat, dark)
 
         # Remove stripes (not so suitable for realtime really!)
         # data = tomopy.remove_stripe_fw(data, level=7, wname='sym16', sigma=1, pad=True)
@@ -179,7 +179,8 @@ def main(arg):
         # data = tomopy.remove_neg(data, val=0.00)
         # data[np.where(data == np.inf)] = 0.00
 
-        pub.send(tp.projection_packet(2, j, [rows, cols], np.ascontiguousarray(data[0].flatten())))
+        packet_type = 2 # projection packet
+        pub.send(tp.projection_packet(packet_type, j, [rows, cols], np.ascontiguousarray(data[0].flatten())))
         j = j+1
 
 
