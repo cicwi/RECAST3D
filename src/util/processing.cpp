@@ -10,59 +10,6 @@
 
 namespace slicerecon::util {
 
-//void process_projection(bulk::world& world, int rows, int cols, float* data,
-//                        const float* dark, const float* reciproc,
-//                        const std::vector<float>& filter, int proj_id_min,
-//                        int proj_id_max, bool weigh,
-//                        const std::vector<float>& fdk_weights, bool neglog,
-//                        fftwf_plan plan, fftwf_plan iplan,
-//                        std::vector<std::complex<float>>& freq_buffer,
-//                        bool retrieve_phase, const std::vector<float>&,
-//                        fftwf_plan plan2d) {
-//    // divide work by rows
-//    int s = world.rank();
-//    int p = world.active_processors();
-//    int block_size = ((rows - 1) / p) + 1;
-//    int first_row = s * block_size;
-//    int final_row = std::min((s + 1) * block_size, rows);
-//
-//    for (int proj = proj_id_min; proj < proj_id_max + 1; ++proj) {
-//        auto offset = proj * rows * cols;
-//        for (auto r = first_row; r < final_row; ++r) {
-//            int index = r * cols;
-//            for (auto c = 0; c < cols; ++c) {
-//                if (neglog) {
-//                    data[offset + index] =
-//                        (data[offset + index] - dark[index]) * reciproc[index];
-//                    data[offset + index] =
-//                        data[offset + index] <= 0.0f
-//                            ? 0.0f
-//                            : -std::log(data[offset + index]);
-//                }
-//                if (weigh) {
-//                    data[offset + index] *= fdk_weights[offset + index];
-//                }
-//                index++;
-//            }
-//
-//            // filter the row
-//            fftwf_execute_dft_r2c(
-//                plan, &data[offset + r * cols],
-//                reinterpret_cast<fftwf_complex*>(&freq_buffer[0]));
-//
-//            for (int i = 0; i < cols; ++i) {
-//                freq_buffer[i] *= filter[i];
-//            }
-//
-//            fftwf_execute_dft_c2r(
-//                iplan, reinterpret_cast<fftwf_complex*>(&freq_buffer[0]),
-//                &data[offset + r * cols]);
-//        }
-//    }
-//
-//    world.barrier();
-//}
-
 namespace filter {
 
 std::vector<float> ram_lak(int cols) {
