@@ -74,9 +74,10 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    bool already_linear = false;
     auto params = slicerecon::settings{
-        slice_size, preview_size, group_size,    filter_cores, 1,
-        1,          update_every, mode, false,        retrieve_phase, paganin};
+        slice_size, preview_size, group_size, filter_cores, 1,
+        1, update_every, mode, already_linear, retrieve_phase, paganin};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);
