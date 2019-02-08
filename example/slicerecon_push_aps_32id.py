@@ -95,7 +95,7 @@ def main(arg):
     binning = int(args.binning)
     subsampling = int(args.sample)  # taking 1 per (subsampling) instead of all the frames
 
-    nproj = 300  # number of projections per 180 degrees interval, this is coded
+    nproj = 600  # number of projections per 180 degrees interval, this is coded
     scene_id = 0
 
     assert((nproj / subsampling).is_integer())
@@ -141,7 +141,7 @@ def main(arg):
         window_min_point = [-rx, -rx, -rz]  # x,y,z
         window_max_point = [rx, rx, rz]  # x,y,z
 
-        angles = np.linspace(0, np.pi, proj_count, endpoint=False) # np.mod(theta[0:nproj], np.pi)
+        angles = np.linspace(0, 2*np.pi, proj_count, endpoint=False) # np.mod(theta[0:nproj], np.pi)
 
         pub.send(tp.geometry_specification_packet(scene_id, window_min_point, window_max_point))
         pub.send(tp.parallel_beam_geometry_packet(scene_id, rows, cols, proj_count, angles))
