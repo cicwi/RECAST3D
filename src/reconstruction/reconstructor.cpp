@@ -102,7 +102,7 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
         geometry_.proj_count * geometry_.cols * geometry_.rows, 0.0f);
 
     // Projection data
-    int nr_handles = parameters.reconstruction_mode == alternating ? 2 : 1;
+    int nr_handles = parameters.reconstruction_mode == mode::alternating ? 2 : 1;
     for (int i = 0; i < nr_handles; ++i) {
         proj_handles_.push_back(astraCUDA3d::createProjectionArrayHandle(
             zeros.data(), geometry_.cols, geometry_.proj_count,
@@ -233,7 +233,7 @@ cone_beam_solver::cone_beam_solver(settings parameters,
         geometry_.proj_count * geometry_.cols * geometry_.rows, 0.0f);
 
     // Projection data
-    int nr_handles = parameters.reconstruction_mode == alternating ? 2 : 1;
+    int nr_handles = parameters.reconstruction_mode == mode::alternating ? 2 : 1;
     for (int i = 0; i < nr_handles; ++i) {
         proj_handles_.push_back(astraCUDA3d::createProjectionArrayHandle(
             zeros.data(), geometry_.cols, geometry_.proj_count,
@@ -456,8 +456,7 @@ void reconstructor::process_(int proj_id_begin, int proj_id_end) {
                           << " between " << proj_id_begin << "/" << proj_id_end
                           << slicerecon::util::end_log;
 
-    auto data = &buffer_[proj_id_begin];
-
+    auto data = &buffer_[proj_id_begin * pixels_];
     projection_processor_->process(data, proj_id_end - proj_id_begin + 1);
 }
 

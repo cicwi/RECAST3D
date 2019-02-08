@@ -12,7 +12,7 @@ namespace slicerecon {
  * window. Alternating is the default.
  * @see https://github.com/cicwi/SliceRecon/issues/4
  */
-enum mode {
+enum class mode {
     alternating, continuous
 };
 

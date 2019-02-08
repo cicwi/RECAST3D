@@ -140,7 +140,6 @@ class reconstructor {
     void push_projection(proj_kind k, int32_t proj_idx, std::array<int32_t, 2> shape,
             char* data) {
         auto p = parameters_;
-        bool is_alt = p.reconstruction_mode == alternating;
         int ue = p.update_every;
         int gs = p.group_size;
 
@@ -178,23 +177,30 @@ class reconstructor {
                 // buffer incoming
                 memcpy(&buffer_[rel_proj_idx * pixels_], data, sizeof(float) * pixels_);
 
-                // see if some processing/uploading needs to be done
+                // see if some processing needs to be done
                 if (full_group || buffer_end_reached) {
-
                     // find processing range in the data buffer
-                    auto begin_in_buffer = rel_proj_idx - (rel_proj_idx % gs); // start idx of this group
-
-                    // start of threaded processing
+                    auto begin_in_buffer = rel_proj_idx - (rel_proj_idx % gs); // starting idx of this group
                     process_(begin_in_buffer, rel_proj_idx);
+                }
 
-                    if (buffer_end_reached) {
-                        // copy data from buffer into sino_buffer
-                        transpose_into_sino_(0, ue - 1);
+                // see if uploading needs to be done
+                if (buffer_end_reached) {
+                    // copy data from buffer into sino_buffer
+                    transpose_into_sino_(0, ue - 1);
 
+                    if (p.reconstruction_mode == mode::alternating) {
+                        // let the reconstructor know that now the (other) GPU buffer is ready for reconstruction
+                        active_gpu_buffer_index_ = 1 - active_gpu_buffer_index_;
+                        bool use_gpu_lock = false;
+
+                        upload_sino_buffer_(0, ue - 1, 0, active_gpu_buffer_index_, use_gpu_lock);
+
+                    } else { // --continuous mode
                         auto begin_wrt_geom = (update_count_ * ue) % geom_.proj_count;
                         auto end_wrt_geom = (begin_wrt_geom + ue - 1) % geom_.proj_count;
-                        bool use_gpu_lock = !is_alt;
-                        int gpu_buffer_idx = is_alt ? 1 - active_gpu_buffer_index_ : 0;
+                        bool use_gpu_lock = true;
+                        int gpu_buffer_idx = 0; // we only have one buffer
 
                         if (end_wrt_geom > begin_wrt_geom) {
                             upload_sino_buffer_(begin_wrt_geom, end_wrt_geom, 0, gpu_buffer_idx, use_gpu_lock);
@@ -205,12 +211,11 @@ class reconstructor {
                                                 gpu_buffer_idx, use_gpu_lock);
                         }
 
-                        // let the reconstructor know that now the (other) GPU buffer is ready for reconstruction
-                        active_gpu_buffer_index_ = gpu_buffer_idx;
-
-                        refresh_data_();
                         update_count_++;
                     }
+
+                    // update low-quality 3D reconstruction
+                    refresh_data_();
                 }
 
                 break;
@@ -321,9 +326,6 @@ class reconstructor {
     bool initialized_ = false;
 
     std::unique_ptr<util::ProjectionProcessor> projection_processor_;
-    fftwf_plan fft_plan_;
-    fftwf_plan ffti_plan_;
-    fftwf_plan fft2d_plan_;
     std::vector<std::vector<std::complex<float>>> freq_buffer_;
     std::vector<float> filter_;
     std::vector<float> paganin_filter_;
