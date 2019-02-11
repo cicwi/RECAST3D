@@ -319,16 +319,12 @@ class reconstructor {
 
     int update_count_ = 0;
     std::vector<float> small_volume_buffer_;
-
     std::vector<float> sino_buffer_;
 
     std::vector<listener*> listeners_;
     bool initialized_ = false;
 
     std::unique_ptr<util::ProjectionProcessor> projection_processor_;
-    std::vector<std::vector<std::complex<float>>> freq_buffer_;
-    std::vector<float> filter_;
-    std::vector<float> paganin_filter_;
 
     std::mutex gpu_mutex_;
 };
