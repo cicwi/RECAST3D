@@ -420,6 +420,9 @@ void reconstructor::initialize(acquisition::geometry geom) {
 /**
  * Copy from a data buffer to a sino buffer, while transposing the data.
  *
+ * If an offset is given, it transposes projections [offset, offset+1, ..., proj_end]
+ * to the *front* of the sino_buffer_, leaving the remainder of the buffer unused.
+ *
  * @param projection_group  Reference to buffered data
  * @param sino_buffer       Reference to the CPU buffer of the projections
  * @param group_size        Number of projections in the group
@@ -430,10 +433,12 @@ void reconstructor::transpose_into_sino_(int proj_offset, int proj_end) {
     // In projection_group we have: [projection_id, rows, cols ]
     // For sinogram we want: [rows, projection_id, cols]
 
+    auto buffer_size = proj_end - proj_offset +1;
+
     for (int i = 0; i < geom_.rows; ++i) {
         for (int j = proj_offset; j <= proj_end; ++j) {
             for (int k = 0; k < geom_.cols; ++k) {
-                sino_buffer_[i * parameters_.update_every * geom_.cols + j * geom_.cols + k] =
+                sino_buffer_[i * buffer_size * geom_.cols + (j-proj_offset) * geom_.cols + k] =
                     buffer_[j * geom_.cols * geom_.rows + i * geom_.cols + k];
             }
         }
@@ -469,7 +474,7 @@ void reconstructor::process_(int proj_id_begin, int proj_id_end) {
  * @param buffer_idx Index of the GPU buffer the sinogram data should be uploaded to
  * @param lock_gpu Whether or not to use gpu_mutex_ to block access to the GPU
  */
-void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int buffer_begin, int buffer_idx, bool lock_gpu) {
+void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int buffer_idx, bool lock_gpu) {
     if (!initialized_) {
         return;
     }
@@ -479,7 +484,6 @@ void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int 
                           << ") between " << proj_id_begin << "/" << proj_id_end
                           << slicerecon::util::end_log;
 
-    auto data = &sino_buffer_[buffer_begin * pixels_];
 
     // in continuous mode, there is only one data buffer and it needs to be protected
     // since the reconstruction server has access to it too
@@ -487,11 +491,11 @@ void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int 
         std::lock_guard<std::mutex> guard(gpu_mutex_);
 
         astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
-                                         data, proj_id_begin,
+                                         &sino_buffer_[0], proj_id_begin,
                                          proj_id_end);
     } else {
         astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
-                                         data, proj_id_begin,
+                                         &sino_buffer_[0], proj_id_begin,
                                          proj_id_end);
     }
 
