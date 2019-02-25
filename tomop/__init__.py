@@ -21,5 +21,10 @@ __all__ = (
   "set_slice_packet",
   "remove_slice_packet",
   "group_request_slices_packet",
+  "parameter_bool_packet",
+  "parameter_float_packet",
+  "parameter_enum_packet",
+  "tracker_packet",
+  "benchmark_packet",
   "make_scene_packet",
   "kill_scene_packet")

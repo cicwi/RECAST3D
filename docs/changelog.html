@@ -17,33 +17,37 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="tomop package" href="tomop.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -97,7 +101,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#rc2-2018-11-12">1.0.0-rc2 - 2018-11-12</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
 </ul>
 </li>
@@ -172,31 +176,35 @@
            <div itemprop="articleBody">
             
   <div class="section" id="changelog">
-<span id="changelog"></span><h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <p>All notable changes to TomoPackets will be documented in this file.</p>
 <p>The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
 and this project adheres to <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic
 Versioning</a>.</p>
 <div class="section" id="unreleased">
-<span id="unreleased"></span><h2><a class="reference external" href="https://github.com/cicwi/tomopackets/compare/v1.0.0-rc2...develop">Unreleased</a><a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
+<h2><a class="reference external" href="https://github.com/cicwi/tomopackets/compare/v1.0.0-rc2...develop">Unreleased</a><a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="added">
-<span id="added"></span><h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
+<h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Add re-export of <code class="docutils literal notranslate"><span class="pre">scan_settings_packet</span></code> to the <code class="docutils literal notranslate"><span class="pre">tomop</span></code> Python library.</li>
+<li>Add named arguments to <code class="docutils literal notranslate"><span class="pre">tomop</span></code> class constructors.</li>
+<li>Add <code class="docutils literal notranslate"><span class="pre">already_linear</span></code> flag to <code class="docutils literal notranslate"><span class="pre">ScanSettingsPacket</span></code>.</li>
+<li>Add <code class="docutils literal notranslate"><span class="pre">Parameter{Bool,Float,Enum}Packet</span></code>, <code class="docutils literal notranslate"><span class="pre">TrackerPacket</span></code> and <code class="docutils literal notranslate"><span class="pre">BenchmarkPacket</span></code>.</li>
+<li>Add support for <code class="docutils literal notranslate"><span class="pre">std::vector&lt;std::string&gt;</span></code> fields.</li>
 </ul>
 </div>
 </div>
 <div class="section" id="rc2-2018-11-12">
-<span id="rc2-2018-11-12"></span><h2><a class="reference external" href="https://github.com/cicwi/tomopackets/compare/v1.0.0-rc1...v1.0.0-rc2">1.0.0-rc2</a> - 2018-11-12<a class="headerlink" href="#rc2-2018-11-12" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="added">
-<span id="id1"></span><h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
+<h2><a class="reference external" href="https://github.com/cicwi/tomopackets/compare/v1.0.0-rc1...v1.0.0-rc2">1.0.0-rc2</a> - 2018-11-12<a class="headerlink" href="#rc2-2018-11-12" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Added<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Add <code class="docutils literal notranslate"><span class="pre">ScanSettingsPacket</span></code> for setting number of darks/flats.</li>
 <li>Add explicit values to descriptors</li>
 </ul>
 </div>
 <div class="section" id="fixed">
-<span id="fixed"></span><h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
+<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Fix deserialization to include descriptor</li>
 <li>Use mutable accessors in <code class="docutils literal notranslate"><span class="pre">fill</span></code></li>
@@ -204,11 +212,11 @@ Versioning</a>.</p>
 </div>
 </div>
 <div class="section" id="rc1-2018-11-08">
-<span id="rc1-2018-11-08"></span><h2>1.0.0-rc1 - 2018-11-08<a class="headerlink" href="#rc1-2018-11-08" title="Permalink to this headline">¶</a></h2>
+<h2>1.0.0-rc1 - 2018-11-08<a class="headerlink" href="#rc1-2018-11-08" title="Permalink to this headline">¶</a></h2>
 <p>Candidate for initial release. Changes are compared to previous development
 versions.</p>
 <div class="section" id="changed">
-<span id="changed"></span><h3>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h3>
+<h3>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Constructor of <code class="docutils literal notranslate"><span class="pre">SliceDataPacket</span></code> now has the additive <code class="docutils literal notranslate"><span class="pre">bool</span></code> flag as final parameter.</li>
 </ul>
@@ -225,7 +233,7 @@ versions.</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="tomop.html" class="btn btn-neutral" title="tomop package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tomop.html" class="btn btn-neutral float-left" title="tomop package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -234,7 +242,7 @@ versions.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Jan-Willem Buurlage.
+        &copy; Copyright 2018, Jan-Willem Buurlage
 
     </p>
   </div>
@@ -251,33 +259,16 @@ versions.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'',
-            LANGUAGE:'en',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

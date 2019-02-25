@@ -15,8 +15,6 @@ enum class packet_desc : int {
     set_slice = 0x205,
     remove_slice = 0x206,
     group_request_slices = 0x207,
-    register_parameter = 0x208,
-    parameter_changed = 0x209,
 
     // GEOMETRY
     geometry_specification = 0x301,
@@ -31,6 +29,13 @@ enum class packet_desc : int {
 
     // PARTITIONING
     set_part = 0x401,
+
+    // CONTROL
+    parameter_bool = 0x501,
+    parameter_float = 0x502,
+    parameter_enum = 0x503,
+    tracker = 0x504,
+    benchmark = 0x505,
 };
 
 } // namespace tomop

@@ -36,9 +36,7 @@ int main() {
     server.set_slice_callback(callback);
 
     // 5. test callback
-    server.listen();
-
-    tomop::multiserver multiserver("test server", {}, {});
+    server.serve();
 
     return 0;
 }

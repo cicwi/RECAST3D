@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 #include <memory>
 
 namespace tomop {
@@ -20,16 +20,19 @@ struct scale {
 
     template <typename T>
     void operator|(std::vector<T>& xs) {
-        size += sizeof(int) + xs.size() * sizeof(T);
+        size += sizeof(int);
+        for (auto x : xs) {
+            (*this) | x;
+        }
     }
 };
 
 struct memory_span {
     // TODO: Add size, and asserts with size checks
-    memory_span(std::size_t, char* data_) : data(data_) { }
-    memory_span() : data(nullptr) { }
+    memory_span(std::size_t, char* data_) : data(data_) {}
+    memory_span() : data(nullptr) {}
 
-  char *data = nullptr;
+    char* data = nullptr;
     std::size_t index = 0;
 
     template <typename T>
@@ -45,7 +48,9 @@ struct memory_span {
     }
 
     void operator<<(std::string& str) {
-        for (auto c : str) (*this) << c;
+        for (auto c : str) {
+            (*this) << c;
+        }
         (*this) << '\0';
     }
 
@@ -57,8 +62,9 @@ struct memory_span {
     template <typename T>
     void operator<<(std::vector<T>& xs) {
         (*this) << (int)xs.size();
-        memcpy(data + index, xs.data(), sizeof(T) * xs.size());
-        index += xs.size() * sizeof(T);
+        for (auto& x : xs) {
+            (*this) << x;
+        }
     }
 
     template <typename T>
@@ -66,8 +72,9 @@ struct memory_span {
         int size = 0;
         (*this) >> size;
         xs.resize(size);
-        memcpy(xs.data(), data + index, sizeof(T) * size);
-        index += size * sizeof(T);
+        for (auto& x : xs) {
+            (*this) >> x;
+        }
     }
 };
 
@@ -87,4 +94,4 @@ struct memory_buffer : public memory_span {
     std::unique_ptr<char[]> buffer;
 };
 
-}  // namespace tomop
+} // namespace tomop

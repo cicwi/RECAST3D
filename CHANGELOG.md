@@ -12,7 +12,8 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 - Add re-export of `scan_settings_packet` to the `tomop` Python library.
 - Add named arguments to `tomop` class constructors.
 - Add `already_linear` flag to `ScanSettingsPacket`.
-- Add `RegisterParameterPacket` and `ParameterChangedPacket`
+- Add `Parameter{Bool,Float,Enum}Packet`, `TrackerPacket` and `BenchmarkPacket`.
+- Add support for `std::vector<std::string>` fields.
 
 ## [1.0.0-rc2] - 2018-11-12
 

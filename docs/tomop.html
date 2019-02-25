@@ -17,34 +17,38 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Changelog" href="changelog.html" />
     <link rel="prev" title="Usage" href="usage.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -252,8 +256,13 @@
 
 <dl class="class">
 <dt id="tomop.scan_settings_packet">
-<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">scan_settings_packet</code><span class="sig-paren">(</span><em>self: py_tomop.scan_settings_packet</em>, <em>scene_id: int</em>, <em>darks: int</em>, <em>flats: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.scan_settings_packet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">scan_settings_packet</code><span class="sig-paren">(</span><em>self: py_tomop.scan_settings_packet</em>, <em>scene_id: int</em>, <em>darks: int</em>, <em>flats: int</em>, <em>already_linear: bool</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.scan_settings_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
+<dl class="method">
+<dt id="tomop.scan_settings_packet.already_linear">
+<code class="descname">already_linear</code><span class="sig-paren">(</span><em>self: py_tomop.scan_settings_packet</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#tomop.scan_settings_packet.already_linear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="tomop.scan_settings_packet.darks">
 <code class="descname">darks</code><span class="sig-paren">(</span><em>self: py_tomop.scan_settings_packet</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#tomop.scan_settings_packet.darks" title="Permalink to this definition">¶</a></dt>
@@ -722,6 +731,111 @@
 </dd></dl>
 
 <dl class="class">
+<dt id="tomop.parameter_bool_packet">
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">parameter_bool_packet</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_bool_packet</em>, <em>scene_id: int</em>, <em>parameter_name: str</em>, <em>value: bool</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.parameter_bool_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
+<dl class="method">
+<dt id="tomop.parameter_bool_packet.parameter_name">
+<code class="descname">parameter_name</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_bool_packet</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#tomop.parameter_bool_packet.parameter_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.parameter_bool_packet.scene_id">
+<code class="descname">scene_id</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_bool_packet</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#tomop.parameter_bool_packet.scene_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.parameter_bool_packet.value">
+<code class="descname">value</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_bool_packet</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#tomop.parameter_bool_packet.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tomop.parameter_float_packet">
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">parameter_float_packet</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_float_packet</em>, <em>scene_id: int</em>, <em>parameter_name: str</em>, <em>value: float</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.parameter_float_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
+<dl class="method">
+<dt id="tomop.parameter_float_packet.parameter_name">
+<code class="descname">parameter_name</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_float_packet</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#tomop.parameter_float_packet.parameter_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.parameter_float_packet.scene_id">
+<code class="descname">scene_id</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_float_packet</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#tomop.parameter_float_packet.scene_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.parameter_float_packet.value">
+<code class="descname">value</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_float_packet</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#tomop.parameter_float_packet.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tomop.parameter_enum_packet">
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">parameter_enum_packet</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_enum_packet, scene_id: int, parameter_name: str, values: List[str]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.parameter_enum_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
+<dl class="method">
+<dt id="tomop.parameter_enum_packet.parameter_name">
+<code class="descname">parameter_name</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_enum_packet</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#tomop.parameter_enum_packet.parameter_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.parameter_enum_packet.scene_id">
+<code class="descname">scene_id</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_enum_packet</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#tomop.parameter_enum_packet.scene_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.parameter_enum_packet.values">
+<code class="descname">values</code><span class="sig-paren">(</span><em>self: py_tomop.parameter_enum_packet</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#tomop.parameter_enum_packet.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tomop.tracker_packet">
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">tracker_packet</code><span class="sig-paren">(</span><em>self: py_tomop.tracker_packet</em>, <em>scene_id: int</em>, <em>parameter_name: str</em>, <em>value: float</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.tracker_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
+<dl class="method">
+<dt id="tomop.tracker_packet.parameter_name">
+<code class="descname">parameter_name</code><span class="sig-paren">(</span><em>self: py_tomop.tracker_packet</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#tomop.tracker_packet.parameter_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.tracker_packet.scene_id">
+<code class="descname">scene_id</code><span class="sig-paren">(</span><em>self: py_tomop.tracker_packet</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#tomop.tracker_packet.scene_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.tracker_packet.value">
+<code class="descname">value</code><span class="sig-paren">(</span><em>self: py_tomop.tracker_packet</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#tomop.tracker_packet.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tomop.benchmark_packet">
+<em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">benchmark_packet</code><span class="sig-paren">(</span><em>self: py_tomop.benchmark_packet</em>, <em>scene_id: int</em>, <em>parameter_name: str</em>, <em>value: float</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.benchmark_packet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
+<dl class="method">
+<dt id="tomop.benchmark_packet.parameter_name">
+<code class="descname">parameter_name</code><span class="sig-paren">(</span><em>self: py_tomop.benchmark_packet</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#tomop.benchmark_packet.parameter_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.benchmark_packet.scene_id">
+<code class="descname">scene_id</code><span class="sig-paren">(</span><em>self: py_tomop.benchmark_packet</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#tomop.benchmark_packet.scene_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="tomop.benchmark_packet.value">
+<code class="descname">value</code><span class="sig-paren">(</span><em>self: py_tomop.benchmark_packet</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#tomop.benchmark_packet.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="tomop.make_scene_packet">
 <em class="property">class </em><code class="descclassname">tomop.</code><code class="descname">make_scene_packet</code><span class="sig-paren">(</span><em>self: py_tomop.make_scene_packet</em>, <em>name: str</em>, <em>dimension: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#tomop.make_scene_packet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">py_tomop.packet</span></code></p>
@@ -762,7 +876,7 @@
         <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="usage.html" class="btn btn-neutral" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -771,7 +885,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Jan-Willem Buurlage.
+        &copy; Copyright 2018, Jan-Willem Buurlage
 
     </p>
   </div>
@@ -788,33 +902,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'',
-            LANGUAGE:'en',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

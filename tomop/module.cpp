@@ -36,10 +36,6 @@ PYBIND11_MODULE(py_tomop, m) {
         hana::make_tuple("projection_packet"s, hana::type_c<ProjectionPacket>),
         hana::make_tuple("set_part_packet"s, hana::type_c<SetPartPacket>),
         hana::make_tuple("slice_data_packet"s, hana::type_c<SliceDataPacket>),
-        hana::make_tuple("register_parameter_packet"s,
-                         hana::type_c<RegisterParameterPacket>),
-        hana::make_tuple("parameter_changed_packet"s,
-                         hana::type_c<ParameterChangedPacket>),
         hana::make_tuple("partial_slice_data_packet"s,
                          hana::type_c<PartialSliceDataPacket>),
         hana::make_tuple("volume_data_packet"s, hana::type_c<VolumeDataPacket>),
@@ -51,7 +47,15 @@ PYBIND11_MODULE(py_tomop, m) {
         hana::make_tuple("group_request_slices_packet"s,
                          hana::type_c<GroupRequestSlicesPacket>),
         hana::make_tuple("make_scene_packet"s, hana::type_c<MakeScenePacket>),
-        hana::make_tuple("kill_scene_packet"s, hana::type_c<KillScenePacket>));
+        hana::make_tuple("kill_scene_packet"s, hana::type_c<KillScenePacket>),
+        hana::make_tuple("parameter_bool_packet"s,
+                         hana::type_c<ParameterBoolPacket>),
+        hana::make_tuple("parameter_float_packet"s,
+                         hana::type_c<ParameterFloatPacket>),
+        hana::make_tuple("parameter_enum_packet"s,
+                         hana::type_c<ParameterEnumPacket>),
+        hana::make_tuple("tracker_packet"s, hana::type_c<TrackerPacket>),
+        hana::make_tuple("benchmark_packet"s, hana::type_c<BenchmarkPacket>));
 
     hana::for_each(packets, [&](auto x) {
         // 1) get C++ type

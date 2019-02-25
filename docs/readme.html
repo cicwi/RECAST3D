@@ -17,34 +17,38 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Overview" href="overview.html" />
-    <link rel="prev" title="Welcome to tomopackets’s documentation!" href="index.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+    <link rel="prev" title="Welcome to TomoPackets’s documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -171,15 +175,15 @@
            <div itemprop="articleBody">
             
   <div class="section" id="tomopackets">
-<span id="tomopackets"></span><h1>TomoPackets<a class="headerlink" href="#tomopackets" title="Permalink to this headline">¶</a></h1>
+<h1>TomoPackets<a class="headerlink" href="#tomopackets" title="Permalink to this headline">¶</a></h1>
 <p>A library for real-time tomography pipelines based on ZeroMQ.</p>
 <p>This library defines a protocol for sending messages between the different
 components (scanners, reconstruction nodes, visualization workstations) for
 real-time tomographic reconstruction.</p>
 <div class="section" id="installation">
-<span id="installation"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="dependencies">
-<span id="dependencies"></span><h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><em>Boost</em> (required). We use Boost.Hana for struct introspection. CMake tries to
 find Boost with <code class="docutils literal notranslate"><span class="pre">find_package</span></code>.</li>
@@ -192,7 +196,7 @@ below.</li>
 cloned as a git submodule and built from source.</p>
 </div>
 <div class="section" id="c">
-<span id="c"></span><h3>C++<a class="headerlink" href="#c" title="Permalink to this headline">¶</a></h3>
+<h3>C++<a class="headerlink" href="#c" title="Permalink to this headline">¶</a></h3>
 <p>The easiest way to interface with tomopackets is using CMake. We define a
 <code class="docutils literal notranslate"><span class="pre">INTERFACE</span></code> target <code class="docutils literal notranslate"><span class="pre">tomop</span></code> that can be used as follows. We assume the
 TomoPackets repository is in <code class="docutils literal notranslate"><span class="pre">ext/tomop</span></code>. For example, by managing it as a Git
@@ -209,7 +213,7 @@ git submodule update --init
 </div>
 </div>
 <div class="section" id="python">
-<span id="python"></span><h3>Python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
+<h3>Python<a class="headerlink" href="#python" title="Permalink to this headline">¶</a></h3>
 <p>To install the library locally, simply run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e .
 </pre></div>
@@ -217,7 +221,7 @@ git submodule update --init
 </div>
 </div>
 <div class="section" id="examples">
-<span id="examples"></span><h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>The following example sets up a reconstruction server for on-demand slice
 reconstruction:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tomop</span>
@@ -246,7 +250,7 @@ reconstruction:</p>
 </div>
 </div>
 <div class="section" id="authors-and-contributors">
-<span id="authors-and-contributors"></span><h2>Authors and contributors<a class="headerlink" href="#authors-and-contributors" title="Permalink to this headline">¶</a></h2>
+<h2>Authors and contributors<a class="headerlink" href="#authors-and-contributors" title="Permalink to this headline">¶</a></h2>
 <p>TomoPackets is developed at Centrum Wiskunde &amp; Informatica (CWI) in Amsterdam by:</p>
 <ul class="simple">
 <li>Jan-Willem Buurlage (&#64;jwbuurlage)</li>
@@ -257,14 +261,14 @@ reconstruction:</p>
 </ul>
 </div>
 <div class="section" id="contributing">
-<span id="contributing"></span><h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
 <p>We welcome contributions. Please submit pull requests against the develop
 branch.</p>
 <p>If you have any issues, questions, or remarks, then please open an issue on
 GitHub.</p>
 </div>
 <div class="section" id="please-cite-us">
-<span id="please-cite-us"></span><h2>Please Cite Us<a class="headerlink" href="#please-cite-us" title="Permalink to this headline">¶</a></h2>
+<h2>Please Cite Us<a class="headerlink" href="#please-cite-us" title="Permalink to this headline">¶</a></h2>
 <p>If you have used TomoPackets for a scientific publication, we would appreciate
 citations to the following paper:</p>
 <p><a class="reference external" href="https://doi.org/10.1088/1361-6501/aab754">Real-time quasi-3D tomographic reconstruction. JW Buurlage, H Kohr, WJ
@@ -272,7 +276,7 @@ Palenstijn, KJ Batenburg. Measurement Science and Technology
 (2018)</a></p>
 </div>
 <div class="section" id="license">
-<span id="license"></span><h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
 <p>This project is licensed under the GPL. See <code class="docutils literal notranslate"><span class="pre">LICENSE.md</span></code> for details.</p>
 </div>
 </div>
@@ -288,7 +292,7 @@ Palenstijn, KJ Batenburg. Measurement Science and Technology
         <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to tomopackets’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to TomoPackets’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -297,7 +301,7 @@ Palenstijn, KJ Batenburg. Measurement Science and Technology
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Jan-Willem Buurlage.
+        &copy; Copyright 2018, Jan-Willem Buurlage
 
     </p>
   </div>
@@ -314,33 +318,16 @@ Palenstijn, KJ Batenburg. Measurement Science and Technology
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'',
-            LANGUAGE:'en',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
