@@ -46,7 +46,6 @@ class ReconstructionComponent : public ObjectComponent {
     void draw(glm::mat4 world_to_screen) override;
     void describe() override;
 
-
     void set_data(std::vector<float>& data, std::array<int32_t, 2> size,
                   int slice, bool additive = true);
     void update_partial_slice(std::vector<float>& data,
@@ -81,8 +80,8 @@ class ReconstructionComponent : public ObjectComponent {
     std::string identifier() const override { return "reconstruction"; }
 
     std::tuple<bool, float, glm::vec3> intersection_point(glm::mat4 inv_matrix,
-                                              glm::mat4 orientation,
-                                              glm::vec2 point);
+                                                          glm::mat4 orientation,
+                                                          glm::vec2 point);
 
     std::pair<float, float> overall_min_and_max();
 
@@ -123,6 +122,8 @@ class ReconstructionComponent : public ObjectComponent {
 
     float lower_value_ = -1.0f;
     float upper_value_ = 1.0f;
+    float volume_min_ = -1.0f;
+    float volume_max_ = 1.0f;
 
     bool dragging_ = false;
     bool hovering_ = false;

@@ -142,6 +142,7 @@ void ReconstructionComponent::set_data(std::vector<float>& data,
                                                   slices_[slice]->data.end());
     slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
                                                   slices_[slice]->data.end());
+
     update_image_(slice);
 }
 
@@ -168,6 +169,8 @@ void ReconstructionComponent::update_partial_slice(
                                                   slices_[slice]->data.end());
     slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
                                                   slices_[slice]->data.end());
+
+
     update_image_(slice);
 }
 
@@ -221,6 +224,9 @@ void ReconstructionComponent::update_histogram(
         if (bin >= bins) { bin = bins - 1; }
         histogram_[bin] += 1.0f;
     }
+
+    volume_min_ = min;
+    volume_max_ = max;
 }
 
 void ReconstructionComponent::describe() {
@@ -285,6 +291,8 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) {
 
     program_->uniform("min_value", lower_value_);
     program_->uniform("max_value", upper_value_);
+    program_->uniform("volume_min_value", volume_min_);
+    program_->uniform("volume_max_value", volume_max_);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormap_texture_);

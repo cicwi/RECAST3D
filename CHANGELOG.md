@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixed
+- Fix scaling of 3D volume preview in reconstruction
+
 ## [1.0.0-rc.1] - 2018-11-13
 ### Added
 - Add documentation
@@ -15,4 +19,5 @@
 
 - Initial release.
 
+[Unreleased]: https://github.com/cicwi/RECAST3D/compare/v1.0.0-rc.1...develop
 [1.0.0-rc.1]: https://github.com/cicwi/RECAST3D/compare/v0.1.0...v1.0.0-rc.1

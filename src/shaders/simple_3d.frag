@@ -12,17 +12,19 @@ uniform int hovered;
 uniform int has_data;
 uniform float min_value;
 uniform float max_value;
+uniform float volume_min_value;
+uniform float volume_max_value;
 
 out vec4 fragColor;
 
 void main() {
-    float value = texture(texture_sampler, tex_coord).x;
+    float value = 0.0f;
 
     if (has_data != 1) {
-        value = texture(volume_data_sampler, volume_coord).x;
-    }
-
-    if (max_value != min_value) {
+       value = (texture(volume_data_sampler, volume_coord).x - volume_min_value)
+                 / (volume_max_value - volume_min_value);
+    } else {
+        value = texture(texture_sampler, tex_coord).x;
         value = (value - min_value) / (max_value - min_value);
     }
 
