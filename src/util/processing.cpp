@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
-#include <iostream>
 
 #include "slicerecon/util/bench.hpp"
 #include "slicerecon/util/processing.hpp"
