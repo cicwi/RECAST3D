@@ -163,6 +163,8 @@ class reconstructor {
                 received_flats_ = 0;
             }
 
+            idx = (idx % geom_.proj_count);
+
             auto start_idx = start_index_(idx);
             memcpy(&buffer_[write_index_][start_idx], data,
                    sizeof(float) * pixels_);

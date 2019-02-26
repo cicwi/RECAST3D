@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix application of FDK weighting.
 - Fix possible simultaneous access to a plugin socket
+- Fix uploads not triggering when `group_size` did not divide `proj_count` (#9)
 
 ## 1.0.0-rc.1
 
