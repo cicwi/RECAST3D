@@ -52,25 +52,23 @@ ReconstructionComponent::ReconstructionComponent(SceneObject& object,
                  GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-  auto simple_vert =
+    auto simple_vert =
 #include "../src/shaders/simple_3d.vert"
-      ;
-  auto simple_frag =
+        ;
+    auto simple_frag =
 #include "../src/shaders/simple_3d.frag"
-      ;
+        ;
 
-    program_ = std::make_unique<ShaderProgram>(simple_vert,
-                                               simple_frag, false);
+    program_ = std::make_unique<ShaderProgram>(simple_vert, simple_frag, false);
 
-  auto cube_vert =
+    auto cube_vert =
 #include "../src/shaders/wireframe_cube.vert"
-      ;
-  auto cube_frag =
+        ;
+    auto cube_frag =
 #include "../src/shaders/wireframe_cube.frag"
-      ;
+        ;
     cube_program_ =
-        std::make_unique<ShaderProgram>(cube_vert,
-                                        cube_frag, false);
+        std::make_unique<ShaderProgram>(cube_vert, cube_frag, false);
 
     slices_[0] = std::make_unique<slice>(0);
     slices_[1] = std::make_unique<slice>(1);
@@ -170,7 +168,6 @@ void ReconstructionComponent::update_partial_slice(
     slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
                                                   slices_[slice]->data.end());
 
-
     update_image_(slice);
 }
 
@@ -206,8 +203,7 @@ void ReconstructionComponent::update_partial_volume(
     update_histogram(volume_data_);
 }
 
-void ReconstructionComponent::update_histogram(
-    const std::vector<float>& data) {
+void ReconstructionComponent::update_histogram(const std::vector<float>& data) {
     auto bins = 30;
     auto min = *std::min_element(data.begin(), data.end());
     auto max = *std::max_element(data.begin(), data.end());
@@ -220,8 +216,12 @@ void ReconstructionComponent::update_histogram(
 
     for (auto x : data) {
         auto bin = (int)(((x - min) / (max - min)) * (bins - 1));
-        if (bin < 0) { bin = 0; }
-        if (bin >= bins) { bin = bins - 1; }
+        if (bin < 0) {
+            bin = 0;
+        }
+        if (bin >= bins) {
+            bin = bins - 1;
+        }
         histogram_[bin] += 1.0f;
     }
 
@@ -231,6 +231,7 @@ void ReconstructionComponent::update_histogram(
 
 void ReconstructionComponent::describe() {
     ImGui::Checkbox("Show reconstruction", &show_);
+    ImGui::Checkbox("Transparent mode (experimental)", &transparency_mode_);
 
     auto window_size = ImGui::GetWindowSize();
     ImGui::PlotHistogram("Reconstruction histogram", histogram_.data(),
@@ -245,7 +246,7 @@ void ReconstructionComponent::describe() {
 std::pair<float, float> ReconstructionComponent::overall_min_and_max() {
     auto overall_min = std::numeric_limits<float>::max();
     auto overall_max = std::numeric_limits<float>::min();
-    for (auto && [ slice_idx, slice ] : slices_) {
+    for (auto&& [slice_idx, slice] : slices_) {
         (void)slice_idx;
         overall_min =
             slice->min_value < overall_min ? slice->min_value : overall_min;
@@ -293,6 +294,7 @@ void ReconstructionComponent::draw(glm::mat4 world_to_screen) {
     program_->uniform("max_value", upper_value_);
     program_->uniform("volume_min_value", volume_min_);
     program_->uniform("volume_max_value", volume_max_);
+    program_->uniform("transparency_mode", (int)transparency_mode_);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_1D, colormap_texture_);

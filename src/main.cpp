@@ -15,6 +15,7 @@ namespace fs = std::experimental::filesystem;
 #include "modules/partitioning.hpp"
 #include "modules/reconstruction.hpp"
 #include "modules/scene_management.hpp"
+#include "modules/control.hpp"
 #include "scene.hpp"
 #include "scene_list.hpp"
 #include "server/server.hpp"
@@ -51,6 +52,7 @@ int main() {
     server.register_module(std::make_shared<tomovis::ReconstructionProtocol>());
     server.register_module(std::make_shared<tomovis::GeometryProtocol>());
     server.register_module(std::make_shared<tomovis::PartitioningProtocol>());
+    server.register_module(std::make_shared<tomovis::ControlProtocol>());
 
     server.start();
     renderer.register_ticker(server);

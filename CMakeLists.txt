@@ -174,6 +174,7 @@ set(
     "src/graphics/components/geometry_component.cpp"
     "src/graphics/components/mesh_component.cpp"
     "src/graphics/components/axes_component.cpp"
+    "src/graphics/components/control_component.cpp"
     "src/graphics/components/movie_component.cpp"
     "src/graphics/components/movie/projection_object.cpp"
     "src/graphics/components/movie/storyboard.cpp"

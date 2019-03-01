@@ -55,7 +55,7 @@ class ManageSceneProtocol : public SceneModuleProtocol {
             std::cout << "Making scene: " << packet.name << " ("
                       << packet.dimension << ")\n";
 
-            // FIXME: in the category 'here by dragons', I have hijacked the
+            // FIXME: in the category 'here be dragons', I have hijacked the
             // dimension field to be the reserved scene_id and to always assume
             // a dimension of 3. This is because the packet originally had a
             // scene_id field, that was only filled on reception, which did not

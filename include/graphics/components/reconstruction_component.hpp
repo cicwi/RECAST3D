@@ -122,12 +122,13 @@ class ReconstructionComponent : public ObjectComponent {
 
     float lower_value_ = -1.0f;
     float upper_value_ = 1.0f;
-    float volume_min_ = -1.0f;
+    float volume_min_ = 0.0f;
     float volume_max_ = 1.0f;
 
     bool dragging_ = false;
     bool hovering_ = false;
     bool show_ = true;
+    bool transparency_mode_ = false;
 
     int scene_id_;
 };

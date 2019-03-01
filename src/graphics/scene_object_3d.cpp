@@ -9,12 +9,14 @@
 #include "graphics/shader_program.hpp"
 
 #include "graphics/components/axes_component.hpp"
+#include "graphics/components/control_component.hpp"
 
 namespace tomovis {
 
 SceneObject3d::SceneObject3d(int scene_id) : SceneObject(scene_id) {
   camera_ = std::make_unique<SceneCamera3d>();
   this->add_component(std::make_unique<AxesComponent>(*this, scene_id));
+  this->add_component(std::make_unique<ControlComponent>(*this, scene_id));
 }
 
 SceneObject3d::~SceneObject3d() {}

@@ -1,16 +1,17 @@
 #pragma once
 
+#include <string>
 #include <glm/glm.hpp>
 
+#include "graphics/interface/window.hpp"
 #include "input_handler.hpp"
 #include "ticker.hpp"
-#include "graphics/interface/window.hpp"
 
 namespace tomovis {
 
 class ObjectComponent : public InputHandler, public Ticker, public Window {
-   public:
-    virtual void draw(glm::mat4 world_to_screen) = 0;
+  public:
+    virtual void draw(glm::mat4 /* world_to_screen */) {}
     virtual std::string identifier() const = 0;
     void tick(float /* time_elapsed */) override {}
     void describe() override {}
@@ -19,4 +20,4 @@ class ObjectComponent : public InputHandler, public Ticker, public Window {
     virtual int priority() const { return 1; }
 };
 
-}  // namespace tomovis
+} // namespace tomovis

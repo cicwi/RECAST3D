@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Add support for trackers, benchmarks, and parameter control for upstream
+  components
+- Add experimental transparent reconstruction mode (this makes air on slices see-through)
 ### Fixed
 - Fix scaling of 3D volume preview in reconstruction
 

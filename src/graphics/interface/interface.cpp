@@ -1,5 +1,5 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 
 #include <GLFW/glfw3.h>
@@ -37,14 +37,12 @@ Interface::Interface(GLFWwindow* window) {
 
     this->set_style_();
 
-        // prevent ini file
+    // prevent ini file
     io.IniFilename = "";
 }
 
 void Interface::set_style_() {
-    ImGui::StyleColorsClassic();
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 0.8f);
+    ImGui::StyleColorsDark();
 }
 
 Interface::~Interface() { ImGui_ImplGlfw_Shutdown(); }

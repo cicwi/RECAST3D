@@ -8,8 +8,6 @@
 
 namespace tomovis {
 
-class AxesComponent;
-
 class SceneObject3d : public SceneObject {
    public:
     SceneObject3d(int scene_id);

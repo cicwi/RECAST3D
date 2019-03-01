@@ -8,6 +8,7 @@ uniform sampler2D texture_sampler;
 uniform sampler1D colormap_sampler;
 uniform sampler3D volume_data_sampler;
 
+uniform int transparency_mode;
 uniform int hovered;
 uniform int has_data;
 uniform float min_value;
@@ -32,6 +33,11 @@ void main() {
 
     if (has_data != 1) {
         fragColor.a = 0.75f;
+    }
+
+    if (transparency_mode != 0) {
+        fragColor.a = 0.1f + 4.5f * value;
+        if (fragColor.a < 0.25f) { discard; }
     }
 
     if (hovered == 1) {
