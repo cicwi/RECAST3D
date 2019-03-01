@@ -13,8 +13,11 @@ import matplotlib.pyplot as plt
 import tomopy
 
 '''
-    This file pushes a DxChange file (HDF5) to the SliceRecon server, for the purpose of testing.
-    Works with parallel beam data only.
+    Example file for pushing the TomoBank dynamic foam dataset.
+    see: https://tomobank.readthedocs.io/en/latest/source/data/docs.data.dynamic.html
+    
+    This file reads a HDF5 file, parses projections with Tomopy and sends them to SliceRecon server. The file has been
+    written to send the specific "dynamic foam" dataset, but could well serve as inspiration to send other HDF5 types.
 
     Some of the code in this file is taken from tomopy_rectv.py, read_continuous.py which is found
     on https://github.com/math-vrn/rectv_gpu by math-vrn, licensed with BSD 2-Simplified.
@@ -24,9 +27,6 @@ import tomopy
     
     Call this file with,
       slicerecon_push_aps32id.py /path/to/dk_MCFG_1_p_s1_.h5
-    and if you didnt tweak the options, then
-      slicerecon_server --group-size 30 [--slice-size 1000] [--pyplugin]
-   
     
     Adriaan
 '''
