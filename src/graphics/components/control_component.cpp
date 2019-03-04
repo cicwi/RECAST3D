@@ -1,8 +1,10 @@
 #include <iostream>
 
+#include "tomop/tomop.hpp"
 #include <imgui.h>
 
 #include "graphics/components/control_component.hpp"
+#include "graphics/scene_object.hpp"
 
 namespace tomovis {
 
@@ -49,16 +51,26 @@ void ControlComponent::describe_parameters_() {
     if (ImGui::CollapsingHeader("parameters", nullptr,
                                 ImGuiTreeNodeFlags_DefaultOpen)) {
         for (auto& [key, value] : bool_parameters_) {
+            auto old = value;
             ImGui::Checkbox(key.c_str(), &value);
-            // TODO parameter changed? send packet
+            if (value != old) {
+                auto pkt =
+                    tomop::ParameterBoolPacket(object_.scene_id(), key, value);
+                object_.send(pkt);
+            }
         }
 
         for (auto& [key, vb] : float_parameters_) {
             auto& [value, buffer] = vb;
-            ImGui::InputText(key.c_str(), buffer.get(), BUFFER_SIZE,
-                             ImGuiInputTextFlags_CharsDecimal);
-
-            // TODO buffer changed? send packet
+            if (ImGui::InputText(key.c_str(), buffer.get(), BUFFER_SIZE,
+                                 ImGuiInputTextFlags_CharsDecimal |
+                                     ImGuiInputTextFlags_EnterReturnsTrue)) {
+                auto buffer_value = ::atof(buffer.get());
+                value = buffer_value;
+                auto pkt =
+                    tomop::ParameterFloatPacket(object_.scene_id(), key, value);
+                object_.send(pkt);
+            }
         }
 
         for (auto& [key, vc] : enum_parameters_) {
@@ -68,7 +80,9 @@ void ControlComponent::describe_parameters_() {
                     bool is_selected = (value == current);
                     if (ImGui::Selectable(value.c_str(), is_selected)) {
                         current = value;
-                        // TODO send packet
+                        auto pkt = tomop::ParameterEnumPacket(
+                            object_.scene_id(), key, {current});
+                        object_.send(pkt);
                     }
                     if (is_selected) {
                         ImGui::SetItemDefaultFocus();
