@@ -36,8 +36,7 @@ void main() {
     }
 
     if (transparency_mode != 0) {
-        fragColor.a = 0.1f + 4.5f * value;
-        if (fragColor.a < 0.25f) { discard; }
+        if (value < 0.1f) { discard; }
     }
 
     if (hovered == 1) {
