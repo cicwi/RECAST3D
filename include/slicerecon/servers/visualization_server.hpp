@@ -38,6 +38,24 @@ class visualization_server : public listener {
         send(grsp);
     }
 
+    void register_parameter(
+        std::string parameter_name,
+        std::variant<float, std::vector<std::string>, bool> value) override {
+        // make parameter packet and send it
+        if (std::holds_alternative<float>(value)) {
+            auto x = std::get<float>(value);
+            send(tomop::ParameterFloatPacket(scene_id_, parameter_name, x));
+        }
+        if (std::holds_alternative<std::vector<std::string>>(value)) {
+            auto xs = std::get<std::vector<std::string>>(value);
+            send(tomop::ParameterEnumPacket(scene_id_, parameter_name, xs));
+        }
+        if (std::holds_alternative<bool>(value)) {
+            auto x = std::get<bool>(value);
+            send(tomop::ParameterBoolPacket(scene_id_, parameter_name, x));
+        }
+    }
+
     visualization_server(
         std::string name, std::string hostname = "tcp://localhost:5555",
         std::string subscribe_hostname = "tcp://localhost:5556")
@@ -182,7 +200,53 @@ class visualization_server : public listener {
 
                         break;
                     }
+                    case tomop::packet_desc::parameter_float: {
+                        auto packet =
+                            std::make_unique<tomop::ParameterFloatPacket>();
+                        packet->deserialize(std::move(buffer));
+                        parameter_changed(packet->parameter_name,
+                                          {packet->value});
+
+                        if (plugin_socket_) {
+                            send(*packet, true);
+                        }
+
+                        break;
+                    }
+                    case tomop::packet_desc::parameter_enum: {
+                        auto packet =
+                            std::make_unique<tomop::ParameterEnumPacket>();
+                        packet->deserialize(std::move(buffer));
+                        parameter_changed(packet->parameter_name,
+                                          {packet->values[0]});
+
+                        if (plugin_socket_) {
+                            send(*packet, true);
+                        }
+
+                        break;
+                    }
+                    case tomop::packet_desc::parameter_bool: {
+                        auto packet =
+                            std::make_unique<tomop::ParameterBoolPacket>();
+                        packet->deserialize(std::move(buffer));
+                        parameter_changed(packet->parameter_name,
+                                          {packet->value});
+
+                        if (plugin_socket_) {
+                            send(*packet, true);
+                        }
+
+                        break;
+                    }
                     default:
+                        util::log
+                            << LOG_FILE << util::lvl::warning
+                            << "Unrecognized package with descriptor: 0x"
+                            << std::hex
+                            << std::underlying_type<tomop::packet_desc>::type(
+                                   desc)
+                            << util::end_log;
                         break;
                     }
                 }

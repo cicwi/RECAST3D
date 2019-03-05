@@ -66,7 +66,7 @@ struct logger {
         level_ = lvl::none_set;
 
         // reset the string stream
-        line.str(std::string());
+        line = std::stringstream{};
     }
 
     std::stringstream line;
