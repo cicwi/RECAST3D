@@ -11,27 +11,7 @@ namespace tomovis {
 constexpr auto BUFFER_SIZE = 32u;
 
 ControlComponent::ControlComponent(SceneObject& object, int scene_id)
-    : object_(object), scene_id_(scene_id) {
-    // Temporary: add some fake data to test interface
-    // TODO Remove
-    add_bool_parameter("parameter_test", false);
-    add_bool_parameter("parameter_test2", true);
-    add_float_parameter("parameter_test_float", 5.0f);
-    add_float_parameter("parameter_test_float2", 3.0f);
-
-    bench_result("bench_test", 1.0f);
-    bench_result("bench_test", 2.0f);
-    bench_result("bench_test1", 3.0f);
-
-    track_result("track_test", 1.0f);
-    track_result("track_test", 2.0f);
-    track_result("track_test", 1.0f);
-    track_result("track_test", 5.0f);
-    track_result("track_test", 10.0f);
-    track_result("track_test", 3.0f);
-
-    add_enum_parameter("test_enum", {"test1", "test2", "test3"});
-}
+    : object_(object), scene_id_(scene_id) {}
 
 void ControlComponent::describe() {
     ImGui::Indent(16.0f);
