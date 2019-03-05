@@ -115,8 +115,12 @@ class visualization_server : public listener {
         subscribe_socket_.connect(subscribe_host);
 
         std::vector<tomop::packet_desc> descriptors = {
-            tomop::packet_desc::set_slice, tomop::packet_desc::remove_slice,
-            tomop::packet_desc::kill_scene};
+            tomop::packet_desc::set_slice,
+            tomop::packet_desc::remove_slice,
+            tomop::packet_desc::kill_scene,
+            tomop::packet_desc::parameter_float,
+            tomop::packet_desc::parameter_bool,
+            tomop::packet_desc::parameter_enum};
 
         for (auto descriptor : descriptors) {
             int32_t filter[] = {
