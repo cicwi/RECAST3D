@@ -122,6 +122,7 @@ class ReconstructionComponent : public ObjectComponent {
 
     float lower_value_ = -1.0f;
     float upper_value_ = 1.0f;
+  bool value_not_set_ = true;
     float volume_min_ = 0.0f;
     float volume_max_ = 1.0f;
 

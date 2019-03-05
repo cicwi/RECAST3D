@@ -259,10 +259,12 @@ std::pair<float, float> ReconstructionComponent::overall_min_and_max() {
 }
 
 void ReconstructionComponent::update_image_(int slice) {
-
-    if (lower_value_ == -1.0f && upper_value_ == 1.0f) {
+    auto nonzero = std::fabs(slices_[slice]->min_value) > 1e-6 &&
+                   std::fabs(slices_[slice]->max_value) > 1e-6;
+    if (value_not_set_ && nonzero) {
         lower_value_ = slices_[slice]->min_value;
         upper_value_ = slices_[slice]->max_value;
+        value_not_set_ = false;
     }
     slices_[slice]->update_texture();
 }
