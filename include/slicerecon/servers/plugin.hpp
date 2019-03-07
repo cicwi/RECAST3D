@@ -28,9 +28,7 @@ class plugin {
     ~plugin() { serve_thread_.join(); }
 
     void serve() {
-        serve_thread_ = std::thread([&] {
-            listen();
-        });
+        serve_thread_ = std::thread([&] { listen(); });
 
         serve_thread_.join();
     }
@@ -65,7 +63,8 @@ class plugin {
                 ack();
 
                 auto desc = ((tomop::packet_desc*)update.data())[0];
-                auto buffer = tomop::memory_buffer(update.size(), (char*)update.data());
+                auto buffer =
+                    tomop::memory_buffer(update.size(), (char*)update.data());
 
                 switch (desc) {
                 case tomop::packet_desc::slice_data: {
@@ -87,12 +86,12 @@ class plugin {
                     break;
                 }
                 case tomop::packet_desc::remove_slice: {
-                    std::cout << "Plugin: removing slice TODO pass along to Python interface callback\n";
+                    std::cout << "Plugin: removing slice TODO pass along to "
+                                 "Python interface callback\n";
                     break;
                 }
                 case tomop::packet_desc::kill_scene: {
-                    auto packet =
-                        std::make_unique<tomop::KillScenePacket>();
+                    auto packet = std::make_unique<tomop::KillScenePacket>();
                     packet->deserialize(std::move(buffer));
 
                     kill = true;
@@ -102,6 +101,7 @@ class plugin {
 
                     break;
                 }
+                    // TODO add support for registered parameters
                 default:
                     break;
                 }

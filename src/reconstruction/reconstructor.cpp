@@ -347,7 +347,13 @@ std::vector<float> cone_beam_solver::fdk_weights() {
 
 } // namespace detail
 
-reconstructor::reconstructor(settings parameters) : parameters_(parameters) {}
+reconstructor::reconstructor(settings parameters) : parameters_(parameters) {
+    float_parameters_["lambda"] = &parameters_.paganin.lambda;
+    float_parameters_["delta"] = &parameters_.paganin.delta;
+    float_parameters_["beta"] = &parameters_.paganin.beta;
+    float_parameters_["distance"] = &parameters_.paganin.distance;
+    bool_parameters_["retrieve phase"] = &parameters_.retrieve_phase;
+}
 
 void reconstructor::initialize(acquisition::geometry geom) {
     geom_ = geom;

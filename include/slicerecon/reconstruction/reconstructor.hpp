@@ -38,9 +38,29 @@ namespace slicerecon {
 
 class reconstructor;
 
+/// This listener construction allows the visualization server and the
+/// reconstructor to talk to each other anonymously, but it is perhaps a bit
+/// overengineered and unclear.
 class listener {
   public:
     virtual void notify(reconstructor& recon) = 0;
+    virtual void register_parameter(
+        std::string parameter_name,
+        std::variant<float, std::vector<std::string>, bool> value) = 0;
+
+    void parameter_changed(std::string name,
+                           std::variant<float, std::string, bool> value) {
+        std::visit(
+            [&](auto&& x) {
+                std::cout << "Param " << name << " changed to " << x << "\n";
+            },
+            value);
+    }
+
+  private:
+    friend reconstructor;
+    void register_(reconstructor* recon) { reconstructor_ = recon; }
+    reconstructor* reconstructor_ = nullptr;
 };
 
 template <typename T>
@@ -127,7 +147,18 @@ class reconstructor {
     reconstructor(settings parameters);
     void initialize(acquisition::geometry geom);
 
-    void add_listener(listener* l) { listeners_.push_back(l); }
+    void add_listener(listener* l) {
+        listeners_.push_back(l);
+        l->register_(this);
+
+        for (auto [k, v] : float_parameters_) {
+          std::cout << "reg " << k << "\n";
+            l->register_parameter(k, *v);
+        }
+        for (auto [k, v] : bool_parameters_) {
+            l->register_parameter(k, *v);
+        }
+    }
 
     /**
      * Push a projection into the reconstruction server.
@@ -345,6 +376,11 @@ class reconstructor {
     std::unique_ptr<util::ProjectionProcessor> projection_processor_;
 
     std::mutex gpu_mutex_;
+
+    // list of parameters that can be changed from the visualization UI
+    // NOTE: the enum parameters are hard coded into the handler
+    std::map<std::string, float*> float_parameters_;
+    std::map<std::string, bool*> bool_parameters_;
 };
 
 } // namespace slicerecon
