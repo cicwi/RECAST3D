@@ -159,7 +159,14 @@ Filterer::Filterer(settings parameters, acquisition::geometry geom,
     ffti_plan_ = fftwf_plan_dft_c2r_1d(
         geom.cols, reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]), data,
         FFTW_ESTIMATE);
+
+    // TODO allow making a choice, optional low pass like below
     filter_ = util::filter::shepp_logan(geom.cols);
+    auto filter_lowpass = util::filter::gaussian(geom.cols, 0.06f);
+     for (int i = 0; i < geom.cols; ++i) {
+        filter_[i] *= filter_lowpass[i];
+    }
+
 }
 
 void Filterer::apply(Projection proj, int s) {

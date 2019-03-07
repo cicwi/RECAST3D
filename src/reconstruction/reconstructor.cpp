@@ -406,12 +406,6 @@ void reconstructor::initialize(acquisition::geometry geom) {
     projection_processor_->filterer = std::make_unique<util::detail::Filterer>(
         util::detail::Filterer{parameters_, geom_, &buffer_[0]});
 
-    // TODO allow making a choice, optional low pass like below
-    // auto filter_lowpass = util::filter::gaussian(geom_.cols, 0.02f);
-    // for (int i = 0; i < geom_.cols; ++i) {
-    //    filter_[i] *= filter_lowpass[i];
-    //}
-
     if (!geom_.parallel) {
         projection_processor_->fdk_scale =
             std::make_unique<util::detail::FDKScaler>(util::detail::FDKScaler{
