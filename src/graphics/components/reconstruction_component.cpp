@@ -241,6 +241,13 @@ void ReconstructionComponent::describe() {
     auto minmax = overall_min_and_max();
     ImGui::SliderFloat("Lower", &lower_value_, minmax.first, minmax.second);
     ImGui::SliderFloat("Upper", &upper_value_, minmax.first, minmax.second);
+
+    ImGui::Begin("Slices");
+    //ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);    // 2/3 of the space for widget and 1/3 for labels
+    for (auto&& [slice_idx, slice] : slices_) {
+	    ImGui::Image((void*)(intptr_t)slice->get_texture().id(), ImVec2(200, 200));
+    }
+    ImGui::End();
 }
 
 std::pair<float, float> ReconstructionComponent::overall_min_and_max() {

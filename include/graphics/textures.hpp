@@ -92,6 +92,8 @@ class texture {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    auto id() const { return texture_id_; }
+
    private:
     GLuint texture_id_ = -1;
     int x_ = -1;
@@ -151,6 +153,8 @@ class texture3d {
         glActiveTexture(GL_TEXTURE3);
         glBindTexture(GL_TEXTURE_3D, 0);
     }
+
+    auto id() const { return texture_id_; }
 
    private:
     GLuint texture_id_;
