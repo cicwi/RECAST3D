@@ -360,9 +360,11 @@ void reconstructor::initialize(acquisition::geometry geom) {
     all_darks_.resize(pixels_ * parameters_.darks);
     dark_.resize(pixels_);
     flat_fielder_.resize(pixels_, 1.0f);
+    update_every_ = parameters_.reconstruction_mode == mode::alternating
+            ? geom_.proj_count : parameters_.group_size;
 
-    buffer_.resize((size_t) parameters_.update_every * (size_t) pixels_);
-    sino_buffer_.resize((size_t) parameters_.update_every * (size_t) pixels_);
+    buffer_.resize((size_t) update_every_ * (size_t) pixels_);
+    sino_buffer_.resize((size_t) update_every_ * (size_t) pixels_);
 
     small_volume_buffer_.resize(parameters_.preview_size *
                                 parameters_.preview_size *

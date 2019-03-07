@@ -140,7 +140,7 @@ class reconstructor {
     void push_projection(proj_kind k, int32_t proj_idx, std::array<int32_t, 2> shape,
             char* data) {
         auto p = parameters_;
-        int ue = p.update_every;
+        int ue = update_every_;
         int gs = p.group_size;
 
         if (!initialized_) {
@@ -325,6 +325,7 @@ class reconstructor {
     std::vector<float> buffer_;
 
     int active_gpu_buffer_index_ = 0;
+    int update_every_;
 
     int32_t pixels_ = -1;
     int32_t received_flats_ = 0;

@@ -28,7 +28,6 @@ int main(int argc, char** argv) {
     // This is defined for the reconstruction
     auto slice_size = opts.arg_as_or<int32_t>("--slice-size", n);
     auto preview_size = opts.arg_as_or<int32_t>("--preview-size", 128);
-    auto group_size_passed = opts.passed("--group-size");
     auto group_size = opts.arg_as_or<int32_t>("--group-size", 32);
     auto filter_cores = opts.arg_as_or<int32_t>("--filter-cores", 8);
     auto plugin = opts.passed("--plugin");
@@ -54,37 +53,13 @@ int main(int argc, char** argv) {
         slicerecon::paganin_settings{pixel_size, lambda, delta, beta, distance};
 
     auto continuous_mode = opts.passed("--continuous");
-    auto update_every = opts.arg_as_or<int32_t>("--update-every", group_size);
-
-    if (update_every < 1) {
-        std::cout << opts.usage();
-        std::cout << "ERROR: Invalid value for update_every \n";
-        return -1;
-    }
-
-    if (update_every < group_size) {
-        if (group_size_passed) {
-            std::cout << opts.usage();
-            std::cout << "ERROR: update_every < group_size. The reconstruction cannot be updated more frequently "
-                       "than the group size of the processing buffer.\n";
-            return -1;
-        } else {
-            group_size = update_every;
-        }
-    }
 
     auto mode = continuous_mode ? slicerecon::mode::continuous : slicerecon::mode::alternating;
-
-    if (mode == slicerecon::mode::alternating && update_every != group_size) {
-        std::cout << opts.usage();
-        std::cout << "ERROR:  In default (alternating) mode the --update-every has to equal the --group-size";
-        return -1;
-    }
 
     bool already_linear = false;
     auto params = slicerecon::settings{
         slice_size, preview_size, group_size, filter_cores, 1,
-        1, update_every, mode, already_linear, retrieve_phase, paganin};
+        1, mode, already_linear, retrieve_phase, paganin};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);

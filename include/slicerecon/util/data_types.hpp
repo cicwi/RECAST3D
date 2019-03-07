@@ -31,7 +31,6 @@ struct settings {
     int32_t filter_cores;
     int32_t darks;
     int32_t flats;
-    int32_t update_every;
     mode reconstruction_mode;
     bool already_linear;
     bool retrieve_phase;
