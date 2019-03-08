@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
     auto group_size = opts.arg_as_or<int32_t>("--group-size", 32);
     auto filter_cores = opts.arg_as_or<int32_t>("--filter-cores", 8);
     auto plugin = opts.passed("--plugin");
+    auto tilt = opts.passed("--tilt");
     auto py_plugin = opts.passed("--pyplugin");
     auto recast_host = opts.arg_or("--recast-host", "localhost");
     auto use_reqrep = opts.passed("--reqrep");
@@ -58,8 +59,8 @@ int main(int argc, char** argv) {
 
     bool already_linear = false;
     auto params = slicerecon::settings{
-        slice_size, preview_size, group_size, filter_cores, 1,
-        1, mode, already_linear, retrieve_phase, paganin};
+        slice_size, preview_size, group_size,     filter_cores, 1,
+        1, mode,         false,        retrieve_phase, tilt,         paganin};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);

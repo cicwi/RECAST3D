@@ -49,13 +49,7 @@ class listener {
         std::variant<float, std::vector<std::string>, bool> value) = 0;
 
     void parameter_changed(std::string name,
-                           std::variant<float, std::string, bool> value) {
-        std::visit(
-            [&](auto&& x) {
-                std::cout << "Param " << name << " changed to " << x << "\n";
-            },
-            value);
-    }
+                           std::variant<float, std::string, bool> value);
 
   private:
     friend reconstructor;
@@ -83,6 +77,17 @@ class solver {
                                      int buffer_idx) = 0;
 
     auto proj_data(int index) { return proj_datas_[index].get(); }
+
+    // returns true if we want to trigger a re-reconstruction
+    virtual bool parameter_changed(
+        std::string parameter,
+	std::variant<float, std::string, bool> value) { (void)parameter; (void)value; return false; }
+
+    virtual std::vector<std::pair<
+        std::string, std::variant<float, std::vector<std::string>, bool>>>
+    parameters() {
+        return {};
+    }
 
   protected:
     settings parameters_;
@@ -114,12 +119,22 @@ class parallel_beam_solver : public solver {
     void reconstruct_preview(std::vector<float>& preview_buffer,
                              int buffer_idx) override;
 
+    bool parameter_changed(
+        std::string parameter,
+        std::variant<float, std::string, bool> value) override;
+    std::vector<std::pair<std::string,
+                          std::variant<float, std::vector<std::string>, bool>>>
+    parameters() override;
+
   private:
     // Parallel specific stuff
     std::unique_ptr<astra::CParallelVecProjectionGeometry3D> proj_geom_;
     std::unique_ptr<astra::CParallelVecProjectionGeometry3D> proj_geom_small_;
     std::vector<astra::SPar3DProjection> vectors_;
+    std::vector<astra::SPar3DProjection> original_vectors_;
     std::vector<astra::SPar3DProjection> vec_buf_;
+    float tilt_translate_ = 0.0f;
+    float tilt_rotate_ = 0.0f;
 };
 
 class cone_beam_solver : public solver {
@@ -152,7 +167,7 @@ class reconstructor {
         l->register_(this);
 
         for (auto [k, v] : float_parameters_) {
-          std::cout << "reg " << k << "\n";
+            std::cout << "reg " << k << "\n";
             l->register_parameter(k, *v);
         }
         for (auto [k, v] : bool_parameters_) {
@@ -303,6 +318,24 @@ class reconstructor {
         parameters_.darks = darks;
         parameters_.flats = flats;
         parameters_.already_linear = already_linear;
+    }
+
+    void parameter_changed(std::string name,
+                           std::variant<float, std::string, bool> value) {
+        if (alg_) {
+            if (alg_->parameter_changed(name, value)) {
+		    for (auto l : listeners_) {
+			l->notify(*this);
+		    }
+	    }
+        }
+
+
+        std::visit(
+            [&](auto&& x) {
+                std::cout << "Param " << name << " changed to " << x << "\n";
+            },
+            value);
     }
 
   private:

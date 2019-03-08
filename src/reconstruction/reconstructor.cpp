@@ -1,10 +1,17 @@
 #include <complex>
 
+#include <Eigen/Eigen>
+
 #include "slicerecon/reconstruction/reconstructor.hpp"
 #include "slicerecon/util/processing.hpp"
 #include "slicerecon/util/util.hpp"
 
 namespace slicerecon {
+
+void listener::parameter_changed(std::string name,
+                                 std::variant<float, std::string, bool> value) {
+    reconstructor_->parameter_changed(name, value);
+}
 
 namespace detail {
 
@@ -96,6 +103,7 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
     vectors_ = std::vector<astra::SPar3DProjection>(
         proj_geom_->getProjectionVectors(),
         proj_geom_->getProjectionVectors() + geometry_.proj_count);
+    original_vectors_ = vectors_;
     vec_buf_ = vectors_;
 
     auto zeros = std::vector<float>(
@@ -189,6 +197,63 @@ void parallel_beam_solver::reconstruct_preview(
     for (auto& x : preview_buffer) {
         x *= (factor * factor * factor);
     }
+}
+
+bool parallel_beam_solver::parameter_changed(
+    std::string parameter,
+    std::variant<float, std::string, bool> value) {
+
+    bool tilt_changed = false;
+    if (parameter == "tilt angle") {
+	tilt_changed = true;
+	tilt_rotate_ = std::get<float>(value);
+        // TODO rotate geometry vectors
+    } else if (parameter == "tilt translate") {
+	tilt_changed = true;
+	tilt_translate_ = std::get<float>(value);
+        // TODO translate geometry vectors
+    }
+
+    std::cout << "Rotate to " << tilt_rotate_ << ", translate to" << tilt_translate_ << "\n";
+
+    if (tilt_changed) {
+        // From the ASTRA geometry, get the vectors, modify, and reset them
+        int i = 0;
+        for (auto [rx, ry, rz, dx, dy, dz, pxx, pxy, pxz, pyx, pyy, pyz] :
+             original_vectors_) {
+            auto r = Eigen::Vector3f(rx, ry, rz);
+            auto d = Eigen::Vector3f(dx, dy, dz);
+            auto px = Eigen::Vector3f(pxx, pxy, pxz);
+            auto py = Eigen::Vector3f(pyx, pyy, pyz);
+    
+            d += tilt_translate_ * px;
+
+	    auto z = px.normalized();
+	    auto w = py.normalized();
+	    auto axis = z.cross(w);
+	    auto rot = Eigen::AngleAxis<float>(tilt_rotate_ * M_PI / 180.0f, axis.normalized()).matrix();
+
+	    px = rot * px;
+	    py = rot * py;
+
+            vectors_[i] = {r[0],  r[1],  r[2],  d[0],  d[1],  d[2],
+                           px[0], px[1], px[2], py[0], py[1], py[2]};
+            ++i;
+        }
+
+      // TODO if either changed, trigger a new reconstruction. Do we need to do
+      // this from reconstructor (since we don't have access to listeners to
+      // notify?). Then the order of handling parameters matters.
+    }
+
+    return tilt_changed;
+}
+
+std::vector<
+    std::pair<std::string, std::variant<float, std::vector<std::string>, bool>>>
+parallel_beam_solver::parameters() {
+    if (!parameters_.tilt_axis) { return {}; }
+    return {{"tilt angle", 0.0f}, {"tilt translate", 0.0f}};
 }
 
 cone_beam_solver::cone_beam_solver(settings parameters,
@@ -356,6 +421,8 @@ reconstructor::reconstructor(settings parameters) : parameters_(parameters) {
 }
 
 void reconstructor::initialize(acquisition::geometry geom) {
+    bool reinitializing = (bool)alg_;
+
     geom_ = geom;
 
     // init counts
@@ -416,6 +483,19 @@ void reconstructor::initialize(acquisition::geometry geom) {
         projection_processor_->paganin =
             std::make_unique<util::detail::Paganin>(
                 util::detail::Paganin{parameters_, geom_, &buffer_[0]});
+    }
+
+    if (!reinitializing) {
+        for (auto [k, v] : alg_->parameters()) {
+            for (auto l : listeners_) {
+                l->register_parameter(k, v);
+            }
+        }
+    } else {
+        slicerecon::util::log
+            << LOG_FILE << slicerecon::util::lvl::warning
+            << "Reinitializing geometry, not registering parameter controls"
+            << slicerecon::util::end_log;
     }
 }
 

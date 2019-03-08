@@ -34,6 +34,7 @@ struct settings {
     mode reconstruction_mode;
     bool already_linear;
     bool retrieve_phase;
+    bool tilt_axis;
     paganin_settings paganin;
 };
 
