@@ -114,34 +114,42 @@ void ReconstructionComponent::send_slices() {
                                      slice.second->packed_orientation());
         object_.send(packet);
     }
+
+    for (auto& slice : fixed_slices_) {
+        auto packet = SetSlicePacket(scene_id_, slice.first,
+                                     slice.second->packed_orientation());
+        object_.send(packet);
+    }
 }
 
 void ReconstructionComponent::set_data(std::vector<float>& data,
-                                       std::array<int32_t, 2> size, int slice,
+                                       std::array<int32_t, 2> size, int slice_idx,
                                        bool additive) {
-    if (slices_.find(slice) == slices_.end()) {
-        std::cout << "Updating inactive slice: " << slice << "\n";
+	slice* s = nullptr;
+    if (slices_.find(slice_idx) != slices_.end()) {
+	    s = slices_[slice_idx].get();
+    } else if (fixed_slices_.find(slice_idx) != fixed_slices_.end()) {
+	    s = fixed_slices_[slice_idx].get();
+    }
+
+    if (s == dragged_slice_) {
         return;
     }
 
-    if (slices_[slice].get() == dragged_slice_) {
-        return;
-    }
-
-    if (!additive || !slices_[slice]->has_data()) {
-        slices_[slice]->size = size;
-        slices_[slice]->data = data;
+    if (!additive || !s->has_data()) {
+        s->size = size;
+        s->data = data;
     } else {
-        assert(slices_[slice]->size == size);
-        slices_[slice]->add_data(data);
+        assert(s->size == size);
+        s->add_data(data);
     }
 
-    slices_[slice]->min_value = *std::min_element(slices_[slice]->data.begin(),
-                                                  slices_[slice]->data.end());
-    slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
-                                                  slices_[slice]->data.end());
+    s->min_value = *std::min_element(s->data.begin(),
+                                                  s->data.end());
+    s->max_value = *std::max_element(s->data.begin(),
+                                                  s->data.end());
 
-    update_image_(slice);
+    update_image_(s);
 }
 
 void ReconstructionComponent::update_partial_slice(
@@ -168,7 +176,7 @@ void ReconstructionComponent::update_partial_slice(
     slices_[slice]->max_value = *std::max_element(slices_[slice]->data.begin(),
                                                   slices_[slice]->data.end());
 
-    update_image_(slice);
+    update_image_(slices_[slice].get());
 }
 
 void ReconstructionComponent::set_volume_data(
@@ -242,12 +250,20 @@ void ReconstructionComponent::describe() {
     ImGui::SliderFloat("Lower", &lower_value_, minmax.first, minmax.second);
     ImGui::SliderFloat("Upper", &upper_value_, minmax.first, minmax.second);
 
-    ImGui::Begin("Slices");
-    //ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);    // 2/3 of the space for widget and 1/3 for labels
-    for (auto&& [slice_idx, slice] : slices_) {
-	    ImGui::Image((void*)(intptr_t)slice->get_texture().id(), ImVec2(200, 200));
+    if (fixed_slices_.size() > 0)  {
+	    ImGui::Begin("Slices");
+	    auto to_remove = std::vector<int>{};
+	    for (auto&& [slice_idx, slice] : fixed_slices_) {
+		    ImGui::Image((void*)(intptr_t)slice->get_texture().id(), ImVec2(200, 200));
+		    if (ImGui::Button((std::string("remove##") + std::to_string(slice_idx)).c_str())) {
+			    to_remove.push_back(slice_idx);
+		    }
+	    }
+	    for (auto remove : to_remove) {
+		    fixed_slices_.erase(remove);
+	    }
+	    ImGui::End();
     }
-    ImGui::End();
 }
 
 std::pair<float, float> ReconstructionComponent::overall_min_and_max() {
@@ -265,15 +281,15 @@ std::pair<float, float> ReconstructionComponent::overall_min_and_max() {
             overall_max + (0.2f * (overall_max - overall_min))};
 }
 
-void ReconstructionComponent::update_image_(int slice) {
-    auto nonzero = std::fabs(slices_[slice]->min_value) > 1e-6 &&
-                   std::fabs(slices_[slice]->max_value) > 1e-6;
+void ReconstructionComponent::update_image_(slice* s) {
+    auto nonzero = std::fabs(s->min_value) > 1e-6 &&
+                   std::fabs(s->max_value) > 1e-6;
     if (value_not_set_ && nonzero) {
-        lower_value_ = slices_[slice]->min_value;
-        upper_value_ = slices_[slice]->max_value;
+        lower_value_ = s->min_value;
+        upper_value_ = s->max_value;
         value_not_set_ = false;
     }
-    slices_[slice]->update_texture();
+    s->update_texture();
 }
 
 void ReconstructionComponent::set_volume_position(glm::vec3 min_pt,
@@ -390,6 +406,20 @@ bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
                 switch_if_necessary(recon_drag_machine_kind::rotator);
                 dragging_ = true;
                 return true;
+            }
+        }
+        if (button == 2) {
+            if (hovering_) {
+	        // hovered over slice gets fixed
+		int new_id = generate_slice_idx();
+		auto new_slice = std::make_unique<slice>(new_id);
+		new_slice->orientation = hovered_slice_->orientation;
+
+		auto packet = SetSlicePacket(scene_id_, new_slice->id,
+		    			 new_slice->packed_orientation());
+		object_.send(packet);
+
+	        fixed_slices_[new_slice->id] = std::move(new_slice);
             }
         }
     }
@@ -552,7 +582,7 @@ void SliceTranslator::on_drag(glm::vec2 delta) {
     // else we drag the current slice along the normal
     if (!comp_.dragged_slice()) {
         std::unique_ptr<slice> new_slice;
-        int id = (*(comp_.get_slices().rbegin())).first + 1;
+        int id = comp_.generate_slice_idx();
         int to_remove = -1;
         for (auto& id_the_slice : comp_.get_slices()) {
             auto& the_slice = id_the_slice.second;
@@ -683,7 +713,7 @@ void SliceRotator::on_drag(glm::vec2 delta) {
     // else we drag the current slice along the normal
     if (!comp_.dragged_slice()) {
         std::unique_ptr<slice> new_slice;
-        int id = (*(comp_.get_slices().rbegin())).first + 1;
+        int id = comp_.generate_slice_idx();
         int to_remove = -1;
         for (auto& id_the_slice : comp_.get_slices()) {
             auto& the_slice = id_the_slice.second;

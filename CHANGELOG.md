@@ -6,6 +6,7 @@
 - Add support for trackers, benchmarks, and parameter control for upstream
   components
 - Add experimental transparent reconstruction mode (this makes air on slices see-through)
+- Add feature to set permanently fixed slices for analysis with middle mouse button
 
 ### Fixed
 - Fix scaling of 3D volume preview in reconstruction

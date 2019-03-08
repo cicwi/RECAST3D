@@ -85,10 +85,13 @@ class ReconstructionComponent : public ObjectComponent {
 
     std::pair<float, float> overall_min_and_max();
 
+    auto generate_slice_idx() { return next_idx_++; }
+
   private:
-    void update_image_(int slice);
+    void update_image_(slice* s);
 
     std::map<int, std::unique_ptr<slice>> slices_;
+    std::map<int, std::unique_ptr<slice>> fixed_slices_;
 
     glm::mat4 volume_transform_;
 
@@ -106,6 +109,7 @@ class ReconstructionComponent : public ObjectComponent {
     std::unique_ptr<ShaderProgram> cube_program_;
 
     SceneObject& object_;
+    int next_idx_ = 3;
 
     GLuint colormap_texture_;
     texture3d<float> volume_texture_;
