@@ -13,8 +13,11 @@ import matplotlib.pyplot as plt
 import tomopy
 
 '''
-    This file pushes a DxChange file (HDF5) to the SliceRecon server, for the purpose of testing.
-    Works with parallel beam data only.
+    Example file for pushing the TomoBank dynamic foam dataset.
+    see: https://tomobank.readthedocs.io/en/latest/source/data/docs.data.dynamic.html
+    
+    This file reads a HDF5 file, parses projections with Tomopy and sends them to SliceRecon server. The file has been
+    written to send the specific "dynamic foam" dataset, but could well serve as inspiration to send other HDF5 types.
 
     Some of the code in this file is taken from tomopy_rectv.py, read_continuous.py which is found
     on https://github.com/math-vrn/rectv_gpu by math-vrn, licensed with BSD 2-Simplified.
@@ -24,9 +27,6 @@ import tomopy
     
     Call this file with,
       slicerecon_push_aps32id.py /path/to/dk_MCFG_1_p_s1_.h5
-    and if you didnt tweak the options, then
-      slicerecon_server --group-size 30 [--slice-size 1000] [--pyplugin]
-   
     
     Adriaan
 '''
@@ -95,7 +95,7 @@ def main(arg):
     binning = int(args.binning)
     subsampling = int(args.sample)  # taking 1 per (subsampling) instead of all the frames
 
-    nproj = 400  # number of projections per 180 degrees interval, this is coded
+    nproj = 600  # number of projections per 180 degrees interval, this is coded
     scene_id = 0
 
     assert((nproj / subsampling).is_integer())
@@ -113,8 +113,8 @@ def main(arg):
     sino = (int(sino_start), int(sino_end))
 
     # Read APS 32-BM raw data, for the sake of darks and flats
-    print("Reading flats, darks, angles...")
-    proj, flat, dark, theta = dxchange.read_aps_32id(fname, proj=1)
+    print("Reading flats, darks ...")
+    proj, flat, dark, _ = dxchange.read_aps_32id(fname, proj=1, sino=sino) # angles give nonsense values
 
     # Phase retrieval for tomobank id 00080
     # sample_detector_distance = 25
@@ -141,7 +141,7 @@ def main(arg):
         window_min_point = [-rx, -rx, -rz]  # x,y,z
         window_max_point = [rx, rx, rz]  # x,y,z
 
-        angles = np.linspace(0, np.pi, proj_count, endpoint=False) # np.mod(theta[0:nproj], np.pi)
+        angles = np.linspace(0, 2*np.pi, proj_count, endpoint=False) # np.mod(theta[0:nproj], np.pi)
 
         pub.send(tp.geometry_specification_packet(scene_id, window_min_point, window_max_point))
         pub.send(tp.parallel_beam_geometry_packet(scene_id, rows, cols, proj_count, angles))
@@ -149,8 +149,8 @@ def main(arg):
         # We're not sending flats and darks to the SliceRecon server (see below) because (i) buffer may not be large
         # enough and (ii) we will want to do preprocessing of the projection data here anyway
         
-        already_linear_flatdarks = False
-        pub.send(tp.scan_settings_packet(scene_id, dark.shape[0], flat.shape[0], already_linear_flatdarks))
+        # already_linear_flatdarks = False
+        # pub.send(tp.scan_settings_packet(scene_id, dark.shape[0], flat.shape[0], already_linear_flatdarks))
         # for i in np.arange(0, 2):
         #     pub.send(tp.projection_packet(0, i, [rows, cols], np.ascontiguousarray(dark[i, :, :].flatten())))
         #
@@ -165,7 +165,7 @@ def main(arg):
     j = 0
     for i in np.arange(1, data_size[0], subsampling):
         print("Pushing ", i, " of ", data_size[0])
-        data = dxreader.read_hdf5(fname, tomo_grp, slc=((int(i),int(i)+1), None))
+        data = dxreader.read_hdf5(fname, tomo_grp, slc=((int(i),int(i)+1), sino))
 
         # Flat-field correction of raw data.
         data = tomopy.normalize(data, flat, dark)
@@ -179,7 +179,8 @@ def main(arg):
         # data = tomopy.remove_neg(data, val=0.00)
         # data[np.where(data == np.inf)] = 0.00
 
-        pub.send(tp.projection_packet(2, j, [rows, cols], np.ascontiguousarray(data[0].flatten())))
+        packet_type = 2 # projection packet
+        pub.send(tp.projection_packet(packet_type, j, [rows, cols], np.ascontiguousarray(data[0].flatten())))
         j = j+1
 
 

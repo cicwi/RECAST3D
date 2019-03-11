@@ -13,8 +13,7 @@ namespace slicerecon {
 
 class projection_server {
   public:
-    projection_server(std::string hostname, int port, reconstructor& pool,
-                      int type = ZMQ_PULL)
+    projection_server(std::string hostname, int port, reconstructor& pool, int type = ZMQ_PULL)
         : context_(1), socket_(context_, type), pool_(pool), type_(type) {
         using namespace std::string_literals;
         auto address = "tcp://"s + hostname + ":"s + std::to_string(port);

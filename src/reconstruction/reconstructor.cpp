@@ -102,7 +102,8 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
         geometry_.proj_count * geometry_.cols * geometry_.rows, 0.0f);
 
     // Projection data
-    for (int i = 0; i < 2; ++i) {
+    int nr_handles = parameters.reconstruction_mode == mode::alternating ? 2 : 1;
+    for (int i = 0; i < nr_handles; ++i) {
         proj_handles_.push_back(astraCUDA3d::createProjectionArrayHandle(
             zeros.data(), geometry_.cols, geometry_.proj_count,
             geometry_.rows));
@@ -110,9 +111,10 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
             std::make_unique<astra::CFloat32ProjectionData3DGPU>(
                 proj_geom_.get(), proj_handles_[0]));
     }
+
     // Back projection algorithm, link to previously made objects
     projector_ = std::make_unique<astra::CCudaProjector3D>();
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < nr_handles; ++i) {
         algs_.push_back(std::make_unique<astra::CCudaBackProjectionAlgorithm3D>(
             projector_.get(), proj_datas_[i].get(), vol_data_.get()));
         algs_small_.push_back(
@@ -231,7 +233,8 @@ cone_beam_solver::cone_beam_solver(settings parameters,
         geometry_.proj_count * geometry_.cols * geometry_.rows, 0.0f);
 
     // Projection data
-    for (int i = 0; i < 2; ++i) {
+    int nr_handles = parameters.reconstruction_mode == mode::alternating ? 2 : 1;
+    for (int i = 0; i < nr_handles; ++i) {
         proj_handles_.push_back(astraCUDA3d::createProjectionArrayHandle(
             zeros.data(), geometry_.cols, geometry_.proj_count,
             geometry_.rows));
@@ -242,7 +245,7 @@ cone_beam_solver::cone_beam_solver(settings parameters,
 
     // Back projection algorithm, link to previously made objects
     projector_ = std::make_unique<astra::CCudaProjector3D>();
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < nr_handles; ++i) {
         algs_.push_back(std::make_unique<astra::CCudaBackProjectionAlgorithm3D>(
             projector_.get(), proj_datas_[i].get(), vol_data_.get()));
         algs_small_.push_back(
@@ -357,19 +360,18 @@ void reconstructor::initialize(acquisition::geometry geom) {
 
     // init counts
     pixels_ = geom_.cols * geom_.rows;
-    current_group_ = 0;
-    group_count_ = (geom_.proj_count - 1) / parameters_.group_size + 1;
 
     // allocate the buffers
     all_flats_.resize(pixels_ * parameters_.flats);
     all_darks_.resize(pixels_ * parameters_.darks);
     dark_.resize(pixels_);
-    flat_fielder_.resize(pixels_, 1);
+    flat_fielder_.resize(pixels_, 1.0f);
+    update_every_ = parameters_.reconstruction_mode == mode::alternating
+            ? geom_.proj_count : parameters_.group_size;
 
-    buffer_[0].resize(parameters_.group_size * pixels_);
-    buffer_[1].resize(parameters_.group_size * pixels_);
-    sino_buffer_.resize((size_t)geom_.rows * (size_t)geom_.cols *
-                        (size_t)parameters_.group_size);
+    buffer_.resize((size_t) update_every_ * (size_t) pixels_);
+    sino_buffer_.resize((size_t) update_every_ * (size_t) pixels_);
+
     small_volume_buffer_.resize(parameters_.preview_size *
                                 parameters_.preview_size *
                                 parameters_.preview_size);
@@ -402,7 +404,7 @@ void reconstructor::initialize(acquisition::geometry geom) {
     }
 
     projection_processor_->filterer = std::make_unique<util::detail::Filterer>(
-        util::detail::Filterer{parameters_, geom_, &buffer_[0][0]});
+        util::detail::Filterer{parameters_, geom_, &buffer_[0]});
 
     // TODO allow making a choice, optional low pass like below
     // auto filter_lowpass = util::filter::gaussian(geom_.cols, 0.02f);
@@ -419,46 +421,91 @@ void reconstructor::initialize(acquisition::geometry geom) {
     if (parameters_.retrieve_phase) {
         projection_processor_->paganin =
             std::make_unique<util::detail::Paganin>(
-                util::detail::Paganin{parameters_, geom_, &buffer_[0][0]});
+                util::detail::Paganin{parameters_, geom_, &buffer_[0]});
     }
 }
 
-void reconstructor::transpose_sino_(std::vector<float>& projection_group,
-                                    std::vector<float>& sino_buffer,
-                                    int group_size) {
+/**
+ * Copy from a data buffer to a sino buffer, while transposing the data.
+ *
+ * If an offset is given, it transposes projections [offset, offset+1, ..., proj_end]
+ * to the *front* of the sino_buffer_, leaving the remainder of the buffer unused.
+ *
+ * @param projection_group  Reference to buffered data
+ * @param sino_buffer       Reference to the CPU buffer of the projections
+ * @param group_size        Number of projections in the group
+ *
+ */
+void reconstructor::transpose_into_sino_(int proj_offset, int proj_end) {
     // major to minor: [i, j, k]
     // In projection_group we have: [projection_id, rows, cols ]
     // For sinogram we want: [rows, projection_id, cols]
 
+    auto buffer_size = proj_end - proj_offset +1;
+
     for (int i = 0; i < geom_.rows; ++i) {
-        for (int j = 0; j < group_size; ++j) {
+        for (int j = proj_offset; j <= proj_end; ++j) {
             for (int k = 0; k < geom_.cols; ++k) {
-                sino_buffer[i * group_size * geom_.cols + j * geom_.cols + k] =
-                    projection_group[j * geom_.cols * geom_.rows +
-                                     i * geom_.cols + k];
+                sino_buffer_[i * buffer_size * geom_.cols + (j-proj_offset) * geom_.cols + k] =
+                    buffer_[j * geom_.cols * geom_.rows + i * geom_.cols + k];
             }
         }
     }
 }
 
-void reconstructor::upload_(int proj_id_min, int proj_id_max) {
+/**
+ * In-memory processing the projections [proj_id_begin, ..., proj_id_end]
+ *
+ * @param proj_id_begin
+ * @param proj_id_end
+ */
+void reconstructor::process_(int proj_id_begin, int proj_id_end) {
     if (!initialized_) {
         return;
     }
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
-                          << "Uploading buffer (" << write_index_
-                          << ") between " << proj_id_min << "/" << proj_id_max
+                          << "Processing buffer"
+                          << " between " << proj_id_begin << "/" << proj_id_end
                           << slicerecon::util::end_log;
 
-    projection_processor_->process(buffer_[write_index_].data(),
-                                   proj_id_max - proj_id_min + 1);
-    transpose_sino_(buffer_[write_index_], sino_buffer_,
-                    proj_id_max - proj_id_min + 1);
+    auto data = &buffer_[proj_id_begin * pixels_];
+    projection_processor_->process(data, proj_id_end - proj_id_begin + 1);
+}
 
-    astra::uploadMultipleProjections(alg_->proj_data(write_index_),
-                                     sino_buffer_.data(), proj_id_min,
-                                     proj_id_max);
+/**
+ * Upload the CPU sinogram buffer to ASTRA on the GPU
+ *
+ * @param proj_id_begin The starting position of the data in the GPU
+ * @param proj_id_end The last position of the data in the GPU
+ * @param buffer_begin Position of the to-be-uploaded data in the CPU buffer
+ * @param buffer_idx Index of the GPU buffer the sinogram data should be uploaded to
+ * @param lock_gpu Whether or not to use gpu_mutex_ to block access to the GPU
+ */
+void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int buffer_idx, bool lock_gpu) {
+    if (!initialized_) {
+        return;
+    }
+
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << "Uploading to buffer (" << active_gpu_buffer_index_
+                          << ") between " << proj_id_begin << "/" << proj_id_end
+                          << slicerecon::util::end_log;
+
+
+    // in continuous mode, there is only one data buffer and it needs to be protected
+    // since the reconstruction server has access to it too
+    if (lock_gpu) {
+        std::lock_guard<std::mutex> guard(gpu_mutex_);
+
+        astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
+                                         &sino_buffer_[0], proj_id_begin,
+                                         proj_id_end);
+    } else {
+        astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
+                                         &sino_buffer_[0], proj_id_begin,
+                                         proj_id_end);
+    }
 
     // send message to observers that new data is available
     for (auto l : listeners_) {
@@ -471,11 +518,14 @@ void reconstructor::refresh_data_() {
         return;
     }
 
-    alg_->reconstruct_preview(small_volume_buffer_, 1 - write_index_);
+    { // lock guard scope
+        std::lock_guard<std::mutex> guard(gpu_mutex_);
+        alg_->reconstruct_preview(small_volume_buffer_, active_gpu_buffer_index_);
+    } // end lock guard scope
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
                           << "Reconstructed low-res preview ("
-                          << 1 - write_index_ << ")"
+                          << active_gpu_buffer_index_ << ")"
                           << slicerecon::util::end_log;
 
     // send message to observers that new data is available
