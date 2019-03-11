@@ -162,11 +162,10 @@ Filterer::Filterer(settings parameters, acquisition::geometry geom,
 
     // TODO allow making a choice, optional low pass like below
     filter_ = util::filter::shepp_logan(geom.cols);
-    auto filter_lowpass = util::filter::gaussian(geom.cols, 0.06f);
-     for (int i = 0; i < geom.cols; ++i) {
-        filter_[i] *= filter_lowpass[i];
-    }
-
+    //auto filter_lowpass = util::filter::gaussian(geom.cols, 0.06f);
+    // for (int i = 0; i < geom.cols; ++i) {
+    //    filter_[i] *= filter_lowpass[i];
+    //}
 }
 
 void Filterer::apply(Projection proj, int s) {
