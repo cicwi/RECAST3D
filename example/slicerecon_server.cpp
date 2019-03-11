@@ -57,7 +57,6 @@ int main(int argc, char** argv) {
 
     auto mode = continuous_mode ? slicerecon::mode::continuous : slicerecon::mode::alternating;
 
-    bool already_linear = false;
     auto params = slicerecon::settings{
         slice_size, preview_size, group_size,     filter_cores, 1,
         1, mode,         false,        retrieve_phase, tilt,         paganin};
