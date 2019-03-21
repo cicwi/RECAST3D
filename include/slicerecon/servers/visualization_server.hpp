@@ -14,11 +14,12 @@
 #include <mutex>
 
 #include "../reconstruction/reconstructor.hpp"
+#include "../util/bench.hpp"
 #include "../util/data_types.hpp"
 
 namespace slicerecon {
 
-class visualization_server : public listener {
+class visualization_server : public listener, public util::bench_listener {
   public:
     using callback_type =
         std::function<slice_data(std::array<float, 9>, int32_t)>;
@@ -36,6 +37,10 @@ class visualization_server : public listener {
 
         auto grsp = tomop::GroupRequestSlicesPacket(scene_id_, 1);
         send(grsp);
+    }
+
+    void bench_notify(std::string name, double time) override {
+        send(tomop::BenchmarkPacket(scene_id_, name, time));
     }
 
     void register_parameter(

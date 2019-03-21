@@ -217,7 +217,7 @@ void ProjectionProcessor::process(float* data, int proj_count) {
 
         world.barrier();
     });
-    bench.insert("process per proj", dt.get() / proj_count);
+    bench.insert("process", dt.get());
 }
 
 } // namespace slicerecon::util

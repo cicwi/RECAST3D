@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Gaussian filter for optional noise suppression
 - Add support for Paganin filtering
 - Add support for manually choosing tilt axis for parallel beam geometries
+- Add `bench` flag for (optional) benchmarking support
 
 ### Changed
 - Change `plugin::listen` to run on the main thread

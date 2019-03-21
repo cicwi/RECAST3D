@@ -3,6 +3,7 @@
 #include <Eigen/Eigen>
 
 #include "slicerecon/reconstruction/reconstructor.hpp"
+#include "slicerecon/util/bench.hpp"
 #include "slicerecon/util/processing.hpp"
 #include "slicerecon/util/util.hpp"
 
@@ -110,7 +111,8 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
         geometry_.proj_count * geometry_.cols * geometry_.rows, 0.0f);
 
     // Projection data
-    int nr_handles = parameters.reconstruction_mode == mode::alternating ? 2 : 1;
+    int nr_handles =
+        parameters.reconstruction_mode == mode::alternating ? 2 : 1;
     for (int i = 0; i < nr_handles; ++i) {
         proj_handles_.push_back(astraCUDA3d::createProjectionArrayHandle(
             zeros.data(), geometry_.cols, geometry_.proj_count,
@@ -133,6 +135,7 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
 
 slice_data parallel_beam_solver::reconstruct_slice(orientation x,
                                                    int buffer_idx) {
+    auto dt = util::bench_scope("slice");
     auto k = vol_geom_->getWindowMaxX();
 
     auto [delta, rot, scale] = util::slice_transform(
@@ -185,6 +188,8 @@ slice_data parallel_beam_solver::reconstruct_slice(orientation x,
 
 void parallel_beam_solver::reconstruct_preview(
     std::vector<float>& preview_buffer, int buffer_idx) {
+    auto dt = util::bench_scope("3D preview");
+
     proj_datas_[buffer_idx]->changeGeometry(proj_geom_small_.get());
     algs_small_[buffer_idx]->run();
 
@@ -200,21 +205,21 @@ void parallel_beam_solver::reconstruct_preview(
 }
 
 bool parallel_beam_solver::parameter_changed(
-    std::string parameter,
-    std::variant<float, std::string, bool> value) {
+    std::string parameter, std::variant<float, std::string, bool> value) {
 
     bool tilt_changed = false;
     if (parameter == "tilt angle") {
-	tilt_changed = true;
-	tilt_rotate_ = std::get<float>(value);
+        tilt_changed = true;
+        tilt_rotate_ = std::get<float>(value);
         // TODO rotate geometry vectors
     } else if (parameter == "tilt translate") {
-	tilt_changed = true;
-	tilt_translate_ = std::get<float>(value);
+        tilt_changed = true;
+        tilt_translate_ = std::get<float>(value);
         // TODO translate geometry vectors
     }
 
-    std::cout << "Rotate to " << tilt_rotate_ << ", translate to" << tilt_translate_ << "\n";
+    std::cout << "Rotate to " << tilt_rotate_ << ", translate to"
+              << tilt_translate_ << "\n";
 
     if (tilt_changed) {
         // From the ASTRA geometry, get the vectors, modify, and reset them
@@ -225,25 +230,27 @@ bool parallel_beam_solver::parameter_changed(
             auto d = Eigen::Vector3f(dx, dy, dz);
             auto px = Eigen::Vector3f(pxx, pxy, pxz);
             auto py = Eigen::Vector3f(pyx, pyy, pyz);
-    
+
             d += tilt_translate_ * px;
 
-	    auto z = px.normalized();
-	    auto w = py.normalized();
-	    auto axis = z.cross(w);
-	    auto rot = Eigen::AngleAxis<float>(tilt_rotate_ * M_PI / 180.0f, axis.normalized()).matrix();
+            auto z = px.normalized();
+            auto w = py.normalized();
+            auto axis = z.cross(w);
+            auto rot = Eigen::AngleAxis<float>(tilt_rotate_ * M_PI / 180.0f,
+                                               axis.normalized())
+                           .matrix();
 
-	    px = rot * px;
-	    py = rot * py;
+            px = rot * px;
+            py = rot * py;
 
             vectors_[i] = {r[0],  r[1],  r[2],  d[0],  d[1],  d[2],
                            px[0], px[1], px[2], py[0], py[1], py[2]};
             ++i;
         }
 
-      // TODO if either changed, trigger a new reconstruction. Do we need to do
-      // this from reconstructor (since we don't have access to listeners to
-      // notify?). Then the order of handling parameters matters.
+        // TODO if either changed, trigger a new reconstruction. Do we need to
+        // do this from reconstructor (since we don't have access to listeners
+        // to notify?). Then the order of handling parameters matters.
     }
 
     return tilt_changed;
@@ -252,7 +259,9 @@ bool parallel_beam_solver::parameter_changed(
 std::vector<
     std::pair<std::string, std::variant<float, std::vector<std::string>, bool>>>
 parallel_beam_solver::parameters() {
-    if (!parameters_.tilt_axis) { return {}; }
+    if (!parameters_.tilt_axis) {
+        return {};
+    }
     return {{"tilt angle", 0.0f}, {"tilt translate", 0.0f}};
 }
 
@@ -298,7 +307,8 @@ cone_beam_solver::cone_beam_solver(settings parameters,
         geometry_.proj_count * geometry_.cols * geometry_.rows, 0.0f);
 
     // Projection data
-    int nr_handles = parameters.reconstruction_mode == mode::alternating ? 2 : 1;
+    int nr_handles =
+        parameters.reconstruction_mode == mode::alternating ? 2 : 1;
     for (int i = 0; i < nr_handles; ++i) {
         proj_handles_.push_back(astraCUDA3d::createProjectionArrayHandle(
             zeros.data(), geometry_.cols, geometry_.proj_count,
@@ -320,6 +330,7 @@ cone_beam_solver::cone_beam_solver(settings parameters,
 }
 
 slice_data cone_beam_solver::reconstruct_slice(orientation x, int buffer_idx) {
+    auto dt = util::bench_scope("slice");
     auto k = vol_geom_->getWindowMaxX();
 
     auto [delta, rot, scale] = util::slice_transform(
@@ -370,6 +381,8 @@ slice_data cone_beam_solver::reconstruct_slice(orientation x, int buffer_idx) {
 
 void cone_beam_solver::reconstruct_preview(std::vector<float>& preview_buffer,
                                            int buffer_idx) {
+    auto dt = util::bench_scope("3D preview");
+
     proj_datas_[buffer_idx]->changeGeometry(proj_geom_small_.get());
     algs_small_[buffer_idx]->run();
 
@@ -434,10 +447,11 @@ void reconstructor::initialize(acquisition::geometry geom) {
     dark_.resize(pixels_);
     flat_fielder_.resize(pixels_, 1.0f);
     update_every_ = parameters_.reconstruction_mode == mode::alternating
-            ? geom_.proj_count : parameters_.group_size;
+                        ? geom_.proj_count
+                        : parameters_.group_size;
 
-    buffer_.resize((size_t) update_every_ * (size_t) pixels_);
-    sino_buffer_.resize((size_t) update_every_ * (size_t) pixels_);
+    buffer_.resize((size_t)update_every_ * (size_t)pixels_);
+    sino_buffer_.resize((size_t)update_every_ * (size_t)pixels_);
 
     small_volume_buffer_.resize(parameters_.preview_size *
                                 parameters_.preview_size *
@@ -502,8 +516,9 @@ void reconstructor::initialize(acquisition::geometry geom) {
 /**
  * Copy from a data buffer to a sino buffer, while transposing the data.
  *
- * If an offset is given, it transposes projections [offset, offset+1, ..., proj_end]
- * to the *front* of the sino_buffer_, leaving the remainder of the buffer unused.
+ * If an offset is given, it transposes projections [offset, offset+1, ...,
+ * proj_end] to the *front* of the sino_buffer_, leaving the remainder of the
+ * buffer unused.
  *
  * @param projection_group  Reference to buffered data
  * @param sino_buffer       Reference to the CPU buffer of the projections
@@ -511,16 +526,19 @@ void reconstructor::initialize(acquisition::geometry geom) {
  *
  */
 void reconstructor::transpose_into_sino_(int proj_offset, int proj_end) {
+    auto dt = util::bench_scope("Transpose sino");
+
     // major to minor: [i, j, k]
     // In projection_group we have: [projection_id, rows, cols ]
     // For sinogram we want: [rows, projection_id, cols]
 
-    auto buffer_size = proj_end - proj_offset +1;
+    auto buffer_size = proj_end - proj_offset + 1;
 
     for (int i = 0; i < geom_.rows; ++i) {
         for (int j = proj_offset; j <= proj_end; ++j) {
             for (int k = 0; k < geom_.cols; ++k) {
-                sino_buffer_[i * buffer_size * geom_.cols + (j-proj_offset) * geom_.cols + k] =
+                sino_buffer_[i * buffer_size * geom_.cols +
+                             (j - proj_offset) * geom_.cols + k] =
                     buffer_[j * geom_.cols * geom_.rows + i * geom_.cols + k];
             }
         }
@@ -553,10 +571,12 @@ void reconstructor::process_(int proj_id_begin, int proj_id_end) {
  * @param proj_id_begin The starting position of the data in the GPU
  * @param proj_id_end The last position of the data in the GPU
  * @param buffer_begin Position of the to-be-uploaded data in the CPU buffer
- * @param buffer_idx Index of the GPU buffer the sinogram data should be uploaded to
+ * @param buffer_idx Index of the GPU buffer the sinogram data should be
+ * uploaded to
  * @param lock_gpu Whether or not to use gpu_mutex_ to block access to the GPU
  */
-void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int buffer_idx, bool lock_gpu) {
+void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end,
+                                        int buffer_idx, bool lock_gpu) {
     if (!initialized_) {
         return;
     }
@@ -566,19 +586,22 @@ void reconstructor::upload_sino_buffer_(int proj_id_begin, int proj_id_end, int 
                           << ") between " << proj_id_begin << "/" << proj_id_end
                           << slicerecon::util::end_log;
 
+    // in continuous mode, there is only one data buffer and it needs to be
+    // protected since the reconstruction server has access to it too
 
-    // in continuous mode, there is only one data buffer and it needs to be protected
-    // since the reconstruction server has access to it too
-    if (lock_gpu) {
-        std::lock_guard<std::mutex> guard(gpu_mutex_);
+    {
+        auto dt = util::bench_scope("GPU upload");
+        if (lock_gpu) {
+            std::lock_guard<std::mutex> guard(gpu_mutex_);
 
-        astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
-                                         &sino_buffer_[0], proj_id_begin,
-                                         proj_id_end);
-    } else {
-        astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
-                                         &sino_buffer_[0], proj_id_begin,
-                                         proj_id_end);
+            astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
+                                             &sino_buffer_[0], proj_id_begin,
+                                             proj_id_end);
+        } else {
+            astra::uploadMultipleProjections(alg_->proj_data(buffer_idx),
+                                             &sino_buffer_[0], proj_id_begin,
+                                             proj_id_end);
+        }
     }
 
     // send message to observers that new data is available
@@ -594,7 +617,8 @@ void reconstructor::refresh_data_() {
 
     { // lock guard scope
         std::lock_guard<std::mutex> guard(gpu_mutex_);
-        alg_->reconstruct_preview(small_volume_buffer_, active_gpu_buffer_index_);
+        alg_->reconstruct_preview(small_volume_buffer_,
+                                  active_gpu_buffer_index_);
     } // end lock guard scope
 
     slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info

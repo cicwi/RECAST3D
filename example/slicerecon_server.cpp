@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
     auto recast_host = opts.arg_or("--recast-host", "localhost");
     auto use_reqrep = opts.passed("--reqrep");
     auto retrieve_phase = opts.passed("--phase");
+    auto bench = opts.passed("--bench");
 
     auto pixel_size = opts.arg_as_or<float>("--pixelsize", 1.0f);
     auto lambda = opts.arg_as_or<float>("--lambda", 1.23984193e-9);
@@ -55,11 +56,12 @@ int main(int argc, char** argv) {
 
     auto continuous_mode = opts.passed("--continuous");
 
-    auto mode = continuous_mode ? slicerecon::mode::continuous : slicerecon::mode::alternating;
+    auto mode = continuous_mode ? slicerecon::mode::continuous
+                                : slicerecon::mode::alternating;
 
     auto params = slicerecon::settings{
-        slice_size, preview_size, group_size,     filter_cores, 1,
-        1, mode,         false,        retrieve_phase, tilt,         paganin};
+        slice_size, preview_size, group_size,     filter_cores, 1,      1,
+        mode,       false,        retrieve_phase, tilt,         paganin};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);
@@ -87,7 +89,8 @@ int main(int argc, char** argv) {
         [&](auto x, auto idx) { return recon->reconstruct_slice(x); });
     recon->add_listener(&viz);
 
-    auto plugin_one = slicerecon::plugin("tcp://*:5650", "tcp://localhost:5651");
+    auto plugin_one =
+        slicerecon::plugin("tcp://*:5650", "tcp://localhost:5651");
     plugin_one.set_slice_callback(
         [](auto shape, auto data, auto index)
             -> std::pair<std::array<int32_t, 2>, std::vector<float>> {
@@ -125,6 +128,10 @@ int main(int argc, char** argv) {
         viz.register_plugin("tcp://localhost:5652");
     }
 
+    if (bench) {
+        slicerecon::util::bench.register_listener(&viz);
+        slicerecon::util::bench.enable();
+    }
     viz.serve();
 
     return 0;
