@@ -12,9 +12,7 @@ namespace slicerecon {
  * window. Alternating is the default.
  * @see https://github.com/cicwi/SliceRecon/issues/4
  */
-enum class mode {
-    alternating, continuous
-};
+enum class mode { alternating, continuous };
 
 struct paganin_settings {
     float pixel_size;
@@ -36,6 +34,7 @@ struct settings {
     bool retrieve_phase;
     bool tilt_axis;
     paganin_settings paganin;
+    bool gaussian_pass;
 };
 
 namespace acquisition {

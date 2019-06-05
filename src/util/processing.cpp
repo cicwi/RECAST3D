@@ -11,7 +11,8 @@ namespace slicerecon::util {
 
 namespace filter {
 
-std::vector<float> ram_lak(int cols) {
+std::vector<float> ram_lak(int cols)
+{
     auto result = std::vector<float>(cols);
     auto mid = (cols + 1) / 2;
     for (int i = 0; i < mid; ++i) {
@@ -23,7 +24,8 @@ std::vector<float> ram_lak(int cols) {
     return result;
 }
 
-std::vector<float> shepp_logan(int cols) {
+std::vector<float> shepp_logan(int cols)
+{
     auto result = std::vector<float>(cols);
     auto mid = (cols + 1) / 2;
 
@@ -41,7 +43,8 @@ std::vector<float> shepp_logan(int cols) {
     return result;
 }
 
-std::vector<float> gaussian(int cols, float sigma) {
+std::vector<float> gaussian(int cols, float sigma)
+{
     auto result = std::vector<float>(cols);
     auto mid = (cols + 1) / 2;
 
@@ -59,8 +62,9 @@ std::vector<float> gaussian(int cols, float sigma) {
     return result;
 }
 
-std::vector<float> paganin(int rows, int cols, float pixel_size, float lambda,
-                           float delta, float beta, float distance) {
+std::vector<float>
+paganin(int rows, int cols, float pixel_size, float lambda, float delta, float beta, float distance)
+{
     auto filter = std::vector<float>(rows * cols);
 
     auto dx = pixel_size / (2.0f * M_PI);
@@ -76,8 +80,8 @@ std::vector<float> paganin(int rows, int cols, float pixel_size, float lambda,
             auto k_x = x * dx;
             auto k_y = y * dy;
             auto k_squared = k_x * k_x + k_y * k_y;
-            filter[i * cols + j] = (4.0f * beta * M_PI) / 1.0f +
-                                   distance * lambda * delta * k_squared;
+            filter[i * cols + j] =
+            (4.0f * beta * M_PI) / 1.0f + distance * lambda * delta * k_squared;
         }
     }
     return filter;
@@ -87,50 +91,53 @@ std::vector<float> paganin(int rows, int cols, float pixel_size, float lambda,
 
 namespace detail {
 
-void Flatfielder::apply(Projection proj) const {
+void Flatfielder::apply(Projection proj) const
+{
     for (int i = 0; i < proj.rows * proj.cols; ++i) {
         proj.data[i] = (proj.data[i] - dark.data[i]) * reciproc.data[i];
     }
 }
 
-void Neglogger::apply(Projection proj) const {
+void Neglogger::apply(Projection proj) const
+{
     for (int i = 0; i < proj.rows * proj.cols; ++i) {
         proj.data[i] = proj.data[i] <= 0.0f ? 0.0f : -std::log(proj.data[i]);
     }
 }
 
-void FDKScaler::apply(Projection proj, int proj_idx) const {
+void FDKScaler::apply(Projection proj, int proj_idx) const
+{
     auto offset = proj_idx * proj.cols * proj.rows;
     for (int i = 0; i < proj.rows * proj.cols; ++i) {
         proj.data[i] *= weights[offset + i];
     }
 }
 
-Paganin::Paganin(settings parameters, acquisition::geometry geom, float* data) {
+Paganin::Paganin(settings parameters, acquisition::geometry geom, float* data)
+{
     proj_freq_buffer_ = std::vector<std::vector<std::complex<float>>>(
-        parameters.filter_cores,
-        std::vector<std::complex<float>>(geom.cols * geom.rows));
-    fft2d_plan_ = fftwf_plan_dft_r2c_2d(
-        geom.cols, geom.rows, data,
-        reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[0][0]),
-        FFTW_ESTIMATE);
-    ffti2d_plan_ = fftwf_plan_dft_c2r_2d(
-        geom.cols, geom.rows,
-        reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[0][0]), data,
-        FFTW_ESTIMATE);
-    paganin_filter_ = util::filter::paganin(
-        geom.rows, geom.cols, parameters.paganin.pixel_size,
-        parameters.paganin.lambda, parameters.paganin.delta,
-        parameters.paganin.beta, parameters.paganin.distance);
+    parameters.filter_cores, std::vector<std::complex<float>>(geom.cols * geom.rows));
+    fft2d_plan_ =
+    fftwf_plan_dft_r2c_2d(geom.cols, geom.rows, data,
+                          reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[0][0]),
+                          FFTW_ESTIMATE);
+    ffti2d_plan_ =
+    fftwf_plan_dft_c2r_2d(geom.cols, geom.rows,
+                          reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[0][0]),
+                          data, FFTW_ESTIMATE);
+    paganin_filter_ =
+    util::filter::paganin(geom.rows, geom.cols, parameters.paganin.pixel_size,
+                          parameters.paganin.lambda, parameters.paganin.delta,
+                          parameters.paganin.beta, parameters.paganin.distance);
 
     paganin_ = parameters.paganin;
 }
 
-void Paganin::apply(Projection proj, int s) {
+void Paganin::apply(Projection proj, int s)
+{
     // take fft of proj
-    fftwf_execute_dft_r2c(
-        fft2d_plan_, proj.data,
-        reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[s][0]));
+    fftwf_execute_dft_r2c(fft2d_plan_, proj.data,
+                          reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[s][0]));
 
     // filter the proj in 2D
     for (int i = 0; i < proj.rows * proj.cols; ++i) {
@@ -138,9 +145,9 @@ void Paganin::apply(Projection proj, int s) {
     }
 
     // ifft the proj
-    fftwf_execute_dft_c2r(
-        ffti2d_plan_,
-        reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[s][0]), proj.data);
+    fftwf_execute_dft_c2r(ffti2d_plan_,
+                          reinterpret_cast<fftwf_complex*>(&proj_freq_buffer_[s][0]),
+                          proj.data);
 
     // log and scale
     for (int i = 0; i < proj.rows * proj.cols; ++i) {
@@ -149,45 +156,50 @@ void Paganin::apply(Projection proj, int s) {
     }
 }
 
-Filterer::Filterer(settings parameters, acquisition::geometry geom,
-                   float* data) {
+Filterer::Filterer(settings parameters, acquisition::geometry geom, float* data)
+{
     freq_buffer_ = std::vector<std::vector<std::complex<float>>>(
-        parameters.filter_cores, std::vector<std::complex<float>>(geom.cols));
-    fft_plan_ = fftwf_plan_dft_r2c_1d(
-        geom.cols, data, reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]),
-        FFTW_ESTIMATE);
-    ffti_plan_ = fftwf_plan_dft_c2r_1d(
-        geom.cols, reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]), data,
-        FFTW_ESTIMATE);
+    parameters.filter_cores, std::vector<std::complex<float>>(geom.cols));
+    fft_plan_ =
+    fftwf_plan_dft_r2c_1d(geom.cols, data,
+                          reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]),
+                          FFTW_ESTIMATE);
+    ffti_plan_ =
+    fftwf_plan_dft_c2r_1d(geom.cols,
+                          reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]),
+                          data, FFTW_ESTIMATE);
 
     // TODO allow making a choice, optional low pass like below
     filter_ = util::filter::shepp_logan(geom.cols);
-    //auto filter_lowpass = util::filter::gaussian(geom.cols, 0.06f);
-    // for (int i = 0; i < geom.cols; ++i) {
-    //    filter_[i] *= filter_lowpass[i];
-    //}
+    if (parameters.gaussian_pass) {
+        auto filter_lowpass = util::filter::gaussian(geom.cols, 0.06f);
+        for (int i = 0; i < geom.cols; ++i) {
+            filter_[i] *= filter_lowpass[i];
+        }
+    }
 }
 
-void Filterer::apply(Projection proj, int s) {
+void Filterer::apply(Projection proj, int s)
+{
     // filter the rows
     for (int row = 0; row < proj.rows; ++row) {
-        fftwf_execute_dft_r2c(
-            fft_plan_, &proj.data[row * proj.cols],
-            reinterpret_cast<fftwf_complex*>(&freq_buffer_[s][0]));
+        fftwf_execute_dft_r2c(fft_plan_, &proj.data[row * proj.cols],
+                              reinterpret_cast<fftwf_complex*>(&freq_buffer_[s][0]));
 
         for (int i = 0; i < proj.cols; ++i) {
             freq_buffer_[s][i] *= filter_[i];
         }
 
-        fftwf_execute_dft_c2r(
-            ffti_plan_, reinterpret_cast<fftwf_complex*>(&freq_buffer_[s][0]),
-            &proj.data[row * proj.cols]);
+        fftwf_execute_dft_c2r(ffti_plan_,
+                              reinterpret_cast<fftwf_complex*>(&freq_buffer_[s][0]),
+                              &proj.data[row * proj.cols]);
     }
 }
 
 } // namespace detail
 
-void ProjectionProcessor::process(float* data, int proj_count) {
+void ProjectionProcessor::process(float* data, int proj_count)
+{
     auto dt = bulk::util::timer();
     env_.spawn(param_.filter_cores, [&](auto& world) {
         auto s = world.rank();
@@ -197,14 +209,15 @@ void ProjectionProcessor::process(float* data, int proj_count) {
         // we parallelize over projections, and apply the necessary
         // transformations
         for (auto proj_idx = s; proj_idx < proj_count; proj_idx += p) {
-            auto proj = detail::Projection{&data[proj_idx * pixels], geom_.rows,
-                                           geom_.cols};
+            auto proj =
+            detail::Projection{&data[proj_idx * pixels], geom_.rows, geom_.cols};
             if (flatfielder) {
                 flatfielder->apply(proj);
             }
             if (paganin) {
                 paganin->apply(proj, world.rank());
-            } else if (neglog) {
+            }
+            else if (neglog) {
                 neglog->apply(proj);
             }
             if (filterer) {
