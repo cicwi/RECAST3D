@@ -49,6 +49,23 @@ To install the library locally, simply run:
 pip install -e .
 ```
 
+#### Installing build requirements using conda
+
+If using conda, you may install install the tomopackets build requirements using:
+
+``` python
+conda env create --force  -f conda/build_environment.yml
+```
+
+The package is installed using pip and cmake, as follows:
+``` python
+source activate tomopackets
+CMAKE_PREFIX_PATH=$CONDA_PREFIX pip install .
+```
+
+Here, `CMAKE_PREFIX_PATH=$CONDA_PREFIX` instructs cmake to look into
+the conda environment to find required packages.
+
 ## Examples
 
 The following example sets up a reconstruction server for on-demand slice
@@ -109,4 +126,3 @@ Palenstijn, KJ Batenburg. Measurement Science and Technology
 ## License
 
 This project is licensed under the GPL. See `LICENSE.md` for details.
-
