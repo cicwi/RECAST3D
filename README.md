@@ -45,6 +45,21 @@ make -j8
 
 The RECAST3D binary can then be found in the `build` directory.
 
+Using conda:
+------------
+
+If you have conda, then RECAST3D can be installed with:
+
+```
+conda install -c cicwi recast3d
+```
+
+RECAST3D can then be started by running:
+
+``` bash
+recast3d
+```
+
 Authors
 =======
 
@@ -85,4 +100,3 @@ This project is licensed under the GPL. See `LICENSE.md` for details.
 
 - [Iosevka font](https://github.com/be5invis/Iosevka). Copyright (c) 2015-2017
   Belleve Invis (belleve@typeof.net).
-
