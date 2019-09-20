@@ -69,6 +69,9 @@ class texture {
     }
 
     void fill_texture(std::vector<T>& data) {
+	// In reference to the hack in the 3D fill_texture below, we
+	// have found that 1x1 textures are supported in intel
+	// integrated graphics.
         glBindTexture(GL_TEXTURE_2D, texture_id_);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -127,6 +130,13 @@ class texture3d {
     }
 
     void fill_texture(std::vector<T>& data) {
+	// This is a hack to prevent segfaults on laptops with integrated intel graphics.
+	// For some reason, the i965_dri.so module crashes on textures smaller than 8x8x8 pixels.
+	if (x_ < 8 || y_ < 8 || z_ < 8) {
+	    std::cerr << "Showing a slice smaller than 8x8 pixels is not supported due to bugs in Intel GPU drivers\n" << std::endl;
+	    return ;
+	}
+
         glBindTexture(GL_TEXTURE_3D, texture_id_);
 
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
