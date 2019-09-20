@@ -49,16 +49,24 @@ To install the library locally, simply run:
 pip install -e .
 ```
 
+#### Installation using conda
+If you have conda, then tomopackets can be installed with
+
+``` bash
+conda install -c cicwi tomopackets
+```
+
 #### Installing build requirements using conda
 
-If using conda, you may install install the tomopackets build requirements using:
+If using conda, you may want to install the tomopackets build
+requirements using:
 
-``` python
+``` bash
 conda env create --force  -f conda/build_environment.yml
 ```
 
 The package is installed using pip and cmake, as follows:
-``` python
+``` bash
 source activate tomopackets
 CMAKE_PREFIX_PATH=$CONDA_PREFIX pip install .
 ```
