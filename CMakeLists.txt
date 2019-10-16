@@ -20,9 +20,9 @@ set(
 )
 
 # --------------------------------------------------------------------------------------------
-# ZeroMQ
+# ZeroMQ version 4.X
 if (NOT TARGET zmq)
-find_package(ZeroMQ QUIET)
+find_package(ZeroMQ 4 QUIET)
 
 if (ZeroMQ_FOUND)
     add_library(zmq INTERFACE)
