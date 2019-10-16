@@ -85,8 +85,8 @@ else()
 endif()
 
 # --------------------------------------------------------------------------------------------
-# ZeroMQ
-find_package(ZeroMQ QUIET)
+# ZeroMQ version 4.X
+find_package(ZeroMQ 4 QUIET)
 
 if (ZeroMQ_FOUND AND NOT TARGET zmq)
     add_library(zmq INTERFACE)
