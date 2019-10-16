@@ -28,10 +28,10 @@ requirements:
     - pip
     - boost-cpp
     - pybind11
-    - zeromq
+    - zeromq=4
   run:
     - python
-    - zeromq
+    - zeromq=4
 
 about:
   home: https://github.com/cicwi/TomoPackets
