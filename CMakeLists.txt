@@ -51,8 +51,9 @@ set_source_files_properties(
   COMPILE_FLAGS "-w"
 )
 
-add_library(imgui ${IMGUI_SOURCE_NAMES}) 
+add_library(imgui ${IMGUI_SOURCE_NAMES})
 target_link_libraries(imgui PUBLIC glfw)
+target_link_libraries(imgui PUBLIC dl)
 target_include_directories(imgui PUBLIC
     "ext/imgui"
     "ext/imgui/examples/libs/gl3w/"
@@ -84,8 +85,8 @@ else()
 endif()
 
 # --------------------------------------------------------------------------------------------
-# ZeroMQ
-find_package(ZeroMQ QUIET)
+# ZeroMQ version 4.X
+find_package(ZeroMQ 4 QUIET)
 
 if (ZeroMQ_FOUND AND NOT TARGET zmq)
     add_library(zmq INTERFACE)
