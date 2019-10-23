@@ -28,21 +28,21 @@ class GeometryProtocol : public SceneModuleProtocol {
             auto packet = std::make_unique<GeometrySpecificationPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
 
         case packet_desc::projection_data: {
             auto packet = std::make_unique<ProjectionDataPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
 
         case packet_desc::partial_projection_data: {
             auto packet = std::make_unique<PartialProjectionDataPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
         default: { return nullptr; }
         }

@@ -38,7 +38,7 @@ class ManageSceneProtocol : public SceneModuleProtocol {
 
             packet->dimension = scene_id;
 
-            return std::move(packet);
+            return packet;
 
             break;
         }

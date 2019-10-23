@@ -28,35 +28,35 @@ class ReconstructionProtocol : public SceneModuleProtocol {
             auto packet = std::make_unique<SliceDataPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
 
         case packet_desc::partial_slice_data: {
             auto packet = std::make_unique<PartialSliceDataPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
 
         case packet_desc::volume_data: {
             auto packet = std::make_unique<VolumeDataPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
 
         case packet_desc::partial_volume_data: {
             auto packet = std::make_unique<PartialVolumeDataPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
 
         case packet_desc::group_request_slices: {
             auto packet = std::make_unique<GroupRequestSlicesPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
 
         default: { return nullptr; }

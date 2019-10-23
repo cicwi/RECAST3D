@@ -25,7 +25,7 @@ class PartitioningProtocol : public SceneModuleProtocol {
             auto packet = std::make_unique<SetPartPacket>();
             packet->deserialize(std::move(buffer));
             message_succes(socket);
-            return std::move(packet);
+            return packet;
         }
         default: { return nullptr; }
         }
