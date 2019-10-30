@@ -130,6 +130,9 @@ void ReconstructionComponent::set_data(std::vector<float>& data,
 	    s = slices_[slice_idx].get();
     } else if (fixed_slices_.find(slice_idx) != fixed_slices_.end()) {
 	    s = fixed_slices_[slice_idx].get();
+    } else {
+      std::cout << "Updating inactive slice: " << slice_idx << "\n";
+      return;
     }
 
     if (s == dragged_slice_) {
