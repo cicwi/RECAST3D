@@ -125,14 +125,14 @@ void ReconstructionComponent::send_slices() {
 void ReconstructionComponent::set_data(std::vector<float>& data,
                                        std::array<int32_t, 2> size, int slice_idx,
                                        bool additive) {
-	slice* s = nullptr;
+    slice* s = nullptr;
     if (slices_.find(slice_idx) != slices_.end()) {
-	    s = slices_[slice_idx].get();
+        s = slices_[slice_idx].get();
     } else if (fixed_slices_.find(slice_idx) != fixed_slices_.end()) {
-	    s = fixed_slices_[slice_idx].get();
+        s = fixed_slices_[slice_idx].get();
     } else {
-      std::cout << "Updating inactive slice: " << slice_idx << "\n";
-      return;
+        std::cout << "Updating inactive slice: " << slice_idx << "\n";
+        return;
     }
 
     if (s == dragged_slice_) {
@@ -254,18 +254,18 @@ void ReconstructionComponent::describe() {
     ImGui::SliderFloat("Upper", &upper_value_, minmax.first, minmax.second);
 
     if (fixed_slices_.size() > 0)  {
-	    ImGui::Begin("Slices");
-	    auto to_remove = std::vector<int>{};
-	    for (auto&& [slice_idx, slice] : fixed_slices_) {
-		    ImGui::Image((void*)(intptr_t)slice->get_texture().id(), ImVec2(200, 200));
-		    if (ImGui::Button((std::string("remove##") + std::to_string(slice_idx)).c_str())) {
-			    to_remove.push_back(slice_idx);
-		    }
-	    }
-	    for (auto remove : to_remove) {
-		    fixed_slices_.erase(remove);
-	    }
-	    ImGui::End();
+        ImGui::Begin("Slices");
+        auto to_remove = std::vector<int>{};
+        for (auto&& [slice_idx, slice] : fixed_slices_) {
+            ImGui::Image((void*)(intptr_t)slice->get_texture().id(), ImVec2(200, 200));
+            if (ImGui::Button((std::string("remove##") + std::to_string(slice_idx)).c_str())) {
+                to_remove.push_back(slice_idx);
+            }
+        }
+        for (auto remove : to_remove) {
+            fixed_slices_.erase(remove);
+        }
+        ImGui::End();
     }
 }
 
@@ -413,16 +413,16 @@ bool ReconstructionComponent::handle_mouse_button(int button, bool down) {
         }
         if (button == 2) {
             if (hovering_) {
-	        // hovered over slice gets fixed
-		int new_id = generate_slice_idx();
-		auto new_slice = std::make_unique<slice>(new_id);
-		new_slice->orientation = hovered_slice_->orientation;
+                // hovered over slice gets fixed
+                int new_id = generate_slice_idx();
+                auto new_slice = std::make_unique<slice>(new_id);
+                new_slice->orientation = hovered_slice_->orientation;
 
-		auto packet = SetSlicePacket(scene_id_, new_slice->id,
-		    			 new_slice->packed_orientation());
-		object_.send(packet);
+                auto packet = SetSlicePacket(scene_id_, new_slice->id,
+                    new_slice->packed_orientation());
+                object_.send(packet);
 
-	        fixed_slices_[new_slice->id] = std::move(new_slice);
+                fixed_slices_[new_slice->id] = std::move(new_slice);
             }
         }
     }
