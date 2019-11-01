@@ -40,11 +40,15 @@ struct logger {
 
     template <typename T>
     logger& operator<<(T&& rhs) {
+        std::lock_guard lock(mutex);
+
         line << rhs;
         return *this;
     }
 
     void operator<<(end_log_ unused) {
+        std::lock_guard lock(mutex);
+
         (void)unused;
 
         switch (level_) {
@@ -69,6 +73,7 @@ struct logger {
         line = std::stringstream{};
     }
 
+    std::mutex mutex;
     std::stringstream line;
     lvl level_ = lvl::none_set;
 };
