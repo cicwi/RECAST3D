@@ -612,7 +612,10 @@ void SliceTranslator::on_drag(glm::vec2 delta) {
             auto packet = RemoveSlicePacket(comp_.scene_id(), to_remove);
             comp_.object().send(packet);
         }
-        assert(comp_.dragged_slice());
+        if (!comp_.dragged_slice()) {
+            std::cout << "WARNING: No dragged slice found." << std::endl;
+            return;
+        }
     }
 
     auto slice = comp_.dragged_slice();
