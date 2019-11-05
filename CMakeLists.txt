@@ -31,7 +31,7 @@ if (ZeroMQ_FOUND)
 else()
     message("'zmq' not installed on the system, building from source...")
 
-    execute_process(COMMAND git submodule update --init --remote -- ext/libzmq
+    execute_process(COMMAND git submodule update --init -- ext/libzmq
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
     set(ZMQ_BUILD_TESTS OFF CACHE BOOL "disable tests" FORCE)
