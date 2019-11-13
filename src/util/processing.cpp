@@ -3,9 +3,12 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
+#include <fstream>
+#include <iostream>
 
 #include "slicerecon/util/bench.hpp"
 #include "slicerecon/util/processing.hpp"
+#include "slicerecon/util/log.hpp"
 
 namespace slicerecon::util {
 
@@ -39,6 +42,46 @@ std::vector<float> shepp_logan(int cols)
     }
     for (int j = mid; j < cols; ++j) {
         result[j] = filter_weight(2 * mid - j);
+    }
+    return result;
+}
+
+std::vector<float> from_file(std::string filename, int cols, int proj_count)
+{
+    auto result = std::vector<float>();
+
+    auto fin = std::ifstream(filename, std::ios::binary);
+
+    if (fin){
+        fin.seekg(0, fin.end);
+        int nelements = fin.tellg()/sizeof(float);
+        fin.seekg(0, fin.beg);
+        if (nelements == cols){
+            result.resize(cols);
+        }else if (nelements == cols*proj_count){
+            result.resize(cols*proj_count);
+        }else{
+            slicerecon::util::log
+            << LOG_FILE << slicerecon::util::lvl::warning
+            << "Number of filter elements in file (" << nelements 
+            << ") does not match geometry (" << cols 
+            << " columns and " << proj_count << " projections)"
+            << slicerecon::util::end_log;
+        }
+        fin.read(reinterpret_cast<char*>(result.data()), result.size()*sizeof(float));
+        fin.close();
+    }else{
+        slicerecon::util::log
+            << LOG_FILE << slicerecon::util::lvl::warning
+            << "Filter file (" << filename << ") not found"
+            << slicerecon::util::end_log;
+    }
+    if (result.empty()){
+        slicerecon::util::log
+            << LOG_FILE << slicerecon::util::lvl::warning
+            << "Problem reading filter file, using Shepp-Logan filter instead"
+            << slicerecon::util::end_log;
+        return shepp_logan(cols);
     }
     return result;
 }
@@ -169,8 +212,17 @@ Filterer::Filterer(settings parameters, acquisition::geometry geom, float* data)
                           reinterpret_cast<fftwf_complex*>(&freq_buffer_[0][0]),
                           data, FFTW_ESTIMATE);
 
-    // TODO allow making a choice, optional low pass like below
-    filter_ = util::filter::shepp_logan(geom.cols);
+    if (!parameters.filter.empty()){
+        if (!parameters.filter.compare("shepp-logan")){
+            filter_ = util::filter::shepp_logan(geom.cols);
+        }else if(!parameters.filter.compare("ram-lak")){
+            filter_ = util::filter::ram_lak(geom.cols);
+        }else{
+            filter_ = util::filter::from_file(parameters.filter, geom.cols, geom.proj_count);
+        }
+    }else{
+        filter_ = util::filter::shepp_logan(geom.cols);
+    }
     if (parameters.gaussian_pass) {
         auto filter_lowpass = util::filter::gaussian(geom.cols, 0.06f);
         for (int i = 0; i < geom.cols; ++i) {
@@ -179,15 +231,22 @@ Filterer::Filterer(settings parameters, acquisition::geometry geom, float* data)
     }
 }
 
-void Filterer::apply(Projection proj, int s)
+void Filterer::apply(Projection proj, int s, int proj_idx)
 {
+    auto filter2d = filter_.size() > proj.cols;
     // filter the rows
     for (int row = 0; row < proj.rows; ++row) {
         fftwf_execute_dft_r2c(fft_plan_, &proj.data[row * proj.cols],
                               reinterpret_cast<fftwf_complex*>(&freq_buffer_[s][0]));
-
-        for (int i = 0; i < proj.cols; ++i) {
-            freq_buffer_[s][i] *= filter_[i];
+        if (filter2d){
+            int offset = proj_idx*proj.cols;
+            for (int i = 0; i < proj.cols; ++i) {
+                freq_buffer_[s][i] *= filter_[offset + i];
+            }
+        }else{
+            for (int i = 0; i < proj.cols; ++i) {
+                freq_buffer_[s][i] *= filter_[i];
+            }
         }
 
         fftwf_execute_dft_c2r(ffti_plan_,
@@ -198,8 +257,9 @@ void Filterer::apply(Projection proj, int s)
 
 } // namespace detail
 
-void ProjectionProcessor::process(float* data, int proj_count)
+void ProjectionProcessor::process(float* data, int proj_id_begin, int proj_id_end)
 {
+    auto proj_count = proj_id_end - proj_id_begin + 1;
     auto dt = bulk::util::timer();
     env_.spawn(param_.filter_cores, [&](auto& world) {
         auto s = world.rank();
@@ -221,7 +281,7 @@ void ProjectionProcessor::process(float* data, int proj_count)
                 neglog->apply(proj);
             }
             if (filterer) {
-                filterer->apply(proj, world.rank());
+                filterer->apply(proj, world.rank(), proj_id_begin + proj_idx);
             }
             if (fdk_scale) {
                 fdk_scale->apply(proj, proj_idx);

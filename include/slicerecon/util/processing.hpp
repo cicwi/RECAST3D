@@ -66,7 +66,7 @@ class Filterer {
 
     void set_filter(std::vector<float> filter) { filter_ = filter; }
 
-    void apply(Projection proj, int s);
+    void apply(Projection proj, int s, int proj_idx);
 
   private:
     std::vector<std::vector<std::complex<float>>> freq_buffer_;
@@ -82,7 +82,7 @@ class ProjectionProcessor {
     ProjectionProcessor(settings param, acquisition::geometry geom)
         : param_(param), geom_(geom) {}
 
-    void process(float* data, int proj_count);
+    void process(float* data, int proj_id_begin, int proj_id_end);
 
     std::unique_ptr<detail::Flatfielder> flatfielder;
     std::unique_ptr<detail::Neglogger> neglog;

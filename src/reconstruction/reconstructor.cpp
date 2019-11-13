@@ -562,7 +562,7 @@ void reconstructor::process_(int proj_id_begin, int proj_id_end) {
                           << slicerecon::util::end_log;
 
     auto data = &buffer_[proj_id_begin * pixels_];
-    projection_processor_->process(data, proj_id_end - proj_id_begin + 1);
+    projection_processor_->process(data, proj_id_begin, proj_id_end);
 }
 
 /**

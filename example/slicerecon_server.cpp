@@ -39,6 +39,7 @@ int main(int argc, char** argv)
     auto gaussian_pass = opts.passed("--gaussian");
     auto retrieve_phase = opts.passed("--phase");
     auto bench = opts.passed("--bench");
+    auto filter = opts.arg_or("--filter", "shepp-logan");
 
     auto pixel_size = opts.arg_as_or<float>("--pixelsize", 1.0f);
     auto lambda = opts.arg_as_or<float>("--lambda", 1.23984193e-9);
@@ -59,8 +60,8 @@ int main(int argc, char** argv)
     auto mode = continuous_mode ? slicerecon::mode::continuous : slicerecon::mode::alternating;
 
     auto params = slicerecon::settings{
-    slice_size,     preview_size, group_size, filter_cores, 1, 1, mode, false,
-    retrieve_phase, tilt,         paganin,    gaussian_pass};
+    slice_size,     preview_size, group_size, filter_cores,  1, 1, mode, false,
+    retrieve_phase, tilt,         paganin,    gaussian_pass, filter};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);
