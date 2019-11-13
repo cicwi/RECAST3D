@@ -25,7 +25,7 @@ Building the reference server, and example data adapters:
 
 ```
 module load [...] # optional: load in preinstalled dependencies
-git submodule update --init --remote --recursive
+git submodule update --init --recursive
 mkdir build
 cd build
 cmake ..
