@@ -35,6 +35,7 @@ struct settings {
     bool tilt_axis;
     paganin_settings paganin;
     bool gaussian_pass;
+    std::string filter;
 };
 
 namespace acquisition {
