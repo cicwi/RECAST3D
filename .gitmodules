@@ -1,1 +1,31 @@
 
+[submodule "ext/catch"]
+	path = ext/catch
+	url = https://github.com/philsquared/Catch
+[submodule "ext/imgui"]
+	path = ext/imgui
+	url = https://github.com/ocornut/imgui
+[submodule "ext/cppzmq"]
+	path = ext/cppzmq
+	url = https://github.com/zeromq/cppzmq
+[submodule "ext/libzmq"]
+	path = ext/libzmq
+	url = https://github.com/zeromq/libzmq
+[submodule "ext/assimp"]
+	path = ext/assimp
+	url = https://github.com/assimp/assimp
+[submodule "ext/eigen"]
+	path = ext/eigen
+	url = https://github.com/eigenteam/eigen-git-mirror.git
+[submodule "ext/glm"]
+	path = ext/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "ext/glfw"]
+	path = ext/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "ext/bulk"]
+	path = ext/bulk
+	url = https://www.github.com/jwbuurlage/Bulk.git
+[submodule "ext/pybind11"]
+	path = ext/pybind11
+	url = https://github.com/pybind/pybind11.git
