@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Overview &mdash; SliceRecon 1.0.0-rc1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Conventions" href="conventions.html" />
+    <link rel="prev" title="SliceRecon" href="readme.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SliceRecon
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Library</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">SliceRecon</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#projection-server">Projection server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reconstructor">Reconstructor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#visualization-server">Visualization server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plugin">Plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="slicerecon.html">slicerecon package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SliceRecon</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Overview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/overview.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>The SliceRecon project defines three main objects:</p>
+<ul class="simple">
+<li>A projection server, that listens to incoming projection data.</li>
+<li>A reconstructor, that can reconstruct arbitrarily oriented slices from
+projection data.</li>
+<li>A visualization server, that listens to requests from a visualization server,
+and fulfils them by calling the reconstructor.</li>
+</ul>
+<p>Furthermore, it has a notion of a plugin, which is a stand alone server that can
+postprocess reconstructed slices before sending them to the visualization
+server.</p>
+<p>The incoming, internal, and outgoing communication is all handled by the <a class="reference external" href="https://www.github.com/cicwi/TomoPackets">TomoPackets</a> library.</p>
+<div class="section" id="projection-server">
+<h2>Projection server<a class="headerlink" href="#projection-server" title="Permalink to this headline">¶</a></h2>
+<p>The projection server listens for incoming data packets. It expects first
+packets that describe the tomographic scan. This is done using:</p>
+<ul class="simple">
+<li><cite>GeometrySpecification</cite>: information on where the object is in relation
+to the acquisition geometry.</li>
+<li><cite>ScanSettings</cite> packet: information on the number of darks and flats.</li>
+<li>A packet describing the acquisition geometry, such as a <cite>ConeVecGeometry</cite>
+packet.</li>
+</ul>
+<p>After receiving these packets, the server is able to process <cite>ProjectionData</cite>
+packets. First the darks and flats should be sent, after which standard
+projections can be streamed to the projection server.</p>
+</div>
+<div class="section" id="reconstructor">
+<h2>Reconstructor<a class="headerlink" href="#reconstructor" title="Permalink to this headline">¶</a></h2>
+<p>The reconstructor is an internal object that decouples the projection server
+from the visualization server, and has no public interface. It receives
+projection data from the projection server, and fulfills reconstruction requests
+from the visualization server.</p>
+</div>
+<div class="section" id="visualization-server">
+<h2>Visualization server<a class="headerlink" href="#visualization-server" title="Permalink to this headline">¶</a></h2>
+<p>The visualization server registers itself to the visualization software by
+sending a <cite>MakeScene</cite> packet. It then waits to receive <cite>KillScene</cite>, <cite>SetSlice</cite>
+and <cite>RemoveSlice</cite> packets. If it receives a <cite>SetSlice</cite> packet, it requests a new
+slice reconstruction from the reconstructor. It sends this reconstructed slice
+back either to the visualization software using a <cite>SliceData</cite> packet if there
+are no active plugins, or to the first plugin.</p>
+</div>
+<div class="section" id="plugin">
+<h2>Plugin<a class="headerlink" href="#plugin" title="Permalink to this headline">¶</a></h2>
+<p>A <em>plugin</em> is a simple server, that registers itself to the visualization server,
+and listens to incoming <cite>SliceData</cite> packets. It then manipulates the data in
+this <cite>SliceData</cite> packet, before sending it along to the next plugin in line, or
+to the visualization software. The plugin system thus has the following structure:</p>
+<div class="graphviz"><img src="_images/graphviz-e568759f5395fa8916ea87292b098001e6f3bb2f.png" alt="digraph G {
+  &quot;Reconstructor&quot; [pos = &quot;0,10!&quot;]
+  &quot;Plugin(s)&quot; [shape=diamond, pos = &quot;0,0!&quot;]
+  &quot;Visualizer&quot; [pos = &quot;0,-10!&quot;]
+
+  &quot;Reconstructor&quot; -&gt; &quot;Visualizer&quot; [style=&quot;dashed&quot;, label=&quot;SliceData&quot;]
+  &quot;Visualizer&quot; -&gt; &quot;Reconstructor&quot; [label=&quot;SetSlice&quot;]
+  &quot;Reconstructor&quot; -&gt; &quot;Plugin(s)&quot; [label=&quot;SliceData&quot;]
+  &quot;Plugin(s)&quot; -&gt; &quot;Visualizer&quot; [label=&quot;SliceData&quot;]
+}" class="graphviz" /></div>
+<p>There can be more than one plugin, but they are assumed to be applied one after
+the other. The dashed line is only used if there are no plugins.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="conventions.html" class="btn btn-neutral float-right" title="Conventions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="readme.html" class="btn btn-neutral" title="SliceRecon" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Jan-Willem Buurlage
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
