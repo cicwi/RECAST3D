@@ -1,8 +1,0 @@
-**.swp
-*/bin/*
-*/build/
-*/test/build/
-*/data/
-*~
-*/python/__*
-*.so
