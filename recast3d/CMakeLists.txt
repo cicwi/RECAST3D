@@ -3,7 +3,6 @@ include(FindPkgConfig)
 
 project(recast3d)
 
-
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 set(EXEC_NAME "recast3d")
 
@@ -24,24 +23,25 @@ else()
     message("'glfw3' not installed on the system, building from source...")
 
     execute_process(COMMAND git submodule update --init -- ext/glfw
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
 
-    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/glfw)
-    set(glfw3_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/glfw/include)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/glfw glfw)
+    set(glfw3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../ext/glfw/include)
 endif()
 
 # --------------------------------------------------------------------------------------------
 # ImGui
 execute_process(COMMAND git submodule update --init -- ext/imgui
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
 
 set(
     IMGUI_SOURCE_NAMES
-    "ext/imgui/imgui.cpp"
-    "ext/imgui/imgui_draw.cpp"
-    "ext/imgui/examples/imgui_impl_opengl3.cpp"
-    "ext/imgui/examples/imgui_impl_glfw.cpp"
-    "ext/imgui/examples/libs/gl3w/GL/gl3w.c"
+    "${PROJECT_SOURCE_DIR}/../ext/imgui/imgui.cpp"
+    "${PROJECT_SOURCE_DIR}/../ext/imgui/imgui_draw.cpp"
+    "${PROJECT_SOURCE_DIR}/../ext/imgui/imgui_widgets.cpp"
+    "${PROJECT_SOURCE_DIR}/../ext/imgui/examples/imgui_impl_opengl3.cpp"
+    "${PROJECT_SOURCE_DIR}/../ext/imgui/examples/imgui_impl_glfw.cpp"
+    "${PROJECT_SOURCE_DIR}/../ext/imgui/examples/libs/gl3w/GL/gl3w.c"
 )
 
 # ignore warnings from imgui
@@ -55,9 +55,9 @@ add_library(imgui ${IMGUI_SOURCE_NAMES})
 target_link_libraries(imgui PUBLIC glfw)
 target_link_libraries(imgui PUBLIC dl)
 target_include_directories(imgui PUBLIC
-    "ext/imgui"
-    "ext/imgui/examples/libs/gl3w/"
-    "ext/imgui/examples/opengl3_example/")
+    "../ext/imgui"
+    "../ext/imgui/examples/libs/gl3w/"
+    "../ext/imgui/examples/opengl3_example/")
 
 # --------------------------------------------------------------------------------------------
 # ASSIMP
@@ -74,10 +74,10 @@ else()
     message("'assimp' not installed on the system, building from source...")
 
     execute_process(COMMAND git submodule update --init -- ext/assimp
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
 
-    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/assimp)
-    set(ASSIMP_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/ext/assimp/include ${CMAKE_BINARY_DIR}/ext/assimp/include)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/assimp assimp)
+    set(ASSIMP_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/../ext/assimp/include ${CMAKE_BINARY_DIR}/ext/assimp/include)
 
     add_library(assimp_ INTERFACE)
     target_include_directories(assimp_ INTERFACE ${ASSIMP_INCLUDE_DIRS})
@@ -96,12 +96,12 @@ else()
     message("'zmq' not installed on the system, building from source...")
 
     execute_process(COMMAND git submodule update --init -- ext/libzmq
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
 
     set(ZMQ_BUILD_TESTS OFF CACHE BOOL "disable tests" FORCE)
     set(WITH_PERF_TOOL OFF CACHE BOOL "disable perf-tools" FORCE)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/libzmq)
-    set(ZMQ_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/libzmq/include)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/libzmq libzmq)
+    set(ZMQ_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../ext/libzmq/include)
 
     # ZeroMQ names their target libzmq, which is inconsistent => create a ghost dependency
     add_library(zmq INTERFACE)
@@ -121,8 +121,8 @@ if (Eigen3_FOUND)
 else()
   message("Eigen not found, building from source")
   execute_process(COMMAND git submodule update --init -- ext/eigen
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-  add_subdirectory(${CMAKE_SOURCE_DIR}/ext/eigen)
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/eigen eigen)
 endif()
 
 # --------------------------------------------------------------------------------------------
@@ -131,20 +131,17 @@ endif()
 find_package(cppzmq QUIET)
 if (NOT cppzmq_FOUND)
   execute_process(COMMAND git submodule update --init -- ext/cppzmq
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
 
   add_library(cppzmq INTERFACE)
-  target_include_directories(cppzmq INTERFACE ext/cppzmq)
+  target_include_directories(cppzmq INTERFACE ../ext/cppzmq)
   target_link_libraries(cppzmq INTERFACE zmq)
 endif()
 
 # --------------------------------------------------------------------------------------------
 # tomopackets
 
-execute_process(COMMAND git submodule update --init -- ext/tomopackets
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-
-add_subdirectory(ext/tomopackets)
+add_subdirectory(${PROJECT_SOURCE_DIR}/../tomopackets tomopackets)
 
 # --------------------------------------------------------------------------------------------
 
@@ -204,7 +201,7 @@ set(
 add_executable(${EXEC_NAME} ${SOURCE_NAMES})
 target_link_libraries(${EXEC_NAME} ${LIB_NAMES} ${OPENGL_gl_LIBRARY})
 
-target_compile_options(${EXEC_NAME} PRIVATE -std=c++17 -Wall -Wfatal-errors -Wextra -Werror -g -O3)
+target_compile_options(${EXEC_NAME} PRIVATE -std=c++17 -Wall -Wfatal-errors -Wextra -g -O3)
 # This is to work around GLM issue#754 <https://github.com/g-truc/glm/issues/754>
 target_compile_definitions(${EXEC_NAME} PRIVATE -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT)
 
