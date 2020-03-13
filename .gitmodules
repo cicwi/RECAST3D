@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [submodule "catch"]
 	path = ext/catch
 	url = https://github.com/philsquared/Catch
@@ -34,3 +35,15 @@
 [submodule "ext/flags"]
 	path = ext/flags
 	url = https://github.com/jwbuurlage/flags.git
+=======
+
+[submodule "ext/cppzmq"]
+	path = ext/cppzmq
+	url = https://github.com/zeromq/cppzmq.git
+[submodule "ext/libzmq"]
+	path = ext/libzmq
+	url = https://github.com/zeromq/libzmq.git
+[submodule "ext/pybind11"]
+	path = ext/pybind11
+	url = https://github.com/pybind/pybind11.git
+>>>>>>> tomopackets/develop
