@@ -46,9 +46,8 @@ new environment in which the Python bindings to our libraries are installed. For
 example:
 
 ```bash
-conda create -n live python=3.6
+conda create -n live
 conda activate live
-# ... or `source activate live` for old conda versions
 ```
 
 if you choose to do this, make and activate the environment before following the

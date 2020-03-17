@@ -100,7 +100,6 @@ SliceRecon is developed at Centrum Wiskunde & Informatica (CWI) in Amsterdam by:
 Also thanks to:
 
 - Willem Jan Palenstijn (@wjp)
-- Adriaan Graas (@adriaangraas)
 
 ## Contributing
 

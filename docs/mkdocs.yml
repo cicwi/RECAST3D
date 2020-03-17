@@ -1,0 +1,40 @@
+site_name: RECAST3D
+repo_name: cicwi/RECAST3D
+repo_url: https://github.com/cicwi/RECAST3D
+copyright: "RECAST3D is licensed under the <a href='https://github.com/cicwi/RECAST3D/blob/master/LICENSE.md'>GPL license</a>"
+
+theme: 'material'
+
+markdown_extensions:
+    - smarty
+    - sane_lists
+    - admonition
+    - codehilite
+    - toc
+    - footnotes
+    - pymdownx.arithmatex
+    - markdown_inline_graphviz
+
+docs_dir: pages
+
+nav:
+  - Home: 'index.md'
+  - Installing: 'installation_instructions.md'
+  - User Guide: 'user_guide.md'
+  - Developer Guide:
+    - Design: 'dev_docs/design.md'
+    - TomoPackets: 'dev_docs/tomopackets.md'
+    - SliceRecon: 'dev_docs/slicerecon.md'
+    - RECAST3D: 'dev_docs/recast3d.md'
+  - Release Notes: 'changelog.md'
+
+theme:
+    name: material
+    palette:
+        primary: 'teal'
+        accent: 'teal'
+        logo: 'images/logo.svg'
+
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+  - 'https://unpkg.com/mermaid@8.4.8/dist/mermaid.min.js'
