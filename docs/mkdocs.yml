@@ -20,12 +20,16 @@ docs_dir: pages
 nav:
   - Home: 'index.md'
   - Installing: 'installation_instructions.md'
-  - User Guide: 'user_guide.md'
-  - Developer Guide:
-    - Design: 'dev_docs/design.md'
-    - TomoPackets: 'dev_docs/tomopackets.md'
-    - SliceRecon: 'dev_docs/slicerecon.md'
-    - RECAST3D: 'dev_docs/recast3d.md'
+  - User Guide:
+    - Running the stack: 'users/live_scan.md'
+    - Interface: 'users/interface.md'
+    - Data adapters: 'users/adapters.md'
+    - Plugins: 'users/plugins.md'
+  - Contributor Guide:
+    - Design: 'contribute/design.md'
+    - TomoPackets: 'contribute/tomopackets.md'
+    - SliceRecon: 'contribute/slicerecon.md'
+    - RECAST3D: 'contribute/recast3d.md'
   - Release Notes: 'changelog.md'
 
 theme:
