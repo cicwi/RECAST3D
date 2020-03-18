@@ -334,18 +334,19 @@
     Developing a plugin
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testing-your-plugin" class="md-nav__link">
     Testing your plugin
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#example-otsu-thresholding" class="md-nav__link">
+    Example: Otsu thresholding
+  </a>
   
 </li>
       
@@ -474,18 +475,19 @@
     Developing a plugin
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testing-your-plugin" class="md-nav__link">
     Testing your plugin
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#example-otsu-thresholding" class="md-nav__link">
+    Example: Otsu thresholding
+  </a>
   
 </li>
       
@@ -509,29 +511,33 @@
                 
                 
                 <h1 id="plugins">Plugins</h1>
-<p>Currently, plugins are only post-processing on slices</p>
+<p>Plugins can perform post-processing on reconstructed slices.</p>
 <h2 id="developing-a-plugin">Developing a plugin</h2>
 <p>Developing a post-processing plugin is as easy as implementing a single Python
 function that takes a 2D numpy array (the reconstructed slice), and returns a 2D
 numpy array (the postprocessed slice). An example plugin looks like this.</p>
-<div class="codehilite"><pre><span></span><code>  <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-  <span class="kn">import</span> <span class="nn">slicerecon</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">slicerecon</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">filters</span>
 
+<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+    <span class="c1"># compute a threshold using Otsu&#39;s method</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">threshold_otsu</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
-      <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="c1"># threshold the image accordingly</span>
+    <span class="n">xs</span><span class="p">[</span><span class="n">xs</span> <span class="o">&lt;=</span> <span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">xs</span><span class="p">[</span><span class="n">xs</span> <span class="o">&gt;</span> <span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
 
-      <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;callback called&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
-      <span class="n">xs</span><span class="p">[</span><span class="n">xs</span> <span class="o">&lt;=</span> <span class="mf">3.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-      <span class="n">xs</span><span class="p">[</span><span class="n">xs</span> <span class="o">&gt;</span> <span class="mf">3.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10.0</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="p">]</span>
 
-      <span class="k">return</span> <span class="p">[</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+<span class="c1"># Host a plugin on the default port, with the default RECAST3D endpoint</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">slicerecon</span><span class="o">.</span><span class="n">plugin</span><span class="p">(</span><span class="s2">&quot;tcp://*:5652&quot;</span><span class="p">,</span> <span class="s2">&quot;tcp://localhost:5555&quot;</span><span class="p">)</span>
 
+<span class="c1"># Register the callback</span>
+<span class="n">p</span><span class="o">.</span><span class="n">set_slice_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
 
-  <span class="n">p</span> <span class="o">=</span> <span class="n">slicerecon</span><span class="o">.</span><span class="n">plugin</span><span class="p">(</span><span class="s2">&quot;tcp://*:5652&quot;</span><span class="p">,</span> <span class="s2">&quot;tcp://localhost:5555&quot;</span><span class="p">)</span>
-  <span class="n">p</span><span class="o">.</span><span class="n">set_slice_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-
-  <span class="n">p</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+<span class="c1"># Start the plugin</span>
+<span class="n">p</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
 </code></pre></div>
 
 
@@ -539,7 +545,8 @@ numpy array (the postprocessed slice). An example plugin looks like this.</p>
 to a visualization software (or another plugin) listening on port <code>5555</code>. These
 are the default values. If you use the standard <code>slicerecon_server</code> program,
 connecting the Python plugin is as easy as passing <code>--pyplugin</code> as a flag.</p>
-<h3 id="testing-your-plugin">Testing your plugin</h3>
+<p>This plugin computes a simple segmentation based on a threshold computed by <a href="https://en.wikipedia.org/wiki/Otsu%27s_method">Otsu&rsquo;s method</a>.</p>
+<h2 id="testing-your-plugin">Testing your plugin</h2>
 <ol>
 <li>Start RECAST3D:</li>
 </ol>
@@ -566,6 +573,13 @@ connecting the Python plugin is as easy as passing <code>--pyplugin</code> as a 
 </ol>
 <div class="codehilite"><pre><span></span><code>python slicerecon_push_flexdata.py <span class="o">[</span>path_to_data<span class="o">]</span> --sample <span class="m">2</span>
 </code></pre></div>
+
+
+<p>If you make a change to <code>plugin.py</code>, you can restart it without touching the other components (recast3d, slicerecon) and without restreaming the projection data. Simply request a new reconstruction by modifying a slice (e.g. by clicking on one of the slices in RECAST3D) to see the result.</p>
+<h2 id="example-otsu-thresholding"><em>Example</em>: Otsu thresholding</h2>
+<p>The example of above should give the following visual result.</p>
+<p><img alt="Otsu's method output" src="../otsu_output.png" /></p>
+<p>Dataset: <em>A cone beam scan of a rat skull</em>: <a href="https://doi.org/10.5281/zenodo.1164088">10.5281/zenodo.1164088</a></p>
                 
                   
                 
