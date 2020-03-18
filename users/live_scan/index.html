@@ -294,8 +294,36 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#starting-the-reconstruction-server" class="md-nav__link">
-    Starting the reconstruction server
+  <a href="#starting-recast3d" class="md-nav__link">
+    Starting RECAST3D
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starting-the-slicerecon-reconstruction-server" class="md-nav__link">
+    Starting the SliceRecon reconstruction server
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pushing-data-into-the-slicerecon-server-using-an-adapter" class="md-nav__link">
+    Pushing data into the SliceRecon server using an adapter
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-plugins" class="md-nav__link">
+    (Optional) plugins
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-ports" class="md-nav__link">
+    Custom ports
   </a>
   
 </li>
@@ -457,8 +485,36 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#starting-the-reconstruction-server" class="md-nav__link">
-    Starting the reconstruction server
+  <a href="#starting-recast3d" class="md-nav__link">
+    Starting RECAST3D
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starting-the-slicerecon-reconstruction-server" class="md-nav__link">
+    Starting the SliceRecon reconstruction server
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pushing-data-into-the-slicerecon-server-using-an-adapter" class="md-nav__link">
+    Pushing data into the SliceRecon server using an adapter
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-plugins" class="md-nav__link">
+    (Optional) plugins
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-ports" class="md-nav__link">
+    Custom ports
   </a>
   
 </li>
@@ -483,16 +539,61 @@
                 
                 
                 <h1 id="running-the-stack">Running the stack</h1>
-<h2 id="starting-the-reconstruction-server">Starting the reconstruction server</h2>
-<p>Before running the reconstruction server, start up RECAST3D. To run the server:</p>
-<div class="codehilite"><pre><span></span><code>  ./slicerecon_server <span class="o">[</span>options<span class="o">]</span>
+<h2 id="starting-recast3d">Starting RECAST3D</h2>
+<p>First, we have to start up RECAST3D. This either happens from the application launcher of your OS, or using a Linux terminal:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Inside a conda environment with RECAST3D intstalled</span>
+conda activate <span class="o">[</span>your_environment<span class="o">]</span>
+recast3d
+
+<span class="c1"># ... or inside the &#39;build&#39; directory for a manual install</span>
+<span class="nb">cd</span> recast3d/build
+./recast3d
 </code></pre></div>
 
 
+<h2 id="starting-the-slicerecon-reconstruction-server">Starting the SliceRecon reconstruction server</h2>
+<p>After RECAST3D is running, we can start a reconstruction server. By default, we can run a SliceRecon server:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> build/example
+./slicerecon_server <span class="o">[</span>options<span class="o">]</span>
+</code></pre></div>
+
+
+<p>For example, with <code>[options]</code> we can set the slice resolution, preview resolution, and so on. For a full list of options, run with <code>--help</code>:</p>
+<div class="codehilite"><pre><span></span><code>./slicerecon_server --help
+</code></pre></div>
+
+
+<p>When a server is started, it connects with RECAST3D and tells it to create a new scene. After starting the server, the RECAST3D window should show a new scene with three inactive slices.</p>
+<h2 id="pushing-data-into-the-slicerecon-server-using-an-adapter">Pushing data into the SliceRecon server using an adapter</h2>
 <p>The server is now waiting until (projection) data is pushed to it. For example,
-we can push prerecorded FleX-ray data::</p>
+we can push prerecorded data from the FleX-ray lab:</p>
 <div class="codehilite"><pre><span></span><code>  python slicerecon_push_flexray.py <span class="o">[</span>path<span class="o">]</span>
 </code></pre></div>
+
+
+<h2 id="optional-plugins">(Optional) plugins</h2>
+<p>To use or test (Python) plugins, we run the reconstruction server with <code>--pyplugin</code>.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> build/example
+./slicerecon_server --pyplugin <span class="o">[</span>other options<span class="o">]</span>
+</code></pre></div>
+
+
+<p>and start our plugin:</p>
+<div class="codehilite"><pre><span></span><code>python plugin.py
+</code></pre></div>
+
+
+<p>After the plugin is started, we can push data to SliceRecon using any adapter.</p>
+<p>To chain multiple plugins, simply change the outgoing host/port of a plugin to the incoming host/port of another. The final plugin should send the final processed slice data to RECAST3D using its host/port.</p>
+<h2 id="custom-ports">Custom ports</h2>
+<p>The setup above works if one uses custom ports, and when all components are run on <code>localhost</code>. The default ports are as follows:</p>
+<ul>
+<li><code>5555</code>: RECAST3D <code>REQ/REP</code> server</li>
+<li><code>5556</code>: RECAST3D <code>PUB/SUB</code> server</li>
+<li><code>5558</code>: SliceRecon server</li>
+<li><code>5652</code>: Python based plugin</li>
+</ul>
+<p>These ports, as well as the host for RECAST3D or the plugin, can be changed using flags to the SliceRecon server.</p>
                 
                   
                 
