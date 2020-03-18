@@ -9,7 +9,7 @@ This project contains a full-stack implementation of a tomographic reconstructio
 RECAST3D is visualization software for tomographic imaging based on on-demand reconstruction of arbitrary slices, and is built for use in a distributed,
 real-time, and online reconstruction pipeline.
 
-This repository also contains two support libraries, *TomoPackets* and *SliceRecon*.
+The repository also contains two support libraries, *TomoPackets* and *SliceRecon*.
 
 The TomoPackets library defines a protocol for sending messages between the different
 components (scanners, reconstruction nodes, visualization workstations) for
@@ -54,7 +54,7 @@ GitHub.
 | *Real-time reconstruction and visualisation ... at TOMCAT*. Sci.Rep. [DOI](https://doi.org/10.1038/s41598-019-54647-4) |  |
 | *Real-time quasi-3D tomographic reconstruction*. MST. [DOI](https://doi.org/10.1088/1361-6501/aab754)  | [<img src="https://github.com/favicon.ico" width="24">](https://github.com/cicwi/RECAST3D) |
 
-## Please Cite Us
+## Please cite us
 
 If you have used RECAST3D for a scientific publication, we would appreciate
 citations to the following paper:

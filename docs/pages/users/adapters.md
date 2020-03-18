@@ -36,5 +36,3 @@ object. An example is provided below::
       pub.send(packet_proj)
 ```
 
-
-
