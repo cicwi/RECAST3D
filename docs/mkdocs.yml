@@ -14,7 +14,7 @@ markdown_extensions:
     - footnotes
     - pymdownx.arithmatex
     - markdown_inline_graphviz
-
+    - mdx_include
 docs_dir: pages
 
 nav:

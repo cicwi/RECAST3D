@@ -1,6 +1,6 @@
 # Plugins
 
-Currently, plugins are only post-processing on slices
+Plugins can perform post-processing on reconstructed slices.
 
 ## Developing a plugin
 
@@ -9,33 +9,17 @@ function that takes a 2D numpy array (the reconstructed slice), and returns a 2D
 numpy array (the postprocessed slice). An example plugin looks like this.
 
 ```python
-  import numpy as np
-  import slicerecon
-
-
-  def callback(shape, xs, idx):
-      xs = np.array(xs).reshape(shape)
-
-      print("callback called", shape)
-      xs[xs <= 3.0] = 0.0
-      xs[xs > 3.0] = 10.0
-
-      return [shape, xs.ravel().tolist()]
-
-
-  p = slicerecon.plugin("tcp://*:5652", "tcp://localhost:5555")
-  p.set_slice_callback(callback)
-
-  p.listen()
+{! pages/users/otsu_plugin.py !}
 ```
-
 
 This plugin listens to incoming `SliceData` packets on port `5652`, and connects
 to a visualization software (or another plugin) listening on port `5555`. These
 are the default values. If you use the standard `slicerecon_server` program,
 connecting the Python plugin is as easy as passing `--pyplugin` as a flag.
 
-### Testing your plugin
+This plugin computes a simple segmentation based on a threshold computed by [Otsu's method](https://en.wikipedia.org/wiki/Otsu%27s_method).
+
+## Testing your plugin
 
 
 1. Start RECAST3D:
@@ -61,4 +45,15 @@ python plugin.py
 ```bash
 python slicerecon_push_flexdata.py [path_to_data] --sample 2
 ```
+
+If you make a change to `plugin.py`, you can restart it without touching the other components (recast3d, slicerecon) and without restreaming the projection data. Simply request a new reconstruction by modifying a slice (e.g. by clicking on one of the slices in RECAST3D) to see the result.
+
+## _Example_: Otsu thresholding
+
+The example of above should give the following visual result.
+
+![Otsu's method output](otsu_output.png)
+
+Dataset: _A cone beam scan of a rat skull_: [10.5281/zenodo.1164088](https://doi.org/10.5281/zenodo.1164088)
+
 
