@@ -184,6 +184,6 @@ $$\begin{align*}
 \vec{v}' &= \mathcal{R} (\vec{v})
 \end{align*}$$
 
-If we then reconstruct with the transformed geometry, we are effectively using a geometry in which the arbitrary slice $S$ has become the central slices, without adjusting projection data. This is the basic idea behind the solver implementations: we adjust the geometry on the fly for each slice that we are interested in, and run a standard backprojection algorithm.
+If we then reconstruct with the transformed geometry, we are effectively using a geometry in which the arbitrary slice $S$ has become the central slice, without having to adjust the projection data. This is the basic idea behind the solver implementation: we adjust the geometry on the fly for each slice that we are interested in, and then run a standard backprojection algorithm.
 
 

@@ -1,5 +1,5 @@
 import tomop
-import flexdata as flex
+from flexdata import data
 import numpy as np
 import scipy.misc
 import astra
@@ -29,28 +29,27 @@ sample = args.sample
 print("sample", sample)
 path = args.path
 
-dark = flex.io.read_tiffs(path, 'di', sample=sample)
-flat = flex.io.read_tiffs(path, 'io', sample=sample)
-proj = flex.io.read_tiffs(path, 'scan_', sample=sample, skip=sample)
+dark = data.read_stack(path, 'di00', sample = sample)
+flat = data.read_stack(path, 'io00', sample = sample)    
+proj = data.read_stack(path, 'scan_', skip = sample, sample = sample)
 
 print(np.shape(dark), np.shape(flat), np.shape(proj))
 
 # avg_flat = flat.mean(0)
 # avg_dark = dark.mean(0)
-meta = flex.io.read_meta(path, 'flexray', sample=sample)
+geom = data.read_flexraylog(path, sample=sample)
 
 pub = tomop.publisher(args.host, args.port)
 
 # send astra geometry
 # proj is [proj_id, row, col], we want [row, proj_id, col]
 ps = np.shape(proj)
-rows = ps[1]
-proj_count = ps[0]
+rows = ps[0]
+proj_count = ps[1]
 cols = ps[2]
 
-proj_geom = flex.io.astra_proj_geom(meta['geometry'], [ps[1], ps[0], ps[2]])
-# y, x, z
-vol_geom = flex.io.astra_vol_geom(meta['geometry'], [rows, cols, cols])
+vol_geom = geom.astra_volume_geom([rows, cols, cols])
+proj_geom = geom.astra_projection_geom(proj.shape)
 
 print(proj_geom)
 print('proj geom vector count', len(proj_geom['Vectors']))
@@ -66,8 +65,9 @@ packet_vol_geom = tomop.geometry_specification_packet(0, [
 if not args.skipgeometry:
     pub.send(packet_vol_geom)
 
-packet_scan_settings = tomop.scan_settings_packet(0, dark.shape[0],
-                                                  flat.shape[0], False)
+print("flat dark", flat.shape, dark.shape)
+packet_scan_settings = tomop.scan_settings_packet(0, dark.shape[1],
+                                                  flat.shape[1], False)
 if not args.skipgeometry:
     pub.send(packet_scan_settings)
 
@@ -79,17 +79,17 @@ if not args.skipgeometry:
 
 # send darks (0), lights (1), projs (2)
 
-for i in np.arange(0, dark.shape[0]):
+for i in np.arange(0, dark.shape[1]):
     packet_dark = tomop.projection_packet(
-        0, i, [rows, cols], np.ascontiguousarray(dark[i, :, :].flatten()))
+        0, i, [rows, cols], np.ascontiguousarray(dark[:, i, :].flatten()))
     pub.send(packet_dark)
 
-for i in np.arange(0, flat.shape[0]):
+for i in np.arange(0, flat.shape[1]):
     packet_light = tomop.projection_packet(
-        1, i, [rows, cols], np.ascontiguousarray(flat[i, :, :].flatten()))
+        1, i, [rows, cols], np.ascontiguousarray(flat[:, i, :].flatten()))
     pub.send(packet_light)
 
 for i in np.arange(0, proj_count):
     packet_proj = tomop.projection_packet(
-        2, i, [rows, cols], np.ascontiguousarray(proj[i].flatten()))
+            2, i, [rows, cols], np.ascontiguousarray(proj[:, i, :].flatten()))
     pub.send(packet_proj)
