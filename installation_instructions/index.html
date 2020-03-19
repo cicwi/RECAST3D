@@ -261,8 +261,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#detailed-installation-instructions" class="md-nav__link">
-    Detailed installation instructions
+  <a href="#installation-using-conda" class="md-nav__link">
+    Installation using Conda
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-manual-installation" class="md-nav__link">
+    (Advanced) Manual installation
   </a>
   
     <nav class="md-nav">
@@ -270,36 +277,57 @@
         
           <li class="md-nav__item">
   <a href="#0-optional-setting-up-a-fresh-conda-or-virtualenv-environment" class="md-nav__link">
-    0. (optional) Setting up a fresh Conda or VirtualEnv environment
+    0. (optional) Setting up a fresh Conda (or VirtualEnv) environment
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#1-installing-recast3d" class="md-nav__link">
-    1. Installing RECAST3D
+  <a href="#1-building-and-installing-astra" class="md-nav__link">
+    1. Building and installing ASTRA
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-installing-slicerecon" class="md-nav__link">
-    2. Installing SliceRecon
+  <a href="#2-installing-prerequisites" class="md-nav__link">
+    2. Installing prerequisites
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cloning-the-repository" class="md-nav__link">
+    3. Cloning the repository
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-building-the-software" class="md-nav__link">
+    4. Building the software
   </a>
   
     <nav class="md-nav">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#installing-the-slicerecon-python-bindings" class="md-nav__link">
-    Installing the SliceRecon Python bindings
+  <a href="#tomopackets" class="md-nav__link">
+    TomoPackets
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-the-installation" class="md-nav__link">
-    Testing the installation
+  <a href="#slicerecon" class="md-nav__link">
+    SliceRecon
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recast3d" class="md-nav__link">
+    RECAST3D
   </a>
   
 </li>
@@ -310,8 +338,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-optional-installing-tomopackets" class="md-nav__link">
-    3. (optional) Installing TomoPackets
+  <a href="#5-testing-the-installation" class="md-nav__link">
+    5. Testing the installation
   </a>
   
 </li>
@@ -509,8 +537,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#detailed-installation-instructions" class="md-nav__link">
-    Detailed installation instructions
+  <a href="#installation-using-conda" class="md-nav__link">
+    Installation using Conda
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-manual-installation" class="md-nav__link">
+    (Advanced) Manual installation
   </a>
   
     <nav class="md-nav">
@@ -518,36 +553,57 @@
         
           <li class="md-nav__item">
   <a href="#0-optional-setting-up-a-fresh-conda-or-virtualenv-environment" class="md-nav__link">
-    0. (optional) Setting up a fresh Conda or VirtualEnv environment
+    0. (optional) Setting up a fresh Conda (or VirtualEnv) environment
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#1-installing-recast3d" class="md-nav__link">
-    1. Installing RECAST3D
+  <a href="#1-building-and-installing-astra" class="md-nav__link">
+    1. Building and installing ASTRA
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-installing-slicerecon" class="md-nav__link">
-    2. Installing SliceRecon
+  <a href="#2-installing-prerequisites" class="md-nav__link">
+    2. Installing prerequisites
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cloning-the-repository" class="md-nav__link">
+    3. Cloning the repository
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-building-the-software" class="md-nav__link">
+    4. Building the software
   </a>
   
     <nav class="md-nav">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#installing-the-slicerecon-python-bindings" class="md-nav__link">
-    Installing the SliceRecon Python bindings
+  <a href="#tomopackets" class="md-nav__link">
+    TomoPackets
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#testing-the-installation" class="md-nav__link">
-    Testing the installation
+  <a href="#slicerecon" class="md-nav__link">
+    SliceRecon
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recast3d" class="md-nav__link">
+    RECAST3D
   </a>
   
 </li>
@@ -558,8 +614,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-optional-installing-tomopackets" class="md-nav__link">
-    3. (optional) Installing TomoPackets
+  <a href="#5-testing-the-installation" class="md-nav__link">
+    5. Testing the installation
   </a>
   
 </li>
@@ -589,40 +645,35 @@
                 
                 
                 <h1 id="installing-the-ci-cwi-live-reconstruction-software-stack">Installing the CI CWI live reconstruction software stack</h1>
-<p>For realizing live reconstruction of tomographic scans, the CI CWI group
-develops a set of libraries and software that can work together. The main
-software are:</p>
+<p>The CI CWI group develops a set of libraries and software for real-time tomographic reconstruction.
+The main software packages are:</p>
 <ul>
 <li><em>RECAST3D</em>. The visualization software. This typically runs at a workstation,
   and is controlled by a user looking at live reconstructions of arbitrarily
   oriented slices.</li>
-<li><em><a href="https://www.github.com/cicwi/SliceRecon">SliceRecon</a></em>. The reconstruction software library. This runs on a computer
+<li><em>SliceRecon</em>. The reconstruction software library. This runs on a computer
   with a GPU (it can be the same as the workstation running RECAST3D). It
   receives the projection data, and performs slice reconstructions.</li>
-<li><em><a href="https://www.github.com/cicwi/TomoPackets">TomoPackets</a></em>. The glue between the different components. This library
+<li><em>TomoPackets</em>. The glue between the different components. This library
   defines a protocol for sending messages between scanners, reconstruction
   nodes, and visualization workstations.</li>
 </ul>
 <p>Depending on the data source, an <em>adapter</em> is needed that converts the
 acquisition metadata and projection data into a common format defined by
 TomoPackets, and that can be sent as input to SliceRecon.</p>
-<p>Further reading:</p>
-<ul>
-<li><a href="https://cicwi.github.io/TomoPackets/overview.html#pipeline">TomoPackets#Pipeline</a>
-  for an overview of the pipeline.</li>
-<li><a href="https://cicwi.github.io/TomoPackets/usage.html#writing-an-adapter">TomoPackets#Usage</a>
-  for documentation on writing an adapter.</li>
-</ul>
-<h2 id="detailed-installation-instructions">Detailed installation instructions</h2>
-<p>For convenience, we will describe in detail how to install all the different
+<h2 id="installation-using-conda">Installation using Conda</h2>
+<div class="admonition error">
+<p class="admonition-title">Error</p>
+<p>todo</p>
+</div>
+<h2 id="advanced-manual-installation">(Advanced) Manual installation</h2>
+<p>Here, we will describe in detail how to manually build all the different
 components of the live reconstruction software stack.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>If you have trouble following this guide, please first see the documentation
-of each individual package for the most up-to-date installation instructions.
-If that still does not help, <a href="https://github.com/cicwi/RECAST3D/issues">please let us know</a>!.</p>
+<p>If you run into unexpected problems while following this guide, <a href="https://github.com/cicwi/RECAST3D/issues">please let us know</a>!.</p>
 </div>
-<h3 id="0-optional-setting-up-a-fresh-conda-or-virtualenv-environment">0. (optional) Setting up a fresh <em>Conda</em> or <em>VirtualEnv</em> environment</h3>
+<h3 id="0-optional-setting-up-a-fresh-conda-or-virtualenv-environment">0. (optional) Setting up a fresh <em>Conda</em> (or <em>VirtualEnv</em>) environment</h3>
 <p>Although it is not strictly necessary to use any Python component, it is by far
 the easiest way to extend and customize the software. We would suggest making a
 new environment in which the Python bindings to our libraries are installed. For
@@ -634,49 +685,7 @@ conda activate live
 
 <p>if you choose to do this, make and activate the environment before following the
 rest of these instructions.</p>
-<h3 id="1-installing-recast3d">1. Installing RECAST3D</h3>
-<p>First, we will install the RECAST3D visualization software.</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># make a directory to store the packages</span>
-mkdir projects/live_reconstruction
-<span class="nb">cd</span> projects/live_reconstruction
-<span class="c1"># clone the repository</span>
-git clone https://github.com/cicwi/RECAST3D.git/
-<span class="nb">cd</span> RECAST3D
-</code></pre></div>
-
-
-<p>Next, make sure you have GLM and the OpenGL development headers and libraries
-installed. On Fedora, this would require the <code>glm-devel</code> and for example
-<code>mesa-libGL-devel</code> packages. Optionally, preinstall the submodule dependencies
-to speed up the build. If our build script cannot find these dependencies, it
-will build them from source.</p>
-<p>To build RECAST3D, run e.g.:</p>
-<div class="codehilite"><pre><span></span><code>git submodule update --remote --init --recursive
-mkdir build
-<span class="nb">cd</span> build
-cmake ..
-make -j8
-</code></pre></div>
-
-
-<p>Finally, test if you can run RECAST3D:</p>
-<div class="codehilite"><pre><span></span><code>./recast3d
-</code></pre></div>
-
-
-<p>This should open an empty white window with a menubar.
-If you run into any issues, <a href="https://github.com/cicwi/RECAST3D/issues">please let us know</a>!</p>
-<h3 id="2-installing-slicerecon">2. Installing SliceRecon</h3>
-<p>Next, we install SliceRecon.</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># go back to the root directory:</span>
-<span class="nb">cd</span> projects/live_reconstruction
-<span class="c1"># clone the repository</span>
-git clone https://github.com/cicwi/SliceRecon.git/
-<span class="nb">cd</span> SliceRecon
-</code></pre></div>
-
-
-<p>Next, we need to install the dependencies.</p>
+<h3 id="1-building-and-installing-astra">1. Building and installing ASTRA</h3>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The software requires a development version of the ASTRA toolbox,
@@ -686,32 +695,87 @@ The required functionality will be released in ASTRA v1.9.</p>
 <p>First, we have to install the <a href="http://www.astra-toolbox.com/">ASTRA toolbox</a>. We
 need ASTRA with CUDA support, and install it in such a way so that <code>pkg-config</code>
 is able to find the library. See the ASTRA documentation for details on installing ASTRA as a C++ library.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>On CI CWI workstations, you can use the module system: <code>module load libastra/git</code>.</p>
-</div>
-<p>Again, preinstalling the submodule dependencies will speed up the build.</p>
-<div class="codehilite"><pre><span></span><code>git submodule update --remote --init --recursive
-mkdir build
-<span class="nb">cd</span> build
-cmake ..
-make -j8
+<p>The rest of this guide assumes that the ASTRA is in the your dynamic linker path, and that pkgconfig can find the ASTRA configuration, for this you might have to run something along the lines of:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span> <span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$ASTRA_INSTALL_DIR</span>/lib:<span class="nv">$LD_LIBRARY_PATH</span>
+<span class="nb">export</span> <span class="nv">PKG_CONFIG_PATH</span><span class="o">=</span><span class="nv">$ASTRA_SRC_DIR</span>/build/linux:<span class="nv">$LD_LIBRARY_PATH</span>:<span class="nv">$PKG_CONFIG_PATH</span>
 </code></pre></div>
 
 
-<h4 id="installing-the-slicerecon-python-bindings">Installing the SliceRecon Python bindings</h4>
-<p>Next, we install the Python bindings.</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> ../python/ <span class="c1"># relative to the build directory</span>
+<h3 id="2-installing-prerequisites">2. Installing prerequisites</h3>
+<p>Next, make sure you have the necessary OpenGL development headers and libraries and other dependencies
+installed. This highly depends on your operating system and/or distribution. A non-exhaustive lists of packages that might be required on Fedora 31:</p>
+<div class="codehilite"><pre><span></span><code>dnf install python-devel boost-devel libXinerama-devel
+dnf groupinstall <span class="s2">&quot;X Software Development&quot;</span>
+dnf groupinstall <span class="s2">&quot;Development Tools&quot;</span>
+</code></pre></div>
+
+
+<p>Optionally, preinstall the submodule dependencies to speed up the build. For example:</p>
+<div class="codehilite"><pre><span></span><code>dnf install python-devel eigen3-devel boost-devel libXinerama-devel glm-devel
+</code></pre></div>
+
+
+<p>If our build script cannot find these dependencies, it
+will build them from source.</p>
+<h3 id="3-cloning-the-repository">3. Cloning the repository</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="err">@</span><span class="n">github</span><span class="p">.</span><span class="nl">com</span><span class="p">:</span><span class="n">cicwi</span><span class="o">/</span><span class="n">RECAST3D</span> <span class="n">recast3d</span><span class="o">-</span><span class="n">stack</span>
+<span class="n">cd</span> <span class="n">recast3d</span><span class="o">-</span><span class="n">stack</span>
+<span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span> <span class="o">--</span><span class="n">recursive</span>
+</code></pre></div>
+
+
+<h3 id="4-building-the-software">4. Building the software</h3>
+<h4 id="tomopackets">TomoPackets</h4>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> tomopackets
+mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+cmake .. <span class="o">&amp;&amp;</span> make
+</code></pre></div>
+
+
+<p>When developing your own data adapter (or using an existing one), it is easiest
+to use the Python bindings to the TomoPackets communication library. To install
+it into your Python environment, run the following:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> ..
+pip install --user cmake_setuptools
 pip install -e .
 </code></pre></div>
 
 
-<h4 id="testing-the-installation">Testing the installation</h4>
+<p>You can now develop and run TomoPackets extensions such as data adapters.</p>
+<h4 id="slicerecon">SliceRecon</h4>
+<p>Next, we install SliceRecon.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> ../slicerecon
+mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+cmake .. <span class="o">&amp;&amp;</span> make
+</code></pre></div>
+
+
+<p>This will create a binary <code>slicerecon_server</code>.</p>
+<p>Next, we install the Python bindings.</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> ../python/
+pip install -e .
+</code></pre></div>
+
+
+<h4 id="recast3d">RECAST3D</h4>
+<p>To build RECAST3D, run:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> ../../recast3d
+mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+cmake .. <span class="o">&amp;&amp;</span> make
+</code></pre></div>
+
+
+<p>This will create a binary <code>recast3d</code>. Test if you can run RECAST3D:</p>
+<div class="codehilite"><pre><span></span><code>./recast3d
+</code></pre></div>
+
+
+<p>This should open an empty white window with a menubar. If you run into any issues, <a href="https://github.com/cicwi/RECAST3D/issues">please let us know</a>!</p>
+<h3 id="5-testing-the-installation">5. Testing the installation</h3>
 <p>To test if the SliceRecon software is installed correctly, try the following steps.</p>
 <ol>
 <li>
-<p><em>Start up a RECAST3D instance</em>. Change directories to the build folder of the
-   RECAST3D directory we made before, and run:</p>
+<p><em>Start up a RECAST3D instance</em>. Change directories to the <code>recast3d/build</code> directory we made before, and run:</p>
 <div class="codehilite"><pre><span></span><code><span class="err">./recast3d</span>
 </code></pre></div>
 
@@ -719,48 +783,26 @@ pip install -e .
 </li>
 <li>
 <p><em>Start up a SliceRecon server</em>, that connects to RECAST3D and listens for
-   incoming (projection) data. Change directories to the build folder of the
-   SliceRecon repository, and run:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">./example/slicerecon_server --slice-size 512 --preview-size 256</span>
+   incoming (projection) data. Change directories to <code>slicerecon/build</code>, and run:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">./slicerecon_server --slice-size 512 --preview-size 256</span>
 </code></pre></div>
 
 
 <p>Switching windows to the RECAST3D software, you should see a new scene with
-   black slices.</p>
+   empty slices.</p>
 </li>
 <li>
 <p><em>Pushing data into SliceRecon</em>. The server is unable to reconstruct anything
    interesting, because it has received no data yet. To push some example data
-   into SliceRecon, run the following (from the same folder as before):</p>
-<div class="codehilite"><pre><span></span><code><span class="err">./example/slicerecon_push_tomos --parallel</span>
+   into SliceRecon, we run one of the adapter examples. For example, relative to the <code>recast3d_stack</code> directory:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">cd examples/adapters</span>
+<span class="err">python zero_adapter.py</span>
 </code></pre></div>
 
 
-<p>This will send very poor quality and low-resolution projection data
-   of a Shepp&ndash;Logan phantom to the server, but you should be able to
-   see some reconstructions in the RECAST3D software. Expect to wait a
-   while before seeing anything on screen.</p>
 </li>
 </ol>
-<h3 id="3-optional-installing-tomopackets">3. (optional) Installing TomoPackets</h3>
-<p>When developing your own data adapter (or using an existing one), it is easiest
-to use the Python bindings to the TomoPackets communication library. To install
-it into your Python environment, run the following:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># go back to the root directory:</span>
-<span class="nb">cd</span> projects/live_reconstruction
-<span class="c1"># clone the repository</span>
-git clone https://github.com/cicwi/TomoPackets.git/
-<span class="nb">cd</span> TomoPackets
-</code></pre></div>
-
-
-<p>To install the library, simply run:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">git submodule update --init --remote</span>
-<span class="err">pip install -e .</span>
-</code></pre></div>
-
-
-<p>You can now develop and run TomoPackets data adapters.</p>
+<p>This will send data containing zeros to the SliceRecon server.</p>
                 
                   
                 

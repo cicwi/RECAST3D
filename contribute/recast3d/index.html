@@ -636,7 +636,7 @@ stateDiagram
 </div>
 
 <p>These machines actually deactivate a slice upon creation, and have a reference to a &lsquo;ghost&rsquo; slice that is will be created when the mouse is released.</p>
-<p>When this new slice is created, we have to let the reconstruction server now that this has occured. A <code>SetSlicePacket</code> is created using the orientation of the newly created slice, and published using the <code>PUB/SUB</code> servers to upstream clients that are subscribed to this packets. For example, SliceRecon registers to this packet.</p>
+<p>When this new slice is created, we have to let the reconstruction server know that this has occured. A <code>SetSlicePacket</code> is created using the orientation of the newly created slice, and published using the <code>PUB/SUB</code> servers to upstream clients that are subscribed to this packets. For example, SliceRecon registers to this packet.</p>
 <div class="mermaid">
 sequenceDiagram
     participant Component

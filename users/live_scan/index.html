@@ -553,7 +553,7 @@ recast3d
 
 <h2 id="starting-the-slicerecon-reconstruction-server">Starting the SliceRecon reconstruction server</h2>
 <p>After RECAST3D is running, we can start a reconstruction server. By default, we can run a SliceRecon server:</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> build/example
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> slicerecon/build
 ./slicerecon_server <span class="o">[</span>options<span class="o">]</span>
 </code></pre></div>
 
@@ -567,14 +567,14 @@ recast3d
 <h2 id="pushing-data-into-the-slicerecon-server-using-an-adapter">Pushing data into the SliceRecon server using an adapter</h2>
 <p>The server is now waiting until (projection) data is pushed to it. For example,
 we can push prerecorded data from the FleX-ray lab:</p>
-<div class="codehilite"><pre><span></span><code>  python slicerecon_push_flexray.py <span class="o">[</span>path<span class="o">]</span>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> examples/adapters
+python slicerecon_push_flexray.py <span class="o">[</span>path<span class="o">]</span>
 </code></pre></div>
 
 
 <h2 id="optional-plugins">(Optional) plugins</h2>
 <p>To use or test (Python) plugins, we run the reconstruction server with <code>--pyplugin</code>.</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">cd</span> build/example
-./slicerecon_server --pyplugin <span class="o">[</span>other options<span class="o">]</span>
+<div class="codehilite"><pre><span></span><code>./slicerecon_server --pyplugin <span class="o">[</span>other options<span class="o">]</span>
 </code></pre></div>
 
 
