@@ -6,12 +6,12 @@ package:
 
 source:
   # path: ../
-  git_url: https://github.com/cicwi/TomoPackets
+  git_url: https://github.com/jwbuurlage/RECAST3D
   git_tag: master
 
 build:
   number: 0
-  script: "{{ PYTHON }} -m pip install . -vv"
+  script: "cd tomopackets && {{ PYTHON }} -m pip install . -vv"
 
 test:
   imports:
@@ -34,6 +34,6 @@ requirements:
     - zeromq=4
 
 about:
-  home: https://github.com/cicwi/TomoPackets
+  home: https://github.com/jwbuurlage/RECAST3D
   license: GPLv3
-  summary: 'Tomopackets'
+  summary: 'TomoPackets'

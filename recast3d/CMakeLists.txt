@@ -125,6 +125,7 @@ endif()
 # --------------------------------------------------------------------------------------------
 # tomopackets
 
+set(TOMOP_LIB_ONLY ON CACHE BOOL "build tomop only as a library" FORCE)
 add_subdirectory(${PROJECT_SOURCE_DIR}/../tomopackets tomopackets)
 
 # --------------------------------------------------------------------------------------------

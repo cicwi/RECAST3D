@@ -8,4 +8,4 @@ dependencies:
 - boost-cpp
 - pybind11
 - zeromq
-- python=3.7
+- python>=3.7
