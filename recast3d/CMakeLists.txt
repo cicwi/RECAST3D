@@ -16,7 +16,6 @@ find_package(glm QUIET)
 if (glm_FOUND)
   message("glm found")
 else()
-    message("glm not found, including from source")
   execute_process(COMMAND git submodule update --init -- ext/glm
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
   add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/glm glm)

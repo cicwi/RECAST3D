@@ -1,7 +1,10 @@
 #!/bin/sh
 
-cd recast3d
+mkdir ext/glm/build && cd ext/glm/build
+cmake ..
+cd ../../../
 
+cd recast3d
 
 declare -a CMAKE_PLATFORM_FLAGS
 if [[ ${HOST} =~ .*linux.* ]]; then
@@ -21,6 +24,7 @@ cmake ..                                        \
       -DGLFW_BUILD_EXAMPLES=OFF                 \
       -DGLFW_BUILD_TESTS=OFF                    \
       -DGLFW_BUILD_DOCS=OFF                     \
+      -Dglm_DIR="../ext/glm/build"
 
 make -j $CPU_COUNT VERBOSE=1
 make install
