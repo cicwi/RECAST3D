@@ -163,7 +163,7 @@ There are two modes, _alternating_ and _continuous_. In ‘alternating’ mode, 
       solver <|-- visualization_server : requests
 </div>
 
-Dashed lines happen within SliceRecon, while solid lines are communicated using TomoPackets.
+Solid lines happen within SliceRecon, while dashed lines are communicated using TomoPackets.
 
 ## Solver implementation
 

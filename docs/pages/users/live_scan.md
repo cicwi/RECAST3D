@@ -61,11 +61,11 @@ To chain multiple plugins, simply change the outgoing host/port of a plugin to t
 
 ## Custom ports
 
-The setup above works if one uses custom ports, and when all components are run on `localhost`. The default ports are as follows:
+The setup above works if you use the default ports, and when all components are run on `localhost`. The default ports are as follows:
 
 - `5555`: RECAST3D `REQ/REP` server
 - `5556`: RECAST3D `PUB/SUB` server
 - `5558`: SliceRecon server
 - `5652`: Python based plugin
 
-These ports, as well as the host for RECAST3D or the plugin, can be changed using flags to the SliceRecon server.
+These ports, as well as the host for RECAST3D or the (first) plugin, can be changed using flags to the SliceRecon server.

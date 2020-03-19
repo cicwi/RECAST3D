@@ -50,10 +50,10 @@ If you make a change to `plugin.py`, you can restart it without touching the oth
 
 ## _Example_: Otsu thresholding
 
-The example of above should give the following visual result.
+The example above should give the following visual result.
 
 ![Otsu's method output](otsu_output.png)
 
-Dataset: _A cone beam scan of a rat skull_: [10.5281/zenodo.1164088](https://doi.org/10.5281/zenodo.1164088)
+Dataset: _A cone beam scan of a rat skull_: [doi:10.5281/zenodo.1164088](https://doi.org/10.5281/zenodo.1164088)
 
 
