@@ -521,14 +521,21 @@ numpy array (the postprocessed slice). An example plugin looks like this.</p>
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">filters</span>
 
 <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
-    <span class="c1"># compute a threshold using Otsu&#39;s method</span>
+    <span class="c1"># The Otsu implementation does not accept only zeros, so we pass through</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="p">]</span>
+
+    <span class="c1"># Reshape into an image</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="c1"># Compute a threshold using Otsu&#39;s method</span>
     <span class="n">val</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">threshold_otsu</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
 
-    <span class="c1"># threshold the image accordingly</span>
+    <span class="c1"># Threshold the image accordingly</span>
     <span class="n">xs</span><span class="p">[</span><span class="n">xs</span> <span class="o">&lt;=</span> <span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">xs</span><span class="p">[</span><span class="n">xs</span> <span class="o">&gt;</span> <span class="n">val</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
 
-    <span class="k">return</span> <span class="p">[</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
 
 <span class="c1"># Host a plugin on the default port, with the default RECAST3D endpoint</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">slicerecon</span><span class="o">.</span><span class="n">plugin</span><span class="p">(</span><span class="s2">&quot;tcp://*:5652&quot;</span><span class="p">,</span> <span class="s2">&quot;tcp://localhost:5555&quot;</span><span class="p">)</span>

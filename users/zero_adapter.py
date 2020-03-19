@@ -2,56 +2,65 @@ import tomop
 import numpy as np
 import argparse
 
-parser = argparse.ArgumentParser(
-    description='Push a data set consisting of zeros to Slicerecon.')
 
-parser.add_argument('--host',
-                    default="localhost",
-                    help='the projection server host')
-parser.add_argument('--port',
-                    type=int,
-                    default=5558,
-                    help='the projection server port')
+def push_zero_projections(resolution, host="localhost", port=5558):
+    m = resolution
+    proj_count, rows, cols = m, m, m
+    scene_id = 0
 
-parser.add_argument(
-    '--resolution',
-    type=int,
-    default=512,
-    help='the number of detector rows, detector columns, and angles')
+    pub = tomop.publisher(host, port)
 
-args = parser.parse_args()
+    # We let the server know we will send one dark field, and one flat field
+    num_darks, num_flats = 1, 1
+    packet_scan_settings = tomop.scan_settings_packet(scene_id, num_darks,
+                                                      num_flats, False)
+    pub.send(packet_scan_settings)
 
-m = args.resolution
-rows = m
-cols = m
-proj_count = m
+    # Initialize volume and acquisition geometry
+    packet_vol_geom = tomop.geometry_specification_packet(
+        scene_id, [0, 0, 0], [1, 1, 1])
+    pub.send(packet_vol_geom)
 
-pub = tomop.publisher(args.host, args.port)
+    angles = np.linspace(0, np.pi, proj_count, endpoint=False)
+    packet_geometry = tomop.parallel_beam_geometry_packet(
+        scene_id, rows, cols, proj_count, angles)
+    pub.send(packet_geometry)
 
-# We let the server know we will send one dark field, and one flat field
-packet_scan_settings = tomop.scan_settings_packet(0, 1, 1, False)
-pub.send(packet_scan_settings)
+    # Send dark(s) and flat(s)
+    dark = np.zeros((rows, cols), dtype=np.float32).ravel()
+    packet_dark = tomop.projection_packet(0, 0, [rows, cols], dark)
+    pub.send(packet_dark)
 
-# Initialize volume and acquisition geometry
-packet_vol_geom = tomop.geometry_specification_packet(0, [0, 0, 0], [1, 1, 1])
-pub.send(packet_vol_geom)
+    flat = np.ones((rows, cols), dtype=np.float32).ravel()
+    packet_flat = tomop.projection_packet(1, 0, [rows, cols], flat)
+    pub.send(packet_flat)
 
-packet_geometry = tomop.parallel_beam_geometry_packet(
-    0, rows, cols, proj_count, np.linspace(0, np.pi, proj_count))
-pub.send(packet_geometry)
+    # Create and send projection data consisting of zeros
+    proj_data = np.zeros((proj_count, rows, cols))
+    for i in np.arange(0, proj_count):
+        packet_proj = tomop.projection_packet(2, i, [rows, cols],
+                                              proj_data[i, :, :].ravel())
+        pub.send(packet_proj)
 
-# Send dark(s) and flat(s)
-packet_dark = tomop.projection_packet(0, 0, [rows, cols],
-                                      np.zeros(rows * cols))
-pub.send(packet_dark)
 
-packet_flat = tomop.projection_packet(1, 0, [rows, cols],
-                                      np.zeros(rows * cols))
-pub.send(packet_flat)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Push a data set consisting of zeros to Slicerecon.')
 
-# Create and send projection data consisting of zeros
-proj_data = np.zeros((proj_count, rows, cols))
-for i in np.arange(0, proj_count):
-    packet_proj = tomop.projection_packet(
-        2, i, [rows, cols], np.ascontiguousarray(proj_data[i, :, :].flatten()))
-    pub.send(packet_proj)
+    parser.add_argument('--host',
+                        default="localhost",
+                        help='the projection server host')
+    parser.add_argument('--port',
+                        type=int,
+                        default=5558,
+                        help='the projection server port')
+
+    parser.add_argument(
+        '--resolution',
+        type=int,
+        default=512,
+        help='the number of detector rows, detector columns, and angles')
+
+    args = parser.parse_args()
+
+    push_zero_projections(args.resolution, host=args.host, port=args.port)

@@ -801,7 +801,7 @@ As soon as enough projection data is processed and in main RAM, we ‘upload’ 
 \vec{v}' &= \mathcal{R} (\vec{v})
 \end{align*}</script>
 </div>
-<p>If we then reconstruct with the transformed geometry, we are effectively using a geometry in which the arbitrary slice <span><span class="MathJax_Preview">S</span><script type="math/tex">S</script></span> has become the central slices, without adjusting projection data. This is the basic idea behind the solver implementations: we adjust the geometry on the fly for each slice that we are interested in, and run a standard backprojection algorithm.</p>
+<p>If we then reconstruct with the transformed geometry, we are effectively using a geometry in which the arbitrary slice <span><span class="MathJax_Preview">S</span><script type="math/tex">S</script></span> has become the central slice, without having to adjust the projection data. This is the basic idea behind the solver implementation: we adjust the geometry on the fly for each slice that we are interested in, and then run a standard backprojection algorithm.</p>
                 
                   
                 
