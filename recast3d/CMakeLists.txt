@@ -69,31 +69,6 @@ target_include_directories(imgui PUBLIC
     "../ext/imgui/examples/opengl3_example/")
 
 # --------------------------------------------------------------------------------------------
-# ASSIMP
-find_package(assimp QUIET)
-
-if (assimp_FOUND)
-    message("'assimp' found")
-    link_directories(${ASSIMP_LIBRARY_DIRS})
-    add_library(assimp_ INTERFACE)
-    target_include_directories(assimp_ INTERFACE ${ASSIMP_INCLUDE_DIRS})
-    target_link_libraries(assimp_ INTERFACE ${ASSIMP_LIBRARIES})
-    message(${ASSIMP_LIBRARY_DIRS} " " ${ASSIMP_INCLUDE_DIRS} " " ${ASSIMP_LIBRARIES})
-else()
-    message("'assimp' not installed on the system, building from source...")
-
-    execute_process(COMMAND git submodule update --init -- ext/assimp
-      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
-
-    add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/assimp assimp)
-    set(ASSIMP_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/../ext/assimp/include ${CMAKE_BINARY_DIR}/ext/assimp/include)
-
-    add_library(assimp_ INTERFACE)
-    target_include_directories(assimp_ INTERFACE ${ASSIMP_INCLUDE_DIRS})
-    target_link_libraries(assimp_ INTERFACE assimp)
-endif()
-
-# --------------------------------------------------------------------------------------------
 # ZeroMQ version 4.X
 find_package(ZeroMQ 4 QUIET)
 
@@ -164,8 +139,6 @@ set(
     "src/path.cpp"
     "src/scene_list.cpp"
     "src/server/server.cpp"
-    "src/graphics/mesh.cpp"
-    "src/graphics/model.cpp"
     "src/graphics/primitives.cpp"
     "src/graphics/scene_object.cpp"
     "src/graphics/scene_object_2d.cpp"
@@ -178,14 +151,10 @@ set(
     "src/graphics/renderer.cpp"
     "src/graphics/components/reconstruction_component.cpp"
     "src/graphics/components/geometry_component.cpp"
-    "src/graphics/components/mesh_component.cpp"
     "src/graphics/components/axes_component.cpp"
     "src/graphics/components/control_component.cpp"
-    "src/graphics/components/movie_component.cpp"
-    "src/graphics/components/movie/projection_object.cpp"
-    "src/graphics/components/movie/storyboard.cpp"
-    "src/graphics/components/movie/recorder.cpp"
     "src/graphics/components/partitioning_component.cpp"
+    "src/graphics/components/movie/recorder.cpp"
     "src/graphics/interface/scene_control.cpp"
     "src/graphics/interface/scene_switcher.cpp"
     "src/graphics/interface/window.cpp"
@@ -202,7 +171,6 @@ set(
     "imgui"
     "zmq"
     "tomop"
-    "assimp_"
     "glm"
     "Eigen3::Eigen"
 )

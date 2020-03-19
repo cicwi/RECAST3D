@@ -1,9 +1,9 @@
 package:
   name: recast3d
-  version: 1.0.0.rc.1
+  version: 1.1.0
 
 source:
-  git_url: https://github.com/cicwi/RECAST3D
+  git_url: https://github.com/jwbuurlage/RECAST3D
   git_tag: master
 
 build:
@@ -64,6 +64,6 @@ test:
 
 
 about:
-  home: https://github.com/cicwi/RECAST3D
+  home: https://github.com/jwbuurlage/RECAST3D
   license: GPLv3
   summary: 'RECAST3D: Real-time visualization tool for tomographic data.'
