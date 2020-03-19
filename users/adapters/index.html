@@ -479,36 +479,73 @@
                   <h1>Data adapters</h1>
                 
                 <h3 id="writing-an-adapter">Writing an adapter</h3>
-<p>Each ‘scanner’ has different data formats, geometry specification, and preprocessing requirements</p>
-<p>An adapter generates three standardized packets from the specific scanner data:</p>
+<p>Each scanner or data source, has different formats for storing projection data, specifying the (acquisition) geometry, and different requirements on data preprocessing.</p>
+<p>An adapter generates and sends three types of standardized packets from the specific scanner data:</p>
 <ul>
-<li>Scan settings</li>
-<li>Geometry</li>
-<li>Projection data</li>
+<li><em>Scan settings</em>: <code>tomop.scan_settings_packet</code></li>
+<li><em>Geometry</em>: <code>geometry_specification_packet</code> for the volume geometry, and e.g. <code>tomop.parallel_beam_geometry_packet</code> for the acquisition geometry.</li>
+<li><em>Projection data</em>: <code>tomop.projection_packet</code></li>
 </ul>
-<p>This gets sent (one way) to the ‘projection server’, which is ‘scanner agnostic’. To support a different scanner (microscope, beamline, dataset), just make a simple adapter (Python script). Example adapters can be found in the <code>examples</code> directories.</p>
-<p>To implement an adapter, we have to send three types of packets to a listening
-reconstructor. To send these packets, we can use a <code>tomop.publisher</code>
-object. An example is provided below::</p>
-<div class="codehilite"><pre><span></span><code>  <span class="kn">import</span> <span class="nn">tomop</span>
+<p>This gets sent (one way) to the projection server which is ‘scanner agnostic’. To support a different scanner (or microscope, beamline, dataset), you can write a straightforward data adapter in the form of simple Python script. Example adapters can be found in the <code>examples</code> directory of TomoPackets.</p>
+<p>To implement an adapter, we have to send the three types of packets to a listening
+reconstructor. To send these packets, we can use a <code>tomop.publisher</code> object. An example is provided below::</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">tomop</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
 
-  <span class="n">pub</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Push a data set consisting of zeros to Slicerecon.&#39;</span><span class="p">)</span>
 
-  <span class="n">packet_vol_geom</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">geometry_specification_packet</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-  <span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_vol_geom</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--host&#39;</span><span class="p">,</span>
+                    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s1">&#39;the projection server host&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--port&#39;</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                    <span class="n">default</span><span class="o">=</span><span class="mi">5558</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s1">&#39;the projection server port&#39;</span><span class="p">)</span>
 
-  <span class="n">packet_geometry</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">cone_vec_packet</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-  <span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_geometry</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+    <span class="s1">&#39;--resolution&#39;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s1">&#39;the number of detector rows, detector columns, and angles&#39;</span><span class="p">)</span>
 
-  <span class="n">packet_dark</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">projection_packet</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span> <span class="n">avg_dark</span><span class="p">)</span>
-  <span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_dark</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
-  <span class="n">packet_bright</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">projection_packet</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span> <span class="n">avg_bright</span><span class="p">)</span>
-  <span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_bright</span><span class="p">)</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">resolution</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="n">m</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="n">m</span>
+<span class="n">proj_count</span> <span class="o">=</span> <span class="n">m</span>
 
-  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">proj_count</span><span class="p">):</span>
-      <span class="n">packet_proj</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">projection_packet</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span> <span class="n">projection</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
-      <span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_proj</span><span class="p">)</span>
+<span class="n">pub</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+
+<span class="c1"># We let the server know we will send one dark field, and one flat field</span>
+<span class="n">packet_scan_settings</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">scan_settings_packet</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_scan_settings</span><span class="p">)</span>
+
+<span class="c1"># Initialize volume and acquisition geometry</span>
+<span class="n">packet_vol_geom</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">geometry_specification_packet</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_vol_geom</span><span class="p">)</span>
+
+<span class="n">packet_geometry</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">parallel_beam_geometry_packet</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">proj_count</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">proj_count</span><span class="p">))</span>
+<span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_geometry</span><span class="p">)</span>
+
+<span class="c1"># Send dark(s) and flat(s)</span>
+<span class="n">packet_dark</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">projection_packet</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span>
+                                      <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span><span class="p">))</span>
+<span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_dark</span><span class="p">)</span>
+
+<span class="n">packet_flat</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">projection_packet</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span>
+                                      <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span><span class="p">))</span>
+<span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_flat</span><span class="p">)</span>
+
+<span class="c1"># Create and send projection data consisting of zeros</span>
+<span class="n">proj_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">proj_count</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">proj_count</span><span class="p">):</span>
+    <span class="n">packet_proj</span> <span class="o">=</span> <span class="n">tomop</span><span class="o">.</span><span class="n">projection_packet</span><span class="p">(</span>
+        <span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">proj_data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
+    <span class="n">pub</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">packet_proj</span><span class="p">)</span>
 </code></pre></div>
                 
                   

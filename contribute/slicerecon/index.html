@@ -780,7 +780,7 @@ As soon as enough projection data is processed and in main RAM, we ‘upload’ 
       solver <|-- visualization_server : requests
 </div>
 
-<p>Dashed lines happen within SliceRecon, while solid lines are communicated using TomoPackets.</p>
+<p>Solid lines happen within SliceRecon, while dashed lines are communicated using TomoPackets.</p>
 <h2 id="solver-implementation">Solver implementation</h2>
 <p>The solver can reconstruct an arbitrarily oriented slice from the full 3D projection data. </p>
 <p>Instead of considering the full 3D volume, we setup our geometry by constructing an object volume that consists of the central axial slice <span><span class="MathJax_Preview">C</span><script type="math/tex">C</script></span> only. If we want to reconstruct an arbitrary slice <span><span class="MathJax_Preview">S</span><script type="math/tex">S</script></span>, we can transform <span><span class="MathJax_Preview">S</span><script type="math/tex">S</script></span> into <span><span class="MathJax_Preview">C</span><script type="math/tex">C</script></span> using a combination of a translation vector <span><span class="MathJax_Preview">\delta</span><script type="math/tex">\delta</script></span> from the center of slice <span><span class="MathJax_Preview">S</span><script type="math/tex">S</script></span> onto the center of <span><span class="MathJax_Preview">C</span><script type="math/tex">C</script></span> (and thus the full 3D volume), a rotation <span><span class="MathJax_Preview">\mathcal{R}</span><script type="math/tex">\mathcal{R}</script></span>, and optionally a scale factor which does not have to be used when slices are of fixed size.</p>

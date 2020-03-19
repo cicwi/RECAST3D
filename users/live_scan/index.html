@@ -586,14 +586,14 @@ we can push prerecorded data from the FleX-ray lab:</p>
 <p>After the plugin is started, we can push data to SliceRecon using any adapter.</p>
 <p>To chain multiple plugins, simply change the outgoing host/port of a plugin to the incoming host/port of another. The final plugin should send the final processed slice data to RECAST3D using its host/port.</p>
 <h2 id="custom-ports">Custom ports</h2>
-<p>The setup above works if one uses custom ports, and when all components are run on <code>localhost</code>. The default ports are as follows:</p>
+<p>The setup above works if you use the default ports, and when all components are run on <code>localhost</code>. The default ports are as follows:</p>
 <ul>
 <li><code>5555</code>: RECAST3D <code>REQ/REP</code> server</li>
 <li><code>5556</code>: RECAST3D <code>PUB/SUB</code> server</li>
 <li><code>5558</code>: SliceRecon server</li>
 <li><code>5652</code>: Python based plugin</li>
 </ul>
-<p>These ports, as well as the host for RECAST3D or the plugin, can be changed using flags to the SliceRecon server.</p>
+<p>These ports, as well as the host for RECAST3D or the (first) plugin, can be changed using flags to the SliceRecon server.</p>
                 
                   
                 
