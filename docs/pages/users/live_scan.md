@@ -19,7 +19,7 @@ cd recast3d/build
 After RECAST3D is running, we can start a reconstruction server. By default, we can run a SliceRecon server:
 
 ```bash
-cd build/example
+cd slicerecon/build
 ./slicerecon_server [options]
 ```
 
@@ -37,7 +37,8 @@ The server is now waiting until (projection) data is pushed to it. For example,
 we can push prerecorded data from the FleX-ray lab:
 
 ```bash
-  python slicerecon_push_flexray.py [path]
+cd examples/adapters
+python slicerecon_push_flexray.py [path]
 ```
 
 ## (Optional) plugins
@@ -45,7 +46,6 @@ we can push prerecorded data from the FleX-ray lab:
 To use or test (Python) plugins, we run the reconstruction server with `--pyplugin`.
 
 ```bash
-cd build/example
 ./slicerecon_server --pyplugin [other options]
 ```
 

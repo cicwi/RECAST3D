@@ -123,7 +123,7 @@ stateDiagram
 
 These machines actually deactivate a slice upon creation, and have a reference to a 'ghost' slice that is will be created when the mouse is released.
 
-When this new slice is created, we have to let the reconstruction server now that this has occured. A `SetSlicePacket` is created using the orientation of the newly created slice, and published using the `PUB/SUB` servers to upstream clients that are subscribed to this packets. For example, SliceRecon registers to this packet.
+When this new slice is created, we have to let the reconstruction server know that this has occured. A `SetSlicePacket` is created using the orientation of the newly created slice, and published using the `PUB/SUB` servers to upstream clients that are subscribed to this packets. For example, SliceRecon registers to this packet.
 
 <div class="mermaid">
 sequenceDiagram
