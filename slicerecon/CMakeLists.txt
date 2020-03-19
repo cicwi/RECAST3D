@@ -121,6 +121,19 @@ target_compile_options(${TARGET_NAME} PUBLIC
     "-fPIC"
     "-static")
 
-add_subdirectory("example")
+
+# --------------------------------------------------------------------------------------------
+# Flags
+execute_process(COMMAND git submodule update --init -- ext/flags
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_subdirectory("../ext/flags" flags)
+
+# --------------------------------------------------------------------------------------------
+
+add_executable(slicerecon_server "src/slicerecon_server.cpp")
+target_link_libraries(slicerecon_server slicerecon flags)
+
 add_subdirectory("../ext/pybind11" pybind11)
 add_subdirectory("python")
+

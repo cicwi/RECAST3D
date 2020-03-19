@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from cmake_setuptools import *
 
-__version__ = 'v1.1.0'
+__version__ = '1.1.0'
 
 setup(
     name='tomopackets',
