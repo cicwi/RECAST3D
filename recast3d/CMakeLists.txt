@@ -9,10 +9,19 @@ set(EXEC_NAME "recast3d")
 # multiple dependencies define 'uninstall' target
 set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS 1)
 
-find_package(glm REQUIRED)
-
 ## DEPENDENCIES
 # --------------------------------------------------------------------------------------------
+# GLM
+find_package(glm QUIET)
+if (glm_FOUND)
+  message("glm found")
+else()
+    message("glm not found, including from source")
+  execute_process(COMMAND git submodule update --init -- ext/glm
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/glm glm)
+endif()
+
 # GLFW
 find_package(glfw3 QUIET)
 if (glfw3_FOUND)

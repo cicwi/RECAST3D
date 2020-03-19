@@ -233,7 +233,7 @@ Filterer::Filterer(settings parameters, acquisition::geometry geom, float* data)
 
 void Filterer::apply(Projection proj, int s, int proj_idx)
 {
-    auto filter2d = filter_.size() > proj.cols;
+    bool filter2d = filter_.size() > (size_t)proj.cols;
     // filter the rows
     for (int row = 0; row < proj.rows; ++row) {
         fftwf_execute_dft_r2c(fft_plan_, &proj.data[row * proj.cols],

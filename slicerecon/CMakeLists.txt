@@ -10,7 +10,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # --------------------------------------------------------------------------------------------
 # GLM
 
-find_package(glm REQUIRED)
+find_package(glm QUIET)
+if (glm_FOUND)
+  message("glm found")
+else()
+    message("glm not found, including from source")
+  execute_process(COMMAND git submodule update --init -- ext/glm
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/glm glm)
+endif()
 
 # --------------------------------------------------------------------------------------------
 # ASTRA
@@ -28,8 +36,8 @@ if (Eigen3_FOUND)
 else()
   message("Eigen not found, building from source")
   execute_process(COMMAND git submodule update --init -- ext/eigen
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-  add_subdirectory(${CMAKE_SOURCE_DIR}/ext/eigen)
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/eigen)
 endif()
 # --------------------------------------------------------------------------------------------
 # ZeroMQ
@@ -42,13 +50,13 @@ if (ZeroMQ_FOUND)
 else()
     message("'zmq' not installed on the system, building from source...")
 
-    execute_process(COMMAND git submodule update --init -- ext/libzmq
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+    execute_process(COMMAND git submodule update --init -- ../ext/libzmq
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
     set(ZMQ_BUILD_TESTS OFF CACHE BOOL "disable tests" FORCE)
     set(WITH_PERF_TOOL OFF CACHE BOOL "disable perf-tools" FORCE)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/ext/libzmq)
-    set(ZMQ_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/ext/libzmq/include)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/libzmq libzmq)
+    set(ZMQ_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../ext/libzmq/include)
 
     # ZeroMQ names their target libzmq, which is inconsistent => create a ghost dependency
     add_library(zmq INTERFACE)
@@ -59,21 +67,21 @@ endif()
 
 find_package(cppzmq QUIET)
 if (NOT cppzmq_FOUND)
-  execute_process(COMMAND git submodule update --init -- ext/cppzmq
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+  execute_process(COMMAND git submodule update --init -- ../ext/cppzmq
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
   add_library(cppzmq INTERFACE)
-  target_include_directories(cppzmq INTERFACE ext/cppzmq)
+  target_include_directories(cppzmq INTERFACE ../ext/cppzmq)
   target_link_libraries(cppzmq INTERFACE zmq)
 endif()
 
 # --------------------------------------------------------------------------------------------
 # tomopackets
 set(TOMOP_LIB_ONLY ON CACHE BOOL "build tomopackets as a library" FORCE)
-add_subdirectory(ext/tomopackets)
+add_subdirectory(../../tomopackets tomopackets)
 # --------------------------------------------------------------------------------------------
 # Bulk
-add_subdirectory(${CMAKE_SOURCE_DIR}/ext/bulk)
+add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/bulk bulk)
 # --------------------------------------------------------------------------------------------
 # FFTW3
 find_package(FFTW REQUIRED)
@@ -107,7 +115,6 @@ target_include_directories(${TARGET_NAME} PUBLIC "include")
 target_link_libraries(${TARGET_NAME} ${LIB_NAMES})
 target_compile_options(${TARGET_NAME} PUBLIC
     "-Wfatal-errors"
-    "-Werror"
     "-Wall"
     "-O3"
     "-std=c++17"
@@ -115,5 +122,5 @@ target_compile_options(${TARGET_NAME} PUBLIC
     "-static")
 
 add_subdirectory("example")
-add_subdirectory("ext/pybind11")
+add_subdirectory("../ext/pybind11" pybind11)
 add_subdirectory("python")
