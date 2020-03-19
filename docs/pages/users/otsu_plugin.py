@@ -1,1 +1,1 @@
-../../../slicerecon/example/plugins/otsu_plugin.py
+../../../examples/plugins/otsu_plugin.py
