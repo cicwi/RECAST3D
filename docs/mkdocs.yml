@@ -20,7 +20,7 @@ docs_dir: pages
 
 nav:
   - Home: 'index.md'
-  - Installing: 'installation_instructions.md'
+  - Installation: 'installation_instructions.md'
   - User Guide:
     - Interface: 'users/interface.md'
     - Running the stack: 'users/live_scan.md'

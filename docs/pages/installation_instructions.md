@@ -1,4 +1,4 @@
-# Installing the CI CWI live reconstruction software stack
+# Installation
 
 The CI CWI group develops a set of libraries and software for real-time tomographic reconstruction.
 The main software packages are:
@@ -15,9 +15,9 @@ The main software packages are:
 
 Depending on the data source, an _adapter_ is needed that converts the
 acquisition metadata and projection data into a common format defined by
-TomoPackets, and that can be sent as input to SliceRecon.
+TomoPackets. This common format that is used as input to SliceRecon.
 
-## Installation using Conda
+## (Recommended) Installation using Conda
 
 !!! error
     todo
@@ -47,16 +47,8 @@ rest of these instructions.
 
 ### 1. Building and installing ASTRA
 
-!!! warning
-    The software requires a development version of the ASTRA toolbox,
-    available from [the ASTRA repository on github](https://github.com/astra-toolbox/astra-toolbox).
-    The required functionality will be released in ASTRA v1.9.
 
-First, we have to install the [ASTRA toolbox](http://www.astra-toolbox.com/). We
-need ASTRA with CUDA support, and install it in such a way so that `pkg-config`
-is able to find the library. See the ASTRA documentation for details on installing ASTRA as a C++ library.
-
-ASTRA also includes headers and configuration files as part of its conda package.
+#### Recommended: Using conda
 
 !!! info
     Currently (March 2020), the required files are only part of the development package of ASTRA. This can be installed using:
@@ -65,8 +57,28 @@ ASTRA also includes headers and configuration files as part of its conda package
     conda install -c astra-toolbox/label/dev astra-toolbox
     ```
 
-The rest of this guide assumes that pkgconfig can find the ASTRA configuration, for this you might have to run something along the lines of:
 
+Install the ASTRA toolbox into your conda environment using:
+
+```bash
+conda install -c astra-toolbox astra-toolbox
+```
+
+ASTRA also includes headers and configuration files as part of its conda package.
+
+#### Alternative: From source
+
+!!! warning
+    The software requires at least version v1.9 of the ASTRA toolbox,
+    available from [the ASTRA repository on github](https://github.com/astra-toolbox/astra-toolbox).
+
+We have to install the [ASTRA toolbox](http://www.astra-toolbox.com/). We
+need ASTRA with CUDA support, and install it in such a way so that `pkg-config`
+is able to find the library. See the ASTRA documentation for details on installing ASTRA as a C++ library.
+
+
+#### Setup `pkgconfig`
+The rest of this guide assumes that pkgconfig can find the ASTRA configuration, for this you might have to run something along the lines of:
 
 ```bash
 # when installed using conda
@@ -99,7 +111,7 @@ will build them from source.
 ### 3. Cloning the repository
 
 ```cpp
-git clone git@github.com:cicwi/RECAST3D recast3d-stack
+git clone https://www.github.com/cicwi/RECAST3D recast3d-stack
 cd recast3d-stack
 git submodule update --init --recursive
 ```
