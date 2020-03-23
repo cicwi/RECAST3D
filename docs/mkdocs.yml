@@ -6,6 +6,7 @@ copyright: "RECAST3D is licensed under the <a href='https://github.com/cicwi/REC
 theme: 'material'
 
 markdown_extensions:
+    - attr_list
     - smarty
     - sane_lists
     - admonition
