@@ -78,7 +78,7 @@ endif()
 # --------------------------------------------------------------------------------------------
 # tomopackets
 set(TOMOP_LIB_ONLY ON CACHE BOOL "build tomopackets as a library" FORCE)
-add_subdirectory(../../tomopackets tomopackets)
+add_subdirectory(../tomopackets tomopackets)
 # --------------------------------------------------------------------------------------------
 # Bulk
 add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/bulk bulk)

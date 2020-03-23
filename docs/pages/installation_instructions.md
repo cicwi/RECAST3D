@@ -56,11 +56,24 @@ First, we have to install the [ASTRA toolbox](http://www.astra-toolbox.com/). We
 need ASTRA with CUDA support, and install it in such a way so that `pkg-config`
 is able to find the library. See the ASTRA documentation for details on installing ASTRA as a C++ library.
 
-The rest of this guide assumes that the ASTRA is in the your dynamic linker path, and that pkgconfig can find the ASTRA configuration, for this you might have to run something along the lines of:
+ASTRA also includes headers and configuration files as part of its conda package.
+
+!!! info
+    Currently (March 2020), the required files are only part of the development package of ASTRA. This can be installed using:
+
+    ```
+    conda install -c astra-toolbox/label/dev astra-toolbox
+    ```
+
+The rest of this guide assumes that pkgconfig can find the ASTRA configuration, for this you might have to run something along the lines of:
+
 
 ```bash
-export LD_LIBRARY_PATH=$ASTRA_INSTALL_DIR/lib:$LD_LIBRARY_PATH
-export PKG_CONFIG_PATH=$ASTRA_SRC_DIR/build/linux:$LD_LIBRARY_PATH:$PKG_CONFIG_PATH
+# when installed using conda
+export PKG_CONFIG_PATH=$CONDA_PREFIX/lib/pkgconfig/:$PKG_CONFIG_PATH
+
+# when installed from source
+export PKG_CONFIG_PATH=$ASTRA_SRC_DIR/build/linux:$PKG_CONFIG_PATH
 ```
 
 ### 2. Installing prerequisites
@@ -69,7 +82,7 @@ Next, make sure you have the necessary OpenGL development headers and libraries 
 installed. This highly depends on your operating system and/or distribution. A non-exhaustive lists of packages that might be required on Fedora 31:
 
 ```bash
-dnf install python-devel boost-devel libXinerama-devel
+dnf install python-devel boost-devel libXinerama-devel fftw-devel
 dnf groupinstall "X Software Development"
 dnf groupinstall "Development Tools"
 ```
