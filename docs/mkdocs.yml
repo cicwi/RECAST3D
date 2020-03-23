@@ -22,8 +22,8 @@ nav:
   - Home: 'index.md'
   - Installing: 'installation_instructions.md'
   - User Guide:
-    - Running the stack: 'users/live_scan.md'
     - Interface: 'users/interface.md'
+    - Running the stack: 'users/live_scan.md'
     - Data adapters: 'users/adapters.md'
     - Plugins: 'users/plugins.md'
   - Contributor Guide:
