@@ -19,8 +19,17 @@ TomoPackets. This common format that is used as input to SliceRecon.
 
 ## (Recommended) Installation using Conda
 
-!!! error
-    todo
+The RECAST3D reconstruction stack can be installed using:
+
+```bash
+conda install -c cicwi recast3d tomopackets slicerecon
+```
+
+Example scripts such as adapters and plugins, can be found in the [GitHub repository](https://github.com/cicwi/RECAST3D/). To test the installation, follow [running the stack](users/live_scan.md).
+
+!!! info
+    The software is developed for Linux. SliceRecon requires a CUDA capable GPU.
+
 
 ## (Advanced) Manual installation
 

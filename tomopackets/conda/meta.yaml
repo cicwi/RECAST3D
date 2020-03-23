@@ -2,7 +2,7 @@
 
 package:
   name: tomopackets
-  version: {{ data['version'] }}
+  version: 1.1.0
 
 source:
   # path: ../
@@ -11,8 +11,6 @@ source:
 
 build:
   number: 0
-  script: "cd tomopackets && {{ PYTHON }} -m pip install . -vv"
-
 test:
   imports:
     - tomop
@@ -29,9 +27,11 @@ requirements:
     - boost-cpp
     - pybind11
     - zeromq=4
+    - cmake_setuptools
   run:
     - python
     - zeromq=4
+    - cmake_setuptools
 
 about:
   home: https://github.com/jwbuurlage/RECAST3D
