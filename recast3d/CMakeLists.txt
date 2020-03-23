@@ -12,30 +12,16 @@ set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS 1)
 ## DEPENDENCIES
 # --------------------------------------------------------------------------------------------
 # GLM
-find_package(glm QUIET)
-if (glm_FOUND)
-  message("glm found")
-else()
-  execute_process(COMMAND git submodule update --init -- ext/glm
-      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-  add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/glm glm)
-endif()
+execute_process(COMMAND git submodule update --init -- ext/glm
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/glm glm)
 
 # GLFW
-find_package(glfw3 QUIET)
-if (glfw3_FOUND)
-    add_library(glfw3 INTERFACE)
-    target_include_directories(glfw3 INTERFACE ${glfw3_INCLUDE_DIR})
-    target_link_libraries(glfw3 INTERFACE ${glfw3_LIBRARY} glfw)
-else()
-    message("'glfw3' not installed on the system, building from source...")
+execute_process(COMMAND git submodule update --init -- ext/glfw
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
 
-    execute_process(COMMAND git submodule update --init -- ext/glfw
-      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..)
-
-    add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/glfw glfw)
-    set(glfw3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../ext/glfw/include)
-endif()
+add_subdirectory(${PROJECT_SOURCE_DIR}/../ext/glfw glfw)
+set(glfw3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../ext/glfw/include)
 
 # --------------------------------------------------------------------------------------------
 # ImGui

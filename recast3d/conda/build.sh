@@ -23,8 +23,7 @@ cmake ..                                        \
       -DOpenGL_GL_PREFERENCE="LEGACY"           \
       -DGLFW_BUILD_EXAMPLES=OFF                 \
       -DGLFW_BUILD_TESTS=OFF                    \
-      -DGLFW_BUILD_DOCS=OFF                     \
-      -Dglm_DIR="../ext/glm/build"
+      -DGLFW_BUILD_DOCS=OFF
 
 make -j $CPU_COUNT VERBOSE=1
 make install
