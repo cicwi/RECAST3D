@@ -66,7 +66,7 @@ we can push prerecorded data from the FleX-ray lab:
 
 ```bash
 cd examples/adapters
-python slicerecon_push_flexray.py [path]
+python flexdata_adapter.py [path]
 ```
 
 ## (Optional) plugins
