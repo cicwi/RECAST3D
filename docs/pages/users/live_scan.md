@@ -98,7 +98,7 @@ The setup above works if you use the default ports, and when all components are 
 
 These ports, as well as the host for RECAST3D or the (first) plugin, can be changed using flags to the SliceRecon server.
 
-One of the reasons for being aware of which ports to use, is for forwarding data between nodes. For example, if we have a host `gpu_server` that we want to use for running a `slicerecon_server`, but we want to visualize using RECAST3D on our workstation `desktop`, we can 'reverse tunnel' ports `5555` and `5556` when using SSH to access our box as follows:
+One of the reasons to be aware of which ports are in use, is for forwarding data between nodes. For example, if we have a host `gpu_server` that we want to use for running a `slicerecon_server`, but we want to visualize using RECAST3D on our workstation `desktop`, we can 'reverse tunnel' ports `5555` and `5556` when using SSH to access our box as follows:
 
 ```bash
 # on 'desktop'
