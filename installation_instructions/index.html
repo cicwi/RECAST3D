@@ -716,9 +716,15 @@ The main software packages are:</p>
 acquisition metadata and projection data into a common format defined by
 TomoPackets. This common format that is used as input to SliceRecon.</p>
 <h2 id="recommended-installation-using-conda">(Recommended) Installation using Conda</h2>
-<div class="admonition error">
-<p class="admonition-title">Error</p>
-<p>todo</p>
+<p>The RECAST3D reconstruction stack can be installed using:</p>
+<div class="codehilite"><pre><span></span><code>conda install -c cicwi recast3d tomopackets slicerecon
+</code></pre></div>
+
+
+<p>Example scripts such as adapters and plugins, can be found in the <a href="https://github.com/cicwi/RECAST3D/">GitHub repository</a>. To test the installation, follow <a href="../users/live_scan/">running the stack</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The software is developed for Linux. SliceRecon requires a CUDA capable GPU.</p>
 </div>
 <h2 id="advanced-manual-installation">(Advanced) Manual installation</h2>
 <p>Here, we will describe in detail how to manually build all the different
