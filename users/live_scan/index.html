@@ -646,7 +646,7 @@ python flexdata_adapter.py <span class="o">[</span>path<span class="o">]</span>
 <li><code>5652</code>: Python based plugin</li>
 </ul>
 <p>These ports, as well as the host for RECAST3D or the (first) plugin, can be changed using flags to the SliceRecon server.</p>
-<p>One of the reasons for being aware of which ports to use, is for forwarding data between nodes. For example, if we have a host <code>gpu_server</code> that we want to use for running a <code>slicerecon_server</code>, but we want to visualize using RECAST3D on our workstation <code>desktop</code>, we can &lsquo;reverse tunnel&rsquo; ports <code>5555</code> and <code>5556</code> when using SSH to access our box as follows:</p>
+<p>One of the reasons to be aware of which ports are in use, is for forwarding data between nodes. For example, if we have a host <code>gpu_server</code> that we want to use for running a <code>slicerecon_server</code>, but we want to visualize using RECAST3D on our workstation <code>desktop</code>, we can &lsquo;reverse tunnel&rsquo; ports <code>5555</code> and <code>5556</code> when using SSH to access our box as follows:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># on &#39;desktop&#39;</span>
 recast3d
 ssh gpu_server -R <span class="m">5555</span>:localhost:5555 -R <span class="m">5556</span>:localhost:5556
