@@ -695,16 +695,25 @@ The required functionality will be released in ASTRA v1.9.</p>
 <p>First, we have to install the <a href="http://www.astra-toolbox.com/">ASTRA toolbox</a>. We
 need ASTRA with CUDA support, and install it in such a way so that <code>pkg-config</code>
 is able to find the library. See the ASTRA documentation for details on installing ASTRA as a C++ library.</p>
-<p>The rest of this guide assumes that the ASTRA is in the your dynamic linker path, and that pkgconfig can find the ASTRA configuration, for this you might have to run something along the lines of:</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">export</span> <span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="nv">$ASTRA_INSTALL_DIR</span>/lib:<span class="nv">$LD_LIBRARY_PATH</span>
-<span class="nb">export</span> <span class="nv">PKG_CONFIG_PATH</span><span class="o">=</span><span class="nv">$ASTRA_SRC_DIR</span>/build/linux:<span class="nv">$LD_LIBRARY_PATH</span>:<span class="nv">$PKG_CONFIG_PATH</span>
+<p>ASTRA also includes headers and configuration files as part of its conda package.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Currently (March 2020), the required files are only part of the development package of ASTRA. This can be installed using:</p>
+<p><code>conda install -c astra-toolbox/label/dev astra-toolbox</code></p>
+</div>
+<p>The rest of this guide assumes that pkgconfig can find the ASTRA configuration, for this you might have to run something along the lines of:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># when installed using conda</span>
+<span class="nb">export</span> <span class="nv">PKG_CONFIG_PATH</span><span class="o">=</span><span class="nv">$CONDA_PREFIX</span>/lib/pkgconfig/:<span class="nv">$PKG_CONFIG_PATH</span>
+
+<span class="c1"># when installed from source</span>
+<span class="nb">export</span> <span class="nv">PKG_CONFIG_PATH</span><span class="o">=</span><span class="nv">$ASTRA_SRC_DIR</span>/build/linux:<span class="nv">$PKG_CONFIG_PATH</span>
 </code></pre></div>
 
 
 <h3 id="2-installing-prerequisites">2. Installing prerequisites</h3>
 <p>Next, make sure you have the necessary OpenGL development headers and libraries and other dependencies
 installed. This highly depends on your operating system and/or distribution. A non-exhaustive lists of packages that might be required on Fedora 31:</p>
-<div class="codehilite"><pre><span></span><code>dnf install python-devel boost-devel libXinerama-devel
+<div class="codehilite"><pre><span></span><code>dnf install python-devel boost-devel libXinerama-devel fftw-devel
 dnf groupinstall <span class="s2">&quot;X Software Development&quot;</span>
 dnf groupinstall <span class="s2">&quot;Development Tools&quot;</span>
 </code></pre></div>
