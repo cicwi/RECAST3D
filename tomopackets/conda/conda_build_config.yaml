@@ -1,5 +1,4 @@
 python:
-  - 3.6
   - 3.7
 cxx_compiler_version:  # [linux]
   - 7.2                # [linux]

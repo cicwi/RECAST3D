@@ -62,11 +62,8 @@ PYBIND11_MODULE(py_tomop, m) {
         using P = typename decltype(+(x[1_c]))::type;
 
         // 2) get constructor args
-        auto types = hana::transform(hana::members(P{}), [](auto member) {
-            return hana::type_c<decltype(member)>;
-        });
         using Init = typename decltype(hana::unpack(
-            types, hana::template_<py::detail::initimpl::constructor>))::type;
+            hana::transform(hana::members(P{}), hana::typeid_), hana::template_<py::detail::initimpl::constructor>))::type;
 
         // We also want to add named arguments to the constructor
         auto names = hana::transform(
