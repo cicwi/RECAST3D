@@ -11,7 +11,8 @@ fi
 cd slicerecon
 $PYTHON setup.py install --single-version-externally-managed --record=record.txt
 
-mkdir build && cd build
+mkdir -p build
+cd build
 
 cmake ..                                        \
       -DCMAKE_INSTALL_PREFIX=$PREFIX            \

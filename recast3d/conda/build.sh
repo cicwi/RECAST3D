@@ -11,7 +11,8 @@ if [[ ${HOST} =~ .*linux.* ]]; then
     CMAKE_PLATFORM_FLAGS+=(-DCMAKE_TOOLCHAIN_FILE="${RECIPE_DIR}/cross-linux.cmake")
 fi
 
-mkdir build && cd build
+mkdir -p build
+cd build
 
 # We want to link against the anaconda-provided openGL, so we have to
 # set the preference to legacy.
