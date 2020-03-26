@@ -137,3 +137,10 @@ target_link_libraries(slicerecon_server slicerecon flags)
 add_subdirectory("../ext/pybind11" pybind11)
 add_subdirectory("python")
 
+# INSTALL COMMANDS
+install(TARGETS slicerecon_server
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib/static)
+
+
