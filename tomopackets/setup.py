@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 import numpy
 
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
@@ -77,5 +77,6 @@ setup(
     long_description='',
     ext_modules=[CMakeExtension('py_tomop')],
     cmdclass=dict(build_ext=CMakeBuild),
+    packages=find_packages(include=['tomop']),
     zip_safe=False,
 )

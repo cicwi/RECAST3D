@@ -1,5 +1,3 @@
-{% set data = load_setup_py_data() %}
-
 package:
   name: tomopackets
   version: 1.1.0
@@ -30,9 +28,11 @@ requirements:
     - python
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - numpy
   run:
     - python
     - zeromq=4
+    - numpy
 
 about:
   home: https://github.com/jwbuurlage/RECAST3D
