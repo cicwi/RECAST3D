@@ -1,6 +1,5 @@
 #!/bin/sh
 
-cd slicerecon
 
 export PKG_CONFIG_PATH=$CONDA_PREFIX/lib/pkgconfig/:$PKG_CONFIG_PATH
 
@@ -9,9 +8,8 @@ if [[ ${HOST} =~ .*linux.* ]]; then
     CMAKE_PLATFORM_FLAGS+=(-DCMAKE_TOOLCHAIN_FILE="${RECIPE_DIR}/cross-linux.cmake")
 fi
 
-cd python
+cd slicerecon
 $PYTHON setup.py install --single-version-externally-managed --record=record.txt
-cd ..
 
 mkdir build && cd build
 

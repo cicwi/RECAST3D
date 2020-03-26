@@ -135,7 +135,11 @@ add_executable(slicerecon_server "src/slicerecon_server.cpp")
 target_link_libraries(slicerecon_server slicerecon flags)
 
 add_subdirectory("../ext/pybind11" pybind11)
-add_subdirectory("python")
+
+set(BINDING_NAME "py_slicerecon")
+set(BINDING_SOURCES "slicerecon/module.cpp")
+pybind11_add_module(${BINDING_NAME} ${BINDING_SOURCES})
+target_link_libraries(${BINDING_NAME} PRIVATE slicerecon)
 
 # INSTALL COMMANDS
 install(TARGETS slicerecon_server

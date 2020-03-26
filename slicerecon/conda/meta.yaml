@@ -6,6 +6,12 @@ source:
   git_url: https://github.com/jwbuurlage/RECAST3D
   git_tag: master
 
+test:
+  imports:
+    - slicerecon
+  commands:
+    - test -f $PREFIX/bin/slicerecon_server      # [unix]
+
 build:
   number: 2
 
@@ -13,12 +19,17 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - setuptools
+    - pybind11
     - pkg-config                        # [unix]
     - cmake
     - make
     - astra-toolbox
     - fftw
   host:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
+    - python
     - boost
     - zeromq=4
     - eigen
@@ -27,13 +38,10 @@ requirements:
     - astra-toolbox
     - fftw
   run:
+    - python
     - zeromq=4
     - zlib
     - astra-toolbox
-
-test:
-  commands:
-    - test -f $PREFIX/bin/slicerecon_server      # [unix]
 
 about:
   home: https://github.com/jwbuurlage/RECAST3D

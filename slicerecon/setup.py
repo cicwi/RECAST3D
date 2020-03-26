@@ -4,7 +4,7 @@ import sys
 import platform
 import subprocess
 
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
@@ -66,7 +66,8 @@ setup(
     url='https://github.com/cicwi/slicerecon',
     description='On-demand reconstructing of slices in 3D tomography',
     long_description='',
-    ext_modules=[CMakeExtension('py_slicerecon', '..')],
+    ext_modules=[CMakeExtension('py_slicerecon')],
     cmdclass=dict(build_ext=CMakeBuild),
+    packages=find_packages(include=['slicerecon']),
     zip_safe=False,
 )
