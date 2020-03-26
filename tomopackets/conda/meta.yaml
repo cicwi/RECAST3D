@@ -11,6 +11,7 @@ source:
 
 build:
   number: 0
+
 test:
   imports:
     - tomop
@@ -19,21 +20,21 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - setuptools
+    - pybind11
+    - boost
     - cmake
     - make
+    - numpy
   host:
     - python
-    - pip
-    - boost-cpp
-    - pybind11
-    - zeromq=4
-    - cmake_setuptools
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
   run:
     - python
     - zeromq=4
-    - cmake_setuptools
 
 about:
   home: https://github.com/jwbuurlage/RECAST3D
-  license: GPLv3
+  license: LICENSE.md
   summary: 'TomoPackets'
