@@ -31,6 +31,7 @@ nav:
     - TomoPackets: 'contribute/tomopackets.md'
     - SliceRecon: 'contribute/slicerecon.md'
     - RECAST3D: 'contribute/recast3d.md'
+    - Release procedure: 'contribute/release_procedure.md'
   - Release Notes: 'changelog.md'
 
 theme:
