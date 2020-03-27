@@ -72,7 +72,7 @@ setup(
     version=__version__,
     author='Jan-Willem Buurlage',
     author_email='janwillembuurlage@gmail.com',
-    url='https://github.com/cicwi/tomopackets',
+    url='https://github.com/cicwi/RECAST3D',
     description='ZeroMQ based streaming for RT tomography',
     long_description='',
     ext_modules=[CMakeExtension('py_tomop')],

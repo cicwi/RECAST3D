@@ -63,7 +63,7 @@ setup(
     version=__version__,
     author='Jan-Willem Buurlage',
     author_email='janwillembuurlage@gmail.com',
-    url='https://github.com/cicwi/slicerecon',
+    url='https://github.com/cicwi/RECAST3D',
     description='On-demand reconstructing of slices in 3D tomography',
     long_description='',
     ext_modules=[CMakeExtension('py_slicerecon')],

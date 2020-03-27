@@ -3,7 +3,7 @@ package:
   version: 1.1.0
 
 source:
-  git_url: https://github.com/jwbuurlage/RECAST3D
+  git_url: https://github.com/cicwi/RECAST3D
   git_tag: master
 
 test:
@@ -44,6 +44,6 @@ requirements:
     - astra-toolbox
 
 about:
-  home: https://github.com/jwbuurlage/RECAST3D
+  home: https://github.com/cicwi/RECAST3D
   license: GPLv3
   summary: 'SliceRecon: Reconstruction of arbitrary slices in tomography.'
