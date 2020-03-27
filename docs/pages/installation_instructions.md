@@ -22,7 +22,7 @@ TomoPackets. This common format that is used as input to SliceRecon.
 The RECAST3D reconstruction stack can be installed using:
 
 ```bash
-conda install -c cicwi recast3d tomopackets slicerecon
+conda install -c cicwi -c astra-toolbox/label/dev recast3d tomopackets slicerecon
 ```
 
 Example scripts such as adapters and plugins, can be found in the [GitHub repository](https://github.com/cicwi/RECAST3D/). To test the installation, follow [running the stack](users/live_scan.md).
@@ -47,7 +47,7 @@ new environment in which the Python bindings to our libraries are installed. For
 example:
 
 ```bash
-conda create -n live
+conda create -n live python=3.7
 conda activate live
 ```
 
