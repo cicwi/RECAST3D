@@ -101,6 +101,10 @@ parallel_beam_solver::parallel_beam_solver(settings parameters,
                 par_projs.data());
     }
 
+    slicerecon::util::log << LOG_FILE << slicerecon::util::lvl::info
+                          << slicerecon::util::info(*proj_geom_)
+                          << slicerecon::util::end_log;
+
     vectors_ = std::vector<astra::SPar3DProjection>(
         proj_geom_->getProjectionVectors(),
         proj_geom_->getProjectionVectors() + geometry_.proj_count);

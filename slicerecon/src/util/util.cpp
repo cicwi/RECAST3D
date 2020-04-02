@@ -157,6 +157,22 @@ std::string info(const astra::CConeVecProjectionGeometry3D& x) {
     return ss.str();
 }
 
+std::string info(const astra::CParallelVecProjectionGeometry3D& x) {
+    auto ss = std::stringstream("");
+
+    auto vectors = x.getProjectionVectors();
+
+    ss << "DetectorRowCount: " << x.getDetectorRowCount() << ", ";
+    ss << "DetectorColCount: " << x.getDetectorColCount() << ", ";
+    ss << "ProjectionCount: " << x.getProjectionCount() << ", ";
+    ss << "Vectors: [[" << vectors[0].fRayX << ", " << vectors[0].fRayY << ", "
+       << vectors[0].fRayZ << " ... " << vectors[0].fDetVY << ", "
+       << vectors[0].fDetVZ << "], [" << vectors[1].fRayX << ", "
+       << vectors[1].fRayY << "...]...]";
+
+    return ss.str();
+}
+
 std::string info(const astra::CVolumeGeometry3D& x) {
     auto ss = std::stringstream("");
 

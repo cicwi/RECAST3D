@@ -33,6 +33,8 @@ slice_transform(Eigen::Vector3f base, Eigen::Vector3f axis_1,
                 Eigen::Vector3f axis_2, float k);
 
 std::string info(const astra::CConeVecProjectionGeometry3D& x);
+std::string info(const astra::CParallelVecProjectionGeometry3D& x);
 std::string info(const astra::CVolumeGeometry3D& x);
+
 
 } // namespace slicerecon::util

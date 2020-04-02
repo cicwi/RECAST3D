@@ -18,7 +18,9 @@ int main(int argc, char** argv)
     // maybe at some point support receive details over the network on acq
     // geometry, darks, flats now we just force the user to give it here..
 
-    int n = 128;
+    slicerecon::settings default_settings;
+    int n = default_settings.slice_size;
+
     auto angles = std::vector<float>(n, 0.0f);
     std::iota(angles.begin(), angles.end(), 0.0f);
     std::transform(angles.begin(), angles.end(), angles.begin(),
@@ -28,9 +30,9 @@ int main(int argc, char** argv)
 
     // This is defined for the reconstruction
     auto slice_size = opts.arg_as_or<int32_t>("--slice-size", n);
-    auto preview_size = opts.arg_as_or<int32_t>("--preview-size", 128);
-    auto group_size = opts.arg_as_or<int32_t>("--group-size", 32);
-    auto filter_cores = opts.arg_as_or<int32_t>("--filter-cores", 8);
+    auto preview_size = opts.arg_as_or<int32_t>("--preview-size", default_settings.preview_size);
+    auto group_size = opts.arg_as_or<int32_t>("--group-size", default_settings.group_size);
+    auto filter_cores = opts.arg_as_or<int32_t>("--filter-cores", default_settings.filter_cores);
     auto plugin = opts.passed("--plugin");
     auto tilt = opts.passed("--tilt");
     auto py_plugin = opts.passed("--pyplugin");
@@ -39,13 +41,14 @@ int main(int argc, char** argv)
     auto gaussian_pass = opts.passed("--gaussian");
     auto retrieve_phase = opts.passed("--phase");
     auto bench = opts.passed("--bench");
-    auto filter = opts.arg_or("--filter", "shepp-logan");
+    auto filter = opts.arg_or("--filter", default_settings.filter);
 
-    auto pixel_size = opts.arg_as_or<float>("--pixelsize", 1.0f);
-    auto lambda = opts.arg_as_or<float>("--lambda", 1.23984193e-9);
-    auto delta = opts.arg_as_or<float>("--delta", 1e-8);
-    auto beta = opts.arg_as_or<float>("--beta", 1e-10);
-    auto distance = opts.arg_as_or<float>("--distance", 40.0f);
+    slicerecon::paganin_settings default_paganin;
+    auto pixel_size = opts.arg_as_or<float>("--pixelsize", default_paganin.pixel_size);
+    auto lambda = opts.arg_as_or<float>("--lambda", default_paganin.lambda);
+    auto delta = opts.arg_as_or<float>("--delta", default_paganin.delta);
+    auto beta = opts.arg_as_or<float>("--beta", default_paganin.beta);
+    auto distance = opts.arg_as_or<float>("--distance", default_paganin.distance);
 
     if (slice_size < 0 || preview_size < 0 || group_size < 0 || filter_cores < 0) {
         std::cout << opts.usage();

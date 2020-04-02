@@ -164,6 +164,10 @@ class cone_beam_solver : public solver {
 class reconstructor {
   public:
     reconstructor(settings parameters);
+
+    // Disallow copies
+    reconstructor(const reconstructor&) = delete;
+
     void initialize(acquisition::geometry geom);
 
     void add_listener(listener* l) {
