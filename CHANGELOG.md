@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 #### SliceRecon
 - Expose reconstructor to the Python bindings
+- Allow setting a custom filter using an array instead of a file
 
 ## [1.1.0] - 2020-27-03
 

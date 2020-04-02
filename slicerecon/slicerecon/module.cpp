@@ -77,7 +77,8 @@ PYBIND11_MODULE(py_slicerecon, m)
       .def(py::init<settings>(), "Construct a slice reconstructor", py::arg("parameters"))
       .def("initialize", &reconstructor::initialize)
       .def("reconstruct_slice", &reconstructor::reconstruct_slice)
-      .def("preview", &reconstructor::preview_data);
+      .def("preview", &reconstructor::preview_data)
+      .def("set_filter", &reconstructor::set_filter);
 
   acquisition::geometry geometry_default;
   py::class_<acquisition::geometry>(m, "acquisition_geometry")

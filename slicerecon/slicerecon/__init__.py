@@ -33,7 +33,7 @@ def convert_acquisition_geometry(proj_geom, vol_geom):
     return acquisition_geometry(rows=rows, cols=cols, proj_count=proj_count, angles=angles, parallel=parallel, vec_geometry=vec_geometry, volume_min_point=volume_min_point, volume_max_point=volume_max_point)
 
 
-def get_solver(proj_geom, vol_geom, slice_size, proj_data):
+def get_solver(proj_geom, vol_geom, slice_size, proj_data, use_custom_filter=None):
     parameters = settings(slice_size=slice_size)
     solver = reconstructor(parameters)
 
@@ -41,10 +41,10 @@ def get_solver(proj_geom, vol_geom, slice_size, proj_data):
 
     solver.initialize(acq_geom)
 
-    proj_data = np.transpose(proj_data, [1, 0, 2])
+    if use_custom_filter is not None:
+        solver.set_filter(use_custom_filter)
 
-    for idx in range(proj_data.shape[0]):
-        push_projection(solver, idx, np.ascontiguousarray(proj_data[idx, :, :]))
+    proj_data = np.transpose(proj_data, [1, 0, 2])
 
     for idx in range(proj_data.shape[0]):
         push_projection(solver, idx, np.ascontiguousarray(proj_data[idx, :, :]))
