@@ -5,7 +5,7 @@ from py_slicerecon import *
 
 __all__ = [
     "plugin", "acquisition_geometry", "reconstructor", "settings",
-    "paganin_settings"
+    "paganin_settings", "get_solver", "reconstruct_slice"
 ]
 
 def convert_acquisition_geometry(proj_geom, vol_geom):
