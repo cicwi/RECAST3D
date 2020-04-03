@@ -8,7 +8,7 @@ from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-__version__ = "1.1.0"
+__version__ = "1.2.0.beta"
 
 
 class CMakeExtension(Extension):
