@@ -33,8 +33,8 @@ def convert_acquisition_geometry(proj_geom, vol_geom):
     return acquisition_geometry(rows=rows, cols=cols, proj_count=proj_count, angles=angles, parallel=parallel, vec_geometry=vec_geometry, volume_min_point=volume_min_point, volume_max_point=volume_max_point)
 
 
-def get_solver(proj_geom, vol_geom, slice_size, proj_data, use_custom_filter=None):
-    parameters = settings(slice_size=slice_size)
+def get_solver(proj_geom, vol_geom, slice_size, proj_data, use_custom_filter=None, **kwargs):
+    parameters = settings(slice_size=slice_size, **kwargs)
     solver = reconstructor(parameters)
 
     acq_geom = convert_acquisition_geometry(proj_geom, vol_geom)

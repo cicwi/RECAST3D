@@ -24,11 +24,13 @@ for i in range(mid, k):
 
 # Initialize the solver
 slice_size = 512
+preview_size = 32
 solver = slicerecon.get_solver(proj_geom,
                                vol_geom,
                                slice_size,
                                proj_data,
-                               use_custom_filter=ram_lak)
+                               use_custom_filter=ram_lak,
+                               preview_size=preview_size)
 
 # Reconstruct the central XY slice
 data = slicerecon.reconstruct_slice(solver,
@@ -39,6 +41,6 @@ plt.imshow(data)
 plt.show()
 
 # You can also access a low-resolution 3D preview
-preview = np.array(solver.preview()).reshape((128, 128, 128))
-plt.imshow(preview[64, :, :])
+preview = np.array(solver.preview()).reshape((preview_size, preview_size, preview_size))
+plt.imshow(preview[preview_size // 2, :, :])
 plt.show()
