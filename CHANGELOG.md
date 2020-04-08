@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow setting a custom filter using an array instead of a file
 - Add `mute` functionality to logger
 
+### Fixed
+#### SliceRecon
+- Fix slice reconstruction scaling being dependent on preview size
+
 ## [1.1.0] - 2020-27-03
 
 ### Added

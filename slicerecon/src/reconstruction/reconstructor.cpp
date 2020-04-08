@@ -20,7 +20,7 @@ solver::solver(settings parameters, acquisition::geometry geometry)
     : parameters_(parameters), geometry_(geometry) {
     float half_slab_height =
         0.5f * (geometry_.volume_max_point[2] - geometry_.volume_min_point[2]) /
-        parameters_.preview_size;
+        parameters_.slice_size;
     float mid_z =
         0.5f * (geometry_.volume_max_point[2] + geometry_.volume_min_point[2]);
 
