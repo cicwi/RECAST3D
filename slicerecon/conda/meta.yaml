@@ -13,7 +13,7 @@ test:
     - test -f $PREFIX/bin/slicerecon_server      # [unix]
 
 build:
-  number: 3
+  number: 4
 
 requirements:
   build:

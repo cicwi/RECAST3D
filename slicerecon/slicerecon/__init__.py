@@ -24,9 +24,7 @@ def convert_acquisition_geometry(proj_geom, vol_geom):
     parallel = geom_type == 'parallel3d' or geom_type == 'parallel3d_vec'
     vec_geometry = True
     angles = np.array(proj_geom['Vectors'], dtype=np.float32).ravel()
-    print(angles[0:12])
     proj_count = len(angles) // 12
-    print("proj_count", proj_count)
 
     opts = vol_geom['option']
     volume_min_point = [

@@ -24,7 +24,7 @@ for i in range(mid, k):
 
 # Initialize the solver
 slice_size = 512
-preview_size = 16
+preview_size = 64
 solver = slicerecon.get_solver(proj_geom,
                                vol_geom,
                                slice_size,
