@@ -47,6 +47,8 @@ struct logger {
     }
 
     void operator<<(end_log_ unused) {
+        if (muted_) { return; }
+
         std::lock_guard lock(mutex);
 
         (void)unused;
@@ -73,9 +75,13 @@ struct logger {
         line = std::stringstream{};
     }
 
+    void mute(bool muted = true) { muted_ = muted; }
+
     std::mutex mutex;
     std::stringstream line;
     lvl level_ = lvl::none_set;
+
+    bool muted_ = false;
 };
 
 extern logger log;

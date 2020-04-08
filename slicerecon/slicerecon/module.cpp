@@ -16,6 +16,10 @@ void push_projection(reconstructor* recon, int32_t proj_idx, py::array_t<float, 
   recon->push_projection(proj_kind::standard, proj_idx, shape, (char*)info.ptr);
 }
 
+void mute() {
+  slicerecon::util::log.mute();
+}
+
 PYBIND11_MODULE(py_slicerecon, m)
 {
   m.doc() = "bindings for slicerecon";
@@ -115,4 +119,7 @@ PYBIND11_MODULE(py_slicerecon, m)
       .value("Dark", proj_kind::dark)
       .value("Light", proj_kind::light)
       .value("Standard", proj_kind::standard);
+
+
+  m.def("mute", &mute);
 }
