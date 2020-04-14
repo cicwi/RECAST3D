@@ -92,7 +92,7 @@ FDK_weighting = ang_w * conv_w * BP_comp / voxsize * magn ** 2 * 2
 # %%
 # Reconstruct the central XY slice
 data = slicerecon.reconstruct_slice(solver,
-                                    base=[-volsize / 2, -volsize // 2, 0],
+                                    base=[-volsize / 2, -volsize / 2, 0],
                                     a_axis=[volsize, 0, 0],
                                     b_axis=[0, volsize, 0]) * FDK_weighting
 
