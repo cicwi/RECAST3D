@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow setting a custom filter using an array instead of a file
 - Add `mute` functionality to logger
 
+#### RECAST3D
+- Use and distribute [FiraCode](https://github.com/tonsky/FiraCode/) font
+
 ### Fixed
 #### SliceRecon
 - Fix slice reconstruction scaling being dependent on preview size

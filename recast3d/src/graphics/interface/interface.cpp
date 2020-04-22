@@ -25,12 +25,12 @@ Interface::Interface(GLFWwindow* window) {
     ImGui_ImplGlfw_InitForOpenGL(window, false);
     ImGui_ImplOpenGL3_Init();
 
-    std::string other_font = "../data/iosevka-medium.ttf";
+    std::string other_font = "FiraCode-Medium.ttf";
     std::ifstream infile(other_font);
     if (infile.good()) {
         io.Fonts->AddFontFromFileTTF(other_font.c_str(), 20.0f);
     } else {
-        std::cout << "Can not find Iosevka font, resorting back to default\n";
+      std::cout << "Can not find '" << other_font << "', resorting back to default\n";
         io.Fonts->AddFontDefault();
     }
     io.MouseDrawCursor = false;

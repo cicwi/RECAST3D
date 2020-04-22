@@ -11,5 +11,4 @@ for requesting and receiving slice reconstructions, and other data.
 
 ## Acknowledgments
 
-- [Iosevka font](https://github.com/be5invis/Iosevka). Copyright (c) 2015-2017
-  Belleve Invis (belleve@typeof.net).
+- [FiraCode font](https://github.com/tonsky/FiraCode), _SIL Open Font License_. Copyright (c) 2014, The Fira Code Project Authors.

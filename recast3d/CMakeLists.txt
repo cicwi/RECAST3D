@@ -177,10 +177,16 @@ target_include_directories(${EXEC_NAME} SYSTEM PRIVATE
     ${ZeroMQ_INCLUDE_DIR}
 )
 
+set(
+  DISTRIBUTE_FILES
+    "data/FiraCode-Medium.ttf"
+)
+
 # INSTALL COMMANDS
 install(TARGETS recast3d imgui
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib/static)
+    ARCHIVE DESTINATION lib/static
+)
 
-#add_subdirectory(test/build test/build)
+install(FILES ${DISTRIBUTE_FILES} DESTINATION bin)
