@@ -35,9 +35,9 @@ solver = slicerecon.get_solver(proj_geom,
 
 # Reconstruct the central XY slice
 data = slicerecon.reconstruct_slice(solver,
-                                    base=[-64, -64, 0],
-                                    a_axis=[128, 0, 0],
-                                    b_axis=[0, 128, 0])
+                                    base=[-1, -1, 0],
+                                    a_axis=[2, 0, 0],
+                                    b_axis=[0, 2, 0])
 plt.imshow(data)
 plt.show()
 

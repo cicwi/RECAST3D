@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 #### SliceRecon
 - Fix slice reconstruction scaling being dependent on preview size
+- Parallel beam geometries now correctly follow the ASTRA conventions for detector positioning in parallel vector geometries.
+- Orientations are now normalized as intended: the coordinate system in which slices are defined are scaled such that the 3D object volume is in $[-1, 1]^3$.
 
 ## [1.1.0] - 2020-27-03
 

@@ -9,8 +9,7 @@
 
 using namespace std::string_literals;
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
     auto opts = flags::flags{argc, argv};
     opts.info(argv[0], "example of how to use `slicerecon` to host a "
                        "slice reconstruction server");
@@ -30,9 +29,11 @@ int main(int argc, char** argv)
 
     // This is defined for the reconstruction
     auto slice_size = opts.arg_as_or<int32_t>("--slice-size", n);
-    auto preview_size = opts.arg_as_or<int32_t>("--preview-size", default_settings.preview_size);
+    auto preview_size =
+    opts.arg_as_or<int32_t>("--preview-size", default_settings.preview_size);
     auto group_size = opts.arg_as_or<int32_t>("--group-size", default_settings.group_size);
-    auto filter_cores = opts.arg_as_or<int32_t>("--filter-cores", default_settings.filter_cores);
+    auto filter_cores =
+    opts.arg_as_or<int32_t>("--filter-cores", default_settings.filter_cores);
     auto plugin = opts.passed("--plugin");
     auto tilt = opts.passed("--tilt");
     auto py_plugin = opts.passed("--pyplugin");
@@ -63,8 +64,9 @@ int main(int argc, char** argv)
     auto mode = continuous_mode ? slicerecon::mode::continuous : slicerecon::mode::alternating;
 
     auto params = slicerecon::settings{
-    slice_size,     preview_size, group_size, filter_cores,  1, 1, mode, false,
-    retrieve_phase, tilt,         paganin,    gaussian_pass, filter};
+    slice_size, preview_size,  group_size, filter_cores,   1,
+    1,          mode,          false,      retrieve_phase, tilt,
+    paganin,    gaussian_pass, filter};
 
     auto host = opts.arg_or("--host", "*");
     auto port = opts.arg_as_or<int>("--port", 5558);
@@ -100,8 +102,7 @@ int main(int argc, char** argv)
         for (auto& x : data) {
             if (x <= 3) {
                 x = 0;
-            }
-            else {
+            } else {
                 x = 17;
             }
         }
