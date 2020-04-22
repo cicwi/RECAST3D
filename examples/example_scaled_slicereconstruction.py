@@ -1,28 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Apr  3 10:10:18 2020
-
-@author: lagerwer
-"""
 import slicerecon
 import astra
 import numpy as np
 import matplotlib.pyplot as plt
-slicerecon.mute()
 
 # Set the source radius and the detector radius and numbre of angles
 src_rad = 1000
 det_rad = 1000
 ang = 360
 
-
 # Number of voxels of one side of the square volume 
 vox = 256
 volsize = vox
 voxsize = volsize / vox
+
 # Number of detector pixels, u --> collumns, v --> rows
-u = 2 * vox 
+u = 2 * vox
 v = vox
 angles = np.linspace(0, 2.0 * np.pi, ang, False)
 
