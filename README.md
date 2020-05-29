@@ -51,8 +51,10 @@ GitHub.
 
 | Article      |  Code  |
 |------------------|--------|
-| *Real-time reconstruction and visualisation ... at TOMCAT*. Sci.Rep. [DOI](https://doi.org/10.1038/s41598-019-54647-4) |  |
-| *Real-time quasi-3D tomographic reconstruction*. MST. [DOI](https://doi.org/10.1088/1361-6501/aab754)  | [<img src="https://github.com/favicon.ico" width="24">](https://github.com/cicwi/RECAST3D) |
+| *Explorative Imaging ... at the FleX-ray Laboratory*. J. Imaging. (2020) [DOI](https://doi.org/10.3390/jimaging6040018) | |
+| *Real‐time ... characterization of nanoparticles*. Part. Part. Sys. Charact. (2020) [DOI](https://doi.org/10.1002/ppsc.202000073) |  |
+| *Real-time reconstruction and visualisation ... at TOMCAT*. Sci.Rep. (2019) [DOI](https://doi.org/10.1038/s41598-019-54647-4) |  |
+| *Real-time quasi-3D tomographic reconstruction*. MST. (2018) [DOI](https://doi.org/10.1088/1361-6501/aab754)  | [<img src="https://github.com/favicon.ico" width="24">](https://github.com/cicwi/RECAST3D) |
 
 ## Please cite us
 
